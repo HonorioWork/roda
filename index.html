@@ -67,14 +67,36 @@ button{touch-action:manipulation}.msg.sel .tools{display:flex}.msg.sel{backgroun
 #auth{margin:8vh 16px;max-width:none}.ava{width:36px;height:36px}.msg{grid-template-columns:36px 1fr;gap:10px}.tools{top:auto;bottom:-12px}}
 @media(pointer:coarse){input,select{font-size:16px}button{min-height:40px}.row{padding:11px 12px}.dot{width:14px;height:14px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+#auth{width:min(980px,calc(100% - 48px));max-width:980px;margin:6vh auto;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:0;overflow:hidden;border-radius:24px;box-shadow:0 24px 100px #0005}
+.auth-intro{padding:38px;display:flex;flex-direction:column;justify-content:space-between;background:radial-gradient(ellipse at 10% 100%,#f5b94217,transparent 65%),#141d27;border-right:1px solid var(--ln)}
+.auth-brand{display:flex;align-items:center;gap:10px;color:var(--tx);font-size:28px;font-weight:800;text-decoration:none;letter-spacing:-1px}.auth-logo{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:var(--ac);color:var(--acx);font-size:24px}.brand-dot{color:var(--ac);margin-left:-10px}
+.auth-story{padding:58px 0}.auth-eyebrow{font-size:10px;letter-spacing:2px;font-weight:800;color:var(--ac)}.auth-story h1{font-size:clamp(32px,4vw,48px);line-height:1.15;letter-spacing:-2px;margin:20px 0}.auth-story h1 span{color:var(--ac)}.auth-story p,.auth-foot{color:#a3b2c4;font-size:14px;line-height:1.8}.auth-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px}.auth-tags span{font-size:11px;border:1px solid #354253;border-radius:100px;padding:6px 10px;color:#c6d3e1}.auth-foot{font-size:11px;margin:0}
+.auth-panel{padding:36px 38px;background:var(--p1)}.auth-tabs{display:flex;padding:4px;background:var(--bg);border-radius:11px;gap:4px;margin-bottom:32px}.auth-tabs button{flex:1;border:0;background:transparent;color:var(--mut);font-size:13px}.auth-tabs button[aria-pressed=true]{background:var(--p3);color:var(--tx);box-shadow:0 2px 6px #0003}.auth-heading h2{font-size:27px!important;letter-spacing:-1px;margin:8px 0!important}.auth-heading p{color:#9aadc2;font-size:13px;margin:0 0 24px}
+#auth-form{display:grid;gap:15px}#auth-form label{display:block;font-size:12px;font-weight:600;margin:0 0 7px;color:#ced8e5}#auth-form input{padding:12px 13px;font-size:14px;min-height:46px}#auth-form input::placeholder{color:#6f8298}.password-wrap{position:relative}.password-wrap input{padding-right:78px!important}.password-wrap button{position:absolute;right:4px;top:5px;border:0;background:none;color:#a3b4c6;font-size:11px;padding:9px}#password-help{display:block;font-size:11px;color:#94a6ba;margin-top:7px}.auth-link{justify-self:end;background:none!important;border:0;padding:0;color:var(--ac);font-size:12px}.auth-submit{display:flex;justify-content:space-between;align-items:center;min-height:47px;margin-top:3px;padding:11px 16px}.auth-switch{font-size:12px;text-align:center;color:#9aadc2;margin:22px 0}.auth-switch button{padding:0;border:0;background:none;font-size:12px;font-weight:700;color:var(--ac)}.auth-note{font-size:11px;text-align:center;color:#7f93ab;line-height:1.7;border-top:1px solid var(--ln);padding-top:18px;margin-bottom:0}#aerr{font-size:12px;color:#ff9a9a;margin:0;background:#ff6b6b0c;border:1px solid #ff6b6b33;border-radius:9px;padding:10px}#aerr.success{color:#93e4d6;border-color:#3dd6c644;background:#3dd6c60c}
+@media(max-width:700px){#auth{width:calc(100% - 28px);margin:20px auto;grid-template-columns:1fr;max-width:440px;border-radius:18px}.auth-intro{padding:20px 24px;border-right:0;border-bottom:1px solid var(--ln)}.auth-brand{font-size:23px}.auth-logo{width:34px;height:34px;font-size:20px}.auth-story,.auth-foot{display:none}.auth-panel{padding:24px}.auth-tabs{margin-bottom:25px}#auth-form input{font-size:16px}.password-wrap button{min-height:36px}}
 </style></head><body>
-<div id="auth">
-<h2>Roda</h2>
-<input aria-label="E-mail" id="em" type="email" placeholder="E-mail" autocomplete="email">
-<input aria-label="Nome de usuário" id="un" placeholder="Nome de usuário (só ao criar conta)">
-<input aria-label="Senha" id="pw" type="password" placeholder="Senha (mínimo 6 caracteres)" autocomplete="current-password">
-<button class="pri" id="bin">Entrar</button><button id="bup">Criar conta</button><button id="bfg">Esqueci a senha</button>
-<p role="alert" id="aerr" style="color:var(--dg);margin:0"></p></div>
+<section id="auth" aria-label="Acesso ao Roda">
+ <div class="auth-intro">
+  <a class="auth-brand" href="./" aria-label="Roda, início"><span class="auth-logo">R</span> roda<span class="brand-dot">.</span></a>
+  <div class="auth-story"><span class="auth-eyebrow">SEU GRUPO, SEU ESPAÇO</span><h1>A conversa<br>começa aqui<span>.</span></h1><p>Reúna seus amigos em um só lugar.<br>Crie um servidor, mande o convite e entre na roda.</p><div class="auth-tags"><span># conversas</span><span>↗ convites</span><span>◎ comunidade</span></div></div>
+  <p class="auth-foot">Um lugar para estar perto, mesmo de longe.</p>
+ </div>
+ <div class="auth-panel">
+  <div id="auth-tabs" class="auth-tabs" aria-label="Escolha como acessar"><button type="button" id="tab-login" aria-pressed="true">Entrar</button><button type="button" id="tab-signup" aria-pressed="false">Criar conta</button></div>
+  <div class="auth-heading"><span class="auth-eyebrow" id="auth-kicker">BOM TER VOCÊ DE VOLTA</span><h2 id="auth-title">Entre na roda.</h2><p id="auth-subtitle">Use seu e-mail e sua senha para continuar.</p></div>
+  <form id="auth-form">
+   <div id="name-field" hidden><label for="un">Como podemos chamar você?</label><input id="un" name="username" placeholder="Seu nome de usuário" autocomplete="nickname" maxlength="40" disabled></div>
+   <div id="email-field"><label for="em">E-mail</label><input id="em" name="email" type="email" placeholder="voce@exemplo.com" autocomplete="email" required></div>
+   <div id="password-field"><label for="pw" id="password-label">Senha</label><div class="password-wrap"><input id="pw" name="password" type="password" placeholder="Digite sua senha" autocomplete="current-password" required><button type="button" id="show-password" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button></div><small id="password-help" hidden>Use pelo menos 8 caracteres. Evite senhas que você já utiliza.</small></div>
+   <div id="confirm-field" hidden><label for="pw-confirm">Confirme sua senha</label><input id="pw-confirm" name="password-confirmation" type="password" placeholder="Digite a senha novamente" autocomplete="new-password" disabled></div>
+   <button type="button" id="bfg" class="auth-link">Esqueci minha senha</button>
+   <p id="aerr" role="status" aria-live="polite" hidden></p>
+   <button class="pri auth-submit" id="auth-submit" type="submit">Entrar <span aria-hidden="true">→</span></button>
+  </form>
+  <p class="auth-switch" id="auth-switch">Ainda não tem uma conta? <button type="button" id="switch-mode">Crie a sua</button></p>
+  <p class="auth-note" id="auth-note">Se recebeu um convite, entre ou crie sua conta para participar.</p>
+ </div>
+</section>
 <div id="app" hidden>
 <nav id="side"><div id="srvs"></div><div id="chn"></div></nav>
 <main><header><button id="menu" aria-label="Abrir menu">☰</button><b id="title"></b><span id="note" role="status" aria-live="polite"></span><button id="mbtn" aria-label="Membros">👥</button></header><section id="view"></section></main>
@@ -86,7 +108,7 @@ const CFG={URL:"https://vrqqvfhggugyrtboxklz.supabase.co",KEY:"eyJhbGciOiJIUzI1N
 const $=s=>document.querySelector(s);
 if(!CFG.URL.startsWith('https://')){$('#auth').replaceChildren(Object.assign(document.createElement('p'),{textContent:'Falta configurar o Supabase. Abra o index.html em um editor de texto e troque https://vrqqvfhggugyrtboxklz.supabase.co e eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZycXF2ZmhnZ3VneXJ0Ym94a2x6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNjQ0MDYsImV4cCI6MjEwNzg0MDQwNn0.JhIYD9jgsDpfx7Q5gEfQU7Owty9gGICBw5FltpMLv2Q pelos dados do seu projeto.'}));throw new Error('config')}
 if(!window.supabase){authMessage('Não foi possível carregar o aplicativo. Verifique sua conexão e recarregue a página.');throw new Error('Supabase indisponível')}
-function authMessage(message){document.getElementById('aerr').textContent=message}
+function authMessage(message){document.getElementById('aerr').textContent=message;document.getElementById('aerr').hidden=false}
 const sb=supabase.createClient(CFG.URL,CFG.KEY);
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e};
 let me,prof,servers=[],srv,chs=[],mem=[],ch,rt,room,vol={},names={},joining=false,voiceAttempt=0,serverAttempt=0;
@@ -105,16 +127,72 @@ function ask(title,fields,okText){return new Promise(res=>{
   el('div',{style:'display:flex;gap:8px;justify-content:flex-end;margin-top:6px'},el('button',{textContent:'Cancelar',onclick:()=>close(null)}),el('button',{className:'pri',textContent:okText||'Salvar',onclick:ok}))));
  document.body.append(m);inps[0].focus()})}
 function empty(){$('#view').replaceChildren(el('div',{className:'empty'},el('h2',{textContent:'Bem-vindo ao Roda'}),el('p',{textContent:'Crie seu primeiro servidor ou entre no de um amigo com um convite.',style:'color:var(--mut);margin:0'}),el('button',{className:'pri',textContent:'Criar servidor',onclick:createSrv}),el('button',{textContent:'Entrar com convite',onclick:joinSrv})))}
-const authErr=t=>$('#aerr').textContent=t||'';
-// ---------- autenticação ----------
-$('#bin').onclick=async()=>{const{error}=await sb.auth.signInWithPassword({email:$('#em').value,password:$('#pw').value});authErr(error&&'E-mail ou senha incorretos.')};
-$('#bup').onclick=async()=>{const{error,data}=await sb.auth.signUp({email:$('#em').value,password:$('#pw').value,options:{data:{username:$('#un').value.trim()}}});
- authErr(error?error.message:(data.session?'':'Conta criada. Confirme o e-mail e entre.'))};
-$('#bfg').onclick=async()=>{if(!$('#em').value)return authErr('Digite seu e-mail.');
- const{error}=await sb.auth.resetPasswordForEmail($('#em').value,{redirectTo:location.href.split('?')[0]});authErr(error?error.message:'Enviamos um link de recuperação.')};
-sb.auth.onAuthStateChange((ev,s)=>{
- if(ev==='PASSWORD_RECOVERY'){const p=prompt('Digite a nova senha');if(p)sb.auth.updateUser({password:p})}
- if(s)setTimeout(()=>start(s.user).catch(()=>authErr('Não foi possível carregar sua conta. Recarregue a página.')),0);else{leaveVoice();if(rt){sb.removeChannel(rt);rt=null}me=null;prof=null;srv=null;ch=null;serverAttempt++;$('#app').hidden=true;$('#auth').hidden=false}});
+const authErr=t=>authFeedback(t);
+let authMode='login',authBusy=false,recovering=new URLSearchParams(location.hash.slice(1)).get('type')==='recovery';
+function authFeedback(message,success=false){const target=$('#aerr');target.textContent=message||'';target.hidden=!message;target.className=success?'success':''}
+function setAuthMode(mode){
+ if(authBusy)return;authMode=mode;authFeedback('');
+ const signup=mode==='signup',recovery=mode==='recovery',reset=mode==='reset';
+ $('#auth-tabs').hidden=reset||recovery;
+ $('#tab-login').setAttribute('aria-pressed',String(mode==='login'));$('#tab-signup').setAttribute('aria-pressed',String(signup));
+ $('#name-field').hidden=!signup;$('#un').disabled=!signup;$('#un').required=signup;
+ $('#email-field').hidden=recovery;$('#em').disabled=recovery;
+ $('#password-field').hidden=reset;$('#pw').disabled=reset;$('#pw').required=!reset;
+ $('#pw').minLength=signup||recovery?8:1;$('#pw').autocomplete=signup||recovery?'new-password':'current-password';
+ $('#pw').value='';$('#pw-confirm').value='';$('#pw').type='password';$('#pw-confirm').type='password';$('#show-password').textContent='Mostrar';$('#show-password').setAttribute('aria-label','Mostrar senha');$('#show-password').setAttribute('aria-pressed','false');
+ $('#confirm-field').hidden=!(signup||recovery);$('#pw-confirm').disabled=!(signup||recovery);$('#pw-confirm').required=signup||recovery;
+ $('#password-help').hidden=!(signup||recovery);$('#password-label').textContent=recovery?'Nova senha':'Senha';
+ $('#bfg').hidden=mode!=='login';
+ const copy={login:['BOM TER VOCÊ DE VOLTA','Entre na roda.','Use seu e-mail e sua senha para continuar.','Entrar'],signup:['TEM LUGAR PARA VOCÊ','Crie sua conta.','Escolha seu nome e crie uma senha para começar.','Criar minha conta'],reset:['VAMOS RESOLVER','Esqueceu a senha?','Informe seu e-mail para receber o link de recuperação.','Enviar link'],recovery:['UM NOVO COMEÇO','Crie uma nova senha.','Escolha sua nova senha e confirme abaixo.','Salvar nova senha']}[mode];
+ $('#auth-kicker').textContent=copy[0];$('#auth-title').textContent=copy[1];$('#auth-subtitle').textContent=copy[2];$('#auth-submit').textContent=copy[3]+' →';
+ $('#auth-switch').replaceChildren(document.createTextNode(mode==='login'?'Ainda não tem uma conta? ':signup?'Já tem uma conta? ':''),el('button',{type:'button',id:'switch-mode',textContent:mode==='login'?'Crie a sua':'Voltar para entrar',onclick:async()=>{if(recovering){await sb.auth.signOut();recovering=false}setAuthMode(mode==='login'?'signup':'login')}}));
+ const url=new URL(location.href);if(mode==='signup')url.searchParams.set('acesso','criar');else url.searchParams.delete('acesso');history.replaceState({},'',url);
+}
+$('#tab-login').onclick=()=>setAuthMode('login');$('#tab-signup').onclick=()=>setAuthMode('signup');$('#bfg').onclick=()=>setAuthMode('reset');
+$('#show-password').onclick=()=>{const show=$('#pw').type==='password';$('#pw').type=show?'text':'password';$('#pw-confirm').type=show?'text':'password';$('#show-password').textContent=show?'Ocultar':'Mostrar';$('#show-password').setAttribute('aria-label',show?'Ocultar senha':'Mostrar senha');$('#show-password').setAttribute('aria-pressed',String(show))};
+function friendlyAuthError(error){
+ const text=error?.message||'';
+ if(/invalid login credentials/i.test(text))return 'E-mail ou senha incorretos. Confira os dados e tente novamente.';
+ if(/already registered|already been registered/i.test(text))return 'Este e-mail já tem uma conta. Entre ou recupere sua senha.';
+ if(/email not confirmed/i.test(text))return 'Confirme seu e-mail antes de entrar. Confira também a caixa de spam.';
+ if(/rate limit|too many|after .*seconds/i.test(text))return 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.';
+ if(/database error saving new user|duplicate key/i.test(text))return 'Não foi possível criar a conta. Tente outro nome de usuário.';
+ if(/password/i.test(text))return 'A senha não atende aos requisitos. Use uma senha maior, com letras, números e símbolos.';
+ return 'Não foi possível concluir. Verifique sua conexão e tente novamente.';
+}
+$('#auth-form').onsubmit=async event=>{
+ event.preventDefault();if(authBusy)return;authFeedback('');
+ const mode=authMode,email=$('#em').value.trim(),password=$('#pw').value;
+ if((mode==='signup'||mode==='recovery')&&password!==$('#pw-confirm').value)return authFeedback('As senhas não são iguais. Digite a mesma senha nos dois campos.');
+ if(mode==='signup'&&!$('#un').value.trim())return authFeedback('Digite seu nome de usuário.');
+ authBusy=true;$('#auth-form').setAttribute('aria-busy','true');$('#auth-submit').disabled=true;$('#auth-submit').textContent='Aguarde…';
+ for(const button of document.querySelectorAll('#auth-tabs button,#bfg,#auth-switch button'))button.disabled=true;
+ let message='',success=false,nextMode;
+ try{
+  if(mode==='login'){const{error}=await sb.auth.signInWithPassword({email,password});if(error)throw error}
+  if(mode==='signup'){
+   const{data,error}=await sb.auth.signUp({email,password,options:{data:{username:$('#un').value.trim()},emailRedirectTo:new URL(location.pathname,location.origin).href}});
+   if(error)throw error;
+   if(!data.session){message='Confira seu e-mail para confirmar o cadastro. Se já tem uma conta, entre ou recupere sua senha.';success=true;nextMode='login'}
+  }
+  if(mode==='reset'){const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:new URL(location.pathname,location.origin).href});if(error)throw error;message='Se houver uma conta com esse e-mail, você receberá um link para criar uma nova senha. Confira também o spam.';success=true}
+  if(mode==='recovery'){const{error}=await sb.auth.updateUser({password});if(error)throw error;recovering=false;await sb.auth.signOut();nextMode='login';message='Senha atualizada. Entre com sua nova senha.';success=true}
+ }catch(error){message=friendlyAuthError(error)}
+ finally{
+  authBusy=false;$('#auth-form').removeAttribute('aria-busy');$('#auth-submit').disabled=false;
+  for(const button of document.querySelectorAll('#auth-tabs button,#bfg,#auth-switch button'))button.disabled=false;
+  if(nextMode)setAuthMode(nextMode);else $('#auth-submit').textContent=({login:'Entrar',signup:'Criar minha conta',reset:'Enviar link',recovery:'Salvar nova senha'})[authMode]+' →';
+  if(message)authFeedback(message,success);
+ }
+};
+setAuthMode(recovering?'recovery':new URLSearchParams(location.search).get('acesso')==='criar'?'signup':'login');
+sb.auth.onAuthStateChange((event,session)=>{
+ if(event==='PASSWORD_RECOVERY'){recovering=true;setTimeout(()=>{setAuthMode('recovery');$('#app').hidden=true;$('#auth').hidden=false},0);return}
+ if(recovering&&session)return;
+ if(session)setTimeout(()=>start(session.user).catch(()=>authErr('Não foi possível carregar sua conta. Recarregue a página.')),0);
+ else{leaveVoice();if(rt){sb.removeChannel(rt);rt=null}me=null;prof=null;srv=null;ch=null;serverAttempt++;$('#app').hidden=true;$('#auth').hidden=false}
+});
+
 async function start(u){if(me?.id===u.id)return;me=u;
  ({data:prof}=await sb.from('profiles').select('*').eq('id',u.id).single());
  if(!prof){me=null;sb.auth.signOut();return}
