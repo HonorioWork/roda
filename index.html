@@ -102,7 +102,7 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
 .settings-dialog{border:1px solid #36363f;padding:0;border-radius:12px;width:min(960px,calc(100vw - 32px));max-height:90vh;background:#202024;color:var(--tx);box-shadow:0 24px 90px #0008}.settings-dialog::backdrop{background:#000b}.settings-layout{display:grid;grid-template-columns:210px 1fr;min-height:520px}.settings-nav{background:#19191d;padding:28px 16px}.settings-nav h3{margin:0 8px 24px;font-size:15px}.settings-nav button{display:block;width:100%;text-align:left;border:0;background:none;color:var(--mut);margin:5px 0}.settings-nav button.active{background:#303035;color:white}.settings-main{padding:32px;overflow:auto}.settings-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}.settings-heading h2{font-size:22px;margin:0}.settings-heading button{border-radius:50%;padding:5px 11px}.settings-main label{display:block;font-weight:600;font-size:13px;margin:20px 0 10px}.settings-main p{font-size:12px;color:var(--mut);line-height:1.7}.settings-main input[type=range]{padding:0;accent-color:var(--ac);width:100%;margin:12px 0}.settings-main hr{border:0;border-top:1px solid var(--ln);margin:30px 0}.mic-meter{display:block;width:100%;height:10px;background:#383840;border-radius:5px;overflow:hidden;margin:22px 0}.mic-meter span{display:block;height:100%;background:#43b581;width:0;transition:width .08s}.settings-main select{background:#18181c}.setting-status{min-height:40px}.compact .msg{padding-top:3px;padding-bottom:3px}.compact .ava{width:32px;height:32px}.compact .msg{grid-template-columns:32px 1fr}
 @media(min-width:1500px){#app{grid-template-columns:332px minmax(0,1fr) 260px}#chn{width:260px}}
 @media(max-width:1000px){#app{grid-template-columns:292px minmax(0,1fr)}#chn{width:220px}#mem{position:fixed;right:0;top:30px;bottom:0;width:240px;z-index:6;transform:translateX(100%)}#mem.open{transform:none}#mbtn{display:block}}
-@media(max-width:700px){#app{grid-template-columns:1fr}#side{top:30px}#chn{width:auto}header{padding:10px 12px}#note{margin-left:0}#comp{margin:0 10px 12px}#tiles{padding:12px}#tiles .empty{padding:35px 12px}.settings-layout{grid-template-columns:1fr;min-height:0}.settings-nav{padding:14px;display:flex;gap:6px}.settings-nav h3{display:none}.settings-nav button{font-size:12px;margin:0}.settings-main{padding:22px}.settings-heading{margin-bottom:18px}}</style></head><body>
+@media(max-width:700px){#app{grid-template-columns:1fr}#side{top:30px}#chn{width:auto}header{padding:10px 12px}#note{margin-left:0}#comp{margin:0 10px 12px}#tiles{padding:12px}#tiles .empty{padding:35px 12px}.settings-layout{grid-template-columns:1fr;min-height:0}.settings-nav{padding:14px;display:flex;gap:6px}.settings-nav h3{display:none}.settings-nav button{font-size:12px;margin:0}.settings-main{padding:22px}.settings-heading{margin-bottom:18px}}.voice-screen{display:flex;flex:1;flex-direction:column;min-height:0}.voice-dock{position:fixed;left:80px;bottom:86px;width:224px;background:#232327;border:1px solid #34343d;border-radius:8px;padding:10px;z-index:7;box-shadow:0 6px 24px #0004}.voice-dock strong{color:#43b581;font-size:12px}.voice-dock p{margin:2px 0 8px;font-size:11px;color:#aaaab7}.voice-dock-actions{display:flex;gap:5px}.voice-dock button{font-size:11px;padding:5px 7px}.voice-dock button:first-child{flex:1}body:has(.voice-dock:not([hidden])) #chn>.me{margin-top:112px}@media(max-width:700px){.voice-dock{left:auto;right:10px;bottom:82px;width:210px}body:has(.voice-dock:not([hidden])) #chn>.me{margin-top:8px}} </style></head><body>
 <section id="auth" aria-label="Acesso ao Roda">
  <div class="auth-intro">
   <a class="auth-brand" href="./" aria-label="Roda, início"><span class="auth-logo">R</span> roda<span class="brand-dot">.</span></a>
@@ -241,7 +241,7 @@ async function joinSrv(){const v=await ask('Entrar com convite',[{label:'Código
  const{data,error}=await sb.rpc('join_by_code',{code:v[0].split('convite=').pop().trim()});error?toast('Convite inválido.'):(toast('Você entrou no servidor'),loadServers(data))}
 function drawSrvs(){$('#srvs').replaceChildren(...servers.map(s=>el('button',{className:'sv'+(s.id===srv?.id?' on':''),title:s.name,textContent:s.name[0].toUpperCase(),style:`background:hsl(${hue(s.name)} 70% 68%)`,onclick:()=>pickSrv(s)})),
  el('button',{className:'add',title:'Criar servidor',textContent:'+',onclick:createSrv}),el('button',{className:'add',title:'Entrar com convite',textContent:'↪',onclick:joinSrv}))}
-async function pickSrv(s){const attempt=++serverAttempt;leaveVoice();srv=s;drawSrvs();
+async function pickSrv(s){const attempt=++serverAttempt;parkVoice();srv=s;drawSrvs();
  const[{data:c},{data:m}]=await Promise.all([sb.from('channels').select('*').eq('server_id',s.id).order('name'),
   sb.from('members').select('user_id,role,profiles(username,status)').eq('server_id',s.id)]);
  if(attempt!==serverAttempt||!me)return;chs=c||[];mem=m||[];names=Object.fromEntries(mem.map(x=>[x.user_id,x.profiles?.username]));drawChs();drawMem();
@@ -262,7 +262,7 @@ const dw=id=>{const e=$(id),o=!e.classList.contains('open');shut();e.classList.t
 $('#menu').onclick=()=>dw('#side');$('#mbtn').onclick=()=>dw('#mem');$('#veil').onclick=shut;
 addEventListener('resize',()=>{if(innerWidth>900)shut()});
 // ---------- chat ----------
-function pickCh(c){leaveVoice();if(!c){ch=null;$('#view').replaceChildren(el('div',{className:'empty',textContent:'Este servidor ainda não tem canais.'}));return;}if(rt){sb.removeChannel(rt);rt=null}
+function pickCh(c){parkVoice();if(!c){ch=null;$('#view').replaceChildren(el('div',{className:'empty',textContent:'Este servidor ainda não tem canais.'}));return;}if(rt){sb.removeChannel(rt);rt=null}
  ch=c;drawChs();$('#title').textContent=(c.kind==='text'?'# ':'🔊 ')+c.name;note('');
  c.kind==='text'?textView(c):voiceView(c)}
 function msgNode(m){const mine=m.user_id===me.id,n=names[m.user_id]||'?',d=el('div',{className:'msg',id:'m'+m.id}),tools=el('div',{className:'tools'});
@@ -287,9 +287,16 @@ async function textView(c){
   if(p.eventType==='UPDATE')document.getElementById('m'+p.new.id)?.replaceWith(msgNode(p.new));
   if(p.eventType==='DELETE')document.getElementById('m'+p.old.id)?.remove()}).subscribe(s=>{if(s==='CHANNEL_ERROR'||s==='TIMED_OUT')note('Reconectando o chat…')})}
 // ---------- voz, vídeo e tela (LiveKit) ----------
-function voiceView(c){$('#view').replaceChildren(el('div',{id:'tiles'},el('div',{className:'empty',style:'grid-column:1/-1'},el('h2',{textContent:c.name}),el('p',{textContent:'Entre para conversar por voz, vídeo ou tela.',style:'color:var(--mut);margin:0'}),el('button',{className:'pri',textContent:'Entrar na sala de voz',onclick:()=>join(c)}))),el('div',{id:'ctl'}))}
+let voiceChannel=null,voiceServer=null,voiceStage=null;
+function parkVoice(){if(!voiceStage)return;let parking=document.getElementById('voice-parking');if(!parking){parking=el('div',{id:'voice-parking',hidden:true});document.body.append(parking)}parking.append(voiceStage)}
+function updateVoiceDock(){let dock=document.getElementById('voice-dock');if(!dock){dock=el('aside',{id:'voice-dock',className:'voice-dock',ariaLabel:'Sua chamada ativa'});document.body.append(dock)}dock.hidden=!voiceChannel;if(!voiceChannel)return;const currentChannel=voiceChannel,currentServer=voiceServer;
+dock.replaceChildren(el('strong',{textContent:joining?'Conectando à voz…':'Voz conectada'}),el('p',{textContent:currentChannel.name+' / '+(currentServer?.name||'')}),el('div',{className:'voice-dock-actions'},
+el('button',{textContent:'Voltar à call',onclick:async()=>{if(srv?.id!==currentServer?.id)await pickSrv(currentServer);if(voiceChannel?.id===currentChannel.id)pickCh(currentChannel);shut()}}),
+el('button',{textContent:room?.localParticipant.isMicrophoneEnabled?'🎤':'🔇',title:'Alternar microfone',ariaLabel:'Alternar microfone',disabled:joining,onclick:async()=>{try{const lp=room?.localParticipant;if(lp)await lp.setMicrophoneEnabled(!lp.isMicrophoneEnabled);draw()}catch{toast('Confira a permissão do microfone.')}}}),
+el('button',{className:'dg',textContent:'Sair',title:'Desconectar chamada',onclick:()=>{leaveVoice();if(ch?.kind==='voice')voiceView(ch);note('Você saiu da sala de voz.')}})));}
+function voiceView(c){if(voiceChannel?.id===c.id&&voiceStage){$('#view').replaceChildren(voiceStage);draw();return}$('#view').replaceChildren(el('div',{className:'voice-screen'},el('div',{id:'tiles'},el('div',{className:'empty',style:'grid-column:1/-1'},el('h2',{textContent:c.name}),el('p',{textContent:'Entre para conversar por voz, vídeo ou tela.',style:'color:var(--mut);margin:0'}),el('button',{className:'pri',textContent:'Entrar na sala de voz',onclick:()=>join(c)}))),el('div',{id:'ctl'})));if(room||joining){const btn=$('#view .pri');if(btn)btn.textContent='Trocar para esta sala'}}
 function leaveVoice(){
- voiceAttempt++;joining=false;const old=room;room=null;
+ voiceAttempt++;joining=false;const old=room;room=null;voiceChannel=null;voiceServer=null;if(voiceStage?.parentElement?.id==='voice-parking')voiceStage.remove();voiceStage=null;updateVoiceDock();
  if(old){detachMedia(old);old.disconnect()}
  const lock=wl;wl=null;lock?.release().catch(()=>{});
 }
@@ -302,15 +309,15 @@ async function copyInvite(){
  catch{await ask('Convite',[{label:'Copie e envie este convite',value}], 'Fechar')}
 }
 async function join(c){
- if(joining||room||ch?.id!==c.id)return;
+ if(ch?.id!==c.id)return;if(voiceChannel?.id===c.id&&(joining||room))return;if(room||joining)leaveVoice();
  if(!window.LivekitClient)return note('Não foi possível carregar a biblioteca de voz. Verifique a internet e recarregue.');
  if(!window.isSecureContext)return note('Abra o site por HTTPS ou localhost para usar o microfone.');
- const L=LivekitClient,attempt=++voiceAttempt;joining=true;
+ const L=LivekitClient,attempt=++voiceAttempt;joining=true;voiceChannel=c;voiceServer=srv;voiceStage=$('#view .voice-screen');updateVoiceDock();
  const button=$('#tiles .pri');if(button){button.disabled=true;button.textContent='Conectando…'}
  note('Conectando…');let current;
  try{
   const{data,error}=await sb.functions.invoke('lk-token',{body:{channel_id:c.id}});
-  if(attempt!==voiceAttempt||ch?.id!==c.id)return;
+  if(attempt!==voiceAttempt)return;
   if(error){let detail;try{detail=await error.context?.json()}catch{}
    const status=error.context?.status;
    throw new Error(detail?.error||(status===404?'A função de voz lk-token ainda não foi publicada no Supabase.':status===401?'Sua sessão expirou. Saia da conta e entre novamente.':status===403?'Você não tem acesso a este canal.':'Não foi possível acessar a função de voz. Confira a conexão e a instalação de lk-token.'))}
@@ -331,14 +338,14 @@ async function join(c){
   if(attempt!==voiceAttempt||room!==current)return;
   const lp=current.localParticipant;
   const cb=(id,ic,t,fn)=>el('button',{id,className:'cb',title:t,ariaLabel:t,textContent:ic,onclick:async()=>{try{await fn()}catch{toast('Não foi possível ativar '+t.toLowerCase()+'. Confira as permissões do navegador.')}if(room===current)draw()}});
-  $('#ctl').replaceChildren(cb('b-mic','🎤','Microfone',()=>lp.setMicrophoneEnabled(!lp.isMicrophoneEnabled)),cb('b-cam','📷','Câmera',()=>lp.setCameraEnabled(!lp.isCameraEnabled)),...(navigator.mediaDevices?.getDisplayMedia?[cb('b-scr','🖥️','Compartilhar tela',()=>lp.setScreenShareEnabled(!lp.isScreenShareEnabled,{audio:true}))]:[]),cb('b-audio','🔈','Ativar áudio',()=>current.startAudio()),el('button',{className:'cb dg',title:'Sair da sala',ariaLabel:'Sair da sala',textContent:'📞',onclick:()=>{leaveVoice();voiceView(c);note('Você saiu da sala de voz.')}}));
+  voiceStage.querySelector('#ctl').replaceChildren(cb('b-mic','🎤','Microfone',()=>lp.setMicrophoneEnabled(!lp.isMicrophoneEnabled)),cb('b-cam','📷','Câmera',()=>lp.setCameraEnabled(!lp.isCameraEnabled)),...(navigator.mediaDevices?.getDisplayMedia?[cb('b-scr','🖥️','Compartilhar tela',()=>lp.setScreenShareEnabled(!lp.isScreenShareEnabled,{audio:true}))]:[]),cb('b-audio','🔈','Ativar áudio',()=>current.startAudio()),el('button',{className:'cb dg',title:'Sair da sala',ariaLabel:'Sair da sala',textContent:'📞',onclick:()=>{leaveVoice();if(ch?.id===c.id)voiceView(c);note('Você saiu da sala de voz.')}}));
   draw();
  }catch(e){if(attempt===voiceAttempt){leaveVoice();if(ch?.id===c.id){voiceView(c);note(e.message)}}}
- finally{if(attempt===voiceAttempt){joining=false;if(button?.isConnected){button.disabled=false;button.textContent='Entrar na sala de voz'}}}
+ finally{if(attempt===voiceAttempt){joining=false;updateVoiceDock();if(button?.isConnected){button.disabled=false;button.textContent='Entrar na sala de voz'}}}
 }
 addEventListener('pagehide',leaveVoice);
-function draw(){if(!room)return;const L=LivekitClient,T=$('#tiles');if(!T)return;
- detachMedia(room);const q=room.localParticipant;[['b-mic',q.isMicrophoneEnabled],['b-cam',q.isCameraEnabled],['b-scr',q.isScreenShareEnabled]].forEach(([i,on])=>{const b=$('#'+i);if(b){b.className='cb'+(on?' on':(i==='b-mic'?' off':''));b.setAttribute('aria-pressed',String(on))}});
+function draw(){updateVoiceDock();if(!room)return;const L=LivekitClient,T=voiceStage?.querySelector('#tiles');if(!T)return;
+ detachMedia(room);const q=room.localParticipant;[['b-mic',q.isMicrophoneEnabled],['b-cam',q.isCameraEnabled],['b-scr',q.isScreenShareEnabled]].forEach(([i,on])=>{const b=voiceStage?.querySelector('#'+i);if(b){b.className='cb'+(on?' on':(i==='b-mic'?' off':''));b.setAttribute('aria-pressed',String(on))}});
  T.replaceChildren(...[room.localParticipant,...room.remoteParticipants.values()].map(p=>{
   const pubs=[...p.videoTrackPublications.values()].filter(x=>x.track&&!x.isMuted);
   const v=pubs.find(x=>x.source===L.Track.Source.ScreenShare)||pubs[0];
