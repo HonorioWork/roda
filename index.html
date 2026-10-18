@@ -102,7 +102,7 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
 .settings-dialog{border:1px solid #36363f;padding:0;border-radius:12px;width:min(960px,calc(100vw - 32px));max-height:90vh;background:#202024;color:var(--tx);box-shadow:0 24px 90px #0008}.settings-dialog::backdrop{background:#000b}.settings-layout{display:grid;grid-template-columns:210px 1fr;min-height:520px}.settings-nav{background:#19191d;padding:28px 16px}.settings-nav h3{margin:0 8px 24px;font-size:15px}.settings-nav button{display:block;width:100%;text-align:left;border:0;background:none;color:var(--mut);margin:5px 0}.settings-nav button.active{background:#303035;color:white}.settings-main{padding:32px;overflow:auto}.settings-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}.settings-heading h2{font-size:22px;margin:0}.settings-heading button{border-radius:50%;padding:5px 11px}.settings-main label{display:block;font-weight:600;font-size:13px;margin:20px 0 10px}.settings-main p{font-size:12px;color:var(--mut);line-height:1.7}.settings-main input[type=range]{padding:0;accent-color:var(--ac);width:100%;margin:12px 0}.settings-main hr{border:0;border-top:1px solid var(--ln);margin:30px 0}.mic-meter{display:block;width:100%;height:10px;background:#383840;border-radius:5px;overflow:hidden;margin:22px 0}.mic-meter span{display:block;height:100%;background:#43b581;width:0;transition:width .08s}.settings-main select{background:#18181c}.setting-status{min-height:40px}.compact .msg{padding-top:3px;padding-bottom:3px}.compact .ava{width:32px;height:32px}.compact .msg{grid-template-columns:32px 1fr}
 @media(min-width:1500px){#app{grid-template-columns:332px minmax(0,1fr) 260px}#chn{width:260px}}
 @media(max-width:1000px){#app{grid-template-columns:292px minmax(0,1fr)}#chn{width:220px}#mem{position:fixed;right:0;top:30px;bottom:0;width:240px;z-index:6;transform:translateX(100%)}#mem.open{transform:none}#mbtn{display:block}}
-@media(max-width:700px){#app{grid-template-columns:1fr}#side{top:30px}#chn{width:auto}header{padding:10px 12px}#note{margin-left:0}#comp{margin:0 10px 12px}#tiles{padding:12px}#tiles .empty{padding:35px 12px}.settings-layout{grid-template-columns:1fr;min-height:0}.settings-nav{padding:14px;display:flex;gap:6px}.settings-nav h3{display:none}.settings-nav button{font-size:12px;margin:0}.settings-main{padding:22px}.settings-heading{margin-bottom:18px}}.voice-screen{display:flex;flex:1;flex-direction:column;min-height:0}.voice-dock{position:fixed;left:80px;bottom:86px;width:224px;background:#232327;border:1px solid #34343d;border-radius:8px;padding:10px;z-index:7;box-shadow:0 6px 24px #0004}.voice-dock strong{color:#43b581;font-size:12px}.voice-dock p{margin:2px 0 8px;font-size:11px;color:#aaaab7}.voice-dock-actions{display:flex;gap:5px}.voice-dock button{font-size:11px;padding:5px 7px}.voice-dock button:first-child{flex:1}body:has(.voice-dock:not([hidden])) #chn>.me{margin-top:112px}@media(max-width:700px){.voice-dock{left:auto;right:10px;bottom:82px;width:210px}body:has(.voice-dock:not([hidden])) #chn>.me{margin-top:8px}} </style></head><body>
+@media(max-width:700px){#app{grid-template-columns:1fr}#side{top:30px}#chn{width:auto}header{padding:10px 12px}#note{margin-left:0}#comp{margin:0 10px 12px}#tiles{padding:12px}#tiles .empty{padding:35px 12px}.settings-layout{grid-template-columns:1fr;min-height:0}.settings-nav{padding:14px;display:flex;gap:6px}.settings-nav h3{display:none}.settings-nav button{font-size:12px;margin:0}.settings-main{padding:22px}.settings-heading{margin-bottom:18px}}.voice-screen{display:flex;flex:1;flex-direction:column;min-height:0}.voice-dock{position:fixed;left:80px;bottom:86px;width:224px;background:#232327;border:1px solid #34343d;border-radius:8px;padding:10px;z-index:7;box-shadow:0 6px 24px #0004}.voice-dock strong{color:#43b581;font-size:12px}.voice-dock p{margin:2px 0 8px;font-size:11px;color:#aaaab7}.voice-dock-actions{display:flex;gap:5px}.voice-dock button{font-size:11px;padding:5px 7px}.voice-dock button:first-child{flex:1}body:has(.voice-dock:not([hidden])) #chn>.me{margin-top:112px}@media(max-width:700px){.voice-dock{left:auto;right:10px;bottom:82px;width:210px}body:has(.voice-dock:not([hidden])) #chn>.me{margin-top:8px}} .tile:fullscreen,.tile.fullscreen-fallback{width:100vw;height:100dvh;max-width:none;aspect-ratio:auto;border-radius:0;background:#000;display:grid;place-items:center}.tile.fullscreen-fallback{position:fixed;inset:0;z-index:100}.tile:fullscreen video,.tile.fullscreen-fallback video{width:100%;height:100%;object-fit:contain}.tile-fullscreen{position:absolute;right:10px;top:10px;background:#15151de6;color:white;border:1px solid #ffffff40;padding:7px 10px;font-size:12px;z-index:2}.tile .nm{max-width:calc(100% - 110px)}#screen-resolution{width:90px;font-size:12px}#ctl{flex-wrap:wrap} </style></head><body>
 <section id="auth" aria-label="Acesso ao Roda">
  <div class="auth-intro">
   <a class="auth-brand" href="./" aria-label="Roda, início"><span class="auth-logo">R</span> roda<span class="brand-dot">.</span></a>
@@ -288,7 +288,7 @@ async function textView(c){
   if(p.eventType==='DELETE')document.getElementById('m'+p.old.id)?.remove()}).subscribe(s=>{if(s==='CHANNEL_ERROR'||s==='TIMED_OUT')note('Reconectando o chat…')})}
 // ---------- voz, vídeo e tela (LiveKit) ----------
 let voiceChannel=null,voiceServer=null,voiceStage=null;
-function parkVoice(){if(!voiceStage)return;let parking=document.getElementById('voice-parking');if(!parking){parking=el('div',{id:'voice-parking',hidden:true});document.body.append(parking)}parking.append(voiceStage)}
+function parkVoice(){if(!voiceStage)return;if(document.fullscreenElement&&voiceStage.contains(document.fullscreenElement))document.exitFullscreen().catch(()=>{});voiceStage.querySelectorAll('.fullscreen-fallback').forEach(t=>t.classList.remove('fullscreen-fallback'));let parking=document.getElementById('voice-parking');if(!parking){parking=el('div',{id:'voice-parking',hidden:true});document.body.append(parking)}parking.append(voiceStage)}
 function updateVoiceDock(){let dock=document.getElementById('voice-dock');if(!dock){dock=el('aside',{id:'voice-dock',className:'voice-dock',ariaLabel:'Sua chamada ativa'});document.body.append(dock)}dock.hidden=!voiceChannel;if(!voiceChannel)return;const currentChannel=voiceChannel,currentServer=voiceServer;
 dock.replaceChildren(el('strong',{textContent:joining?'Conectando à voz…':'Voz conectada'}),el('p',{textContent:currentChannel.name+' / '+(currentServer?.name||'')}),el('div',{className:'voice-dock-actions'},
 el('button',{textContent:'Voltar à call',onclick:async()=>{if(srv?.id!==currentServer?.id)await pickSrv(currentServer);if(voiceChannel?.id===currentChannel.id)pickCh(currentChannel);shut()}}),
@@ -338,24 +338,68 @@ async function join(c){
   if(attempt!==voiceAttempt||room!==current)return;
   const lp=current.localParticipant;
   const cb=(id,ic,t,fn)=>el('button',{id,className:'cb',title:t,ariaLabel:t,textContent:ic,onclick:async()=>{try{await fn()}catch{toast('Não foi possível ativar '+t.toLowerCase()+'. Confira as permissões do navegador.')}if(room===current)draw()}});
-  voiceStage.querySelector('#ctl').replaceChildren(cb('b-mic','🎤','Microfone',()=>lp.setMicrophoneEnabled(!lp.isMicrophoneEnabled)),cb('b-cam','📷','Câmera',()=>lp.setCameraEnabled(!lp.isCameraEnabled)),...(navigator.mediaDevices?.getDisplayMedia?[cb('b-scr','🖥️','Compartilhar tela',()=>lp.setScreenShareEnabled(!lp.isScreenShareEnabled,{audio:true}))]:[]),cb('b-audio','🔈','Ativar áudio',()=>current.startAudio()),el('button',{className:'cb dg',title:'Sair da sala',ariaLabel:'Sair da sala',textContent:'📞',onclick:()=>{leaveVoice();if(ch?.id===c.id)voiceView(c);note('Você saiu da sala de voz.')}}));
+  voiceStage.querySelector('#ctl').replaceChildren(el('select',{id:'screen-resolution',title:'Resolução da tela — escolha antes de compartilhar',ariaLabel:'Resolução do compartilhamento',onchange:e=>screenResolution=e.target.value},...['720','1080'].map(v=>el('option',{value:v,textContent:v+'p',selected:v===screenResolution}))),cb('b-mic','🎤','Microfone',()=>lp.setMicrophoneEnabled(!lp.isMicrophoneEnabled)),cb('b-cam','📷','Câmera',()=>lp.setCameraEnabled(!lp.isCameraEnabled)),...(navigator.mediaDevices?.getDisplayMedia?[cb('b-scr','🖥️','Compartilhar tela',()=>{const preset=L.ScreenSharePresets[screenResolution==='1080'?'h1080fps30':'h720fps30'];return lp.setScreenShareEnabled(!lp.isScreenShareEnabled,{audio:true,resolution:preset.resolution},{screenShareEncoding:preset.encoding})})]:[]),cb('b-audio','🔈','Ativar áudio',()=>current.startAudio()),el('button',{className:'cb dg',title:'Sair da sala',ariaLabel:'Sair da sala',textContent:'📞',onclick:()=>{leaveVoice();if(ch?.id===c.id)voiceView(c);note('Você saiu da sala de voz.')}}));
   draw();
  }catch(e){if(attempt===voiceAttempt){leaveVoice();if(ch?.id===c.id){voiceView(c);note(e.message)}}}
  finally{if(attempt===voiceAttempt){joining=false;updateVoiceDock();if(button?.isConnected){button.disabled=false;button.textContent='Entrar na sala de voz'}}}
 }
 addEventListener('pagehide',leaveVoice);
-function draw(){updateVoiceDock();if(!room)return;const L=LivekitClient,T=voiceStage?.querySelector('#tiles');if(!T)return;
- detachMedia(room);const q=room.localParticipant;[['b-mic',q.isMicrophoneEnabled],['b-cam',q.isCameraEnabled],['b-scr',q.isScreenShareEnabled]].forEach(([i,on])=>{const b=voiceStage?.querySelector('#'+i);if(b){b.className='cb'+(on?' on':(i==='b-mic'?' off':''));b.setAttribute('aria-pressed',String(on))}});
- T.replaceChildren(...[room.localParticipant,...room.remoteParticipants.values()].map(p=>{
-  const pubs=[...p.videoTrackPublications.values()].filter(x=>x.track&&!x.isMuted);
-  const v=pubs.find(x=>x.source===L.Track.Source.ScreenShare)||pubs[0];
-  const t=el('div',{className:'tile'+(p.isSpeaking?' sp':''),onclick:e=>{if(e.target.tagName!=='INPUT')t.classList.toggle('big')},ondblclick:()=>t.requestFullscreen?.()});
-  if(v){const e=v.track.attach();e.muted=p.isLocal;t.append(e)}else t.append(el('div',{className:'av',textContent:(p.name||'?')[0].toUpperCase(),style:`color:hsl(${hue(p.name)} 70% 68%)`}));
-  t.append(el('span',{className:'nm',textContent:(p.name||'?')+(p.isLocal?' (você)':'')+(p.isMicrophoneEnabled?'':' 🔇')}));
-  if(!p.isLocal){[...p.audioTrackPublications.values()].forEach(a=>{if(a.track){const e=a.track.attach();e.volume=(vol[p.identity]??1)*outputVolume;t.append(e)}});
-   t.append(el('input',{type:'range',min:0,max:1,step:.05,value:vol[p.identity]??1,title:'Volume',oninput:e=>{vol[p.identity]=+e.target.value;t.querySelectorAll('audio').forEach(a=>a.volume=vol[p.identity]*outputVolume)}}))}
-  return t}))}
-
+let screenResolution='1080';
+async function toggleTileFullscreen(tile){
+ try{
+  if(document.fullscreenElement===tile){await document.exitFullscreen();return}
+  if(tile.classList.contains('fullscreen-fallback')){tile.classList.remove('fullscreen-fallback');syncFullscreenButtons();return}
+  if(tile.requestFullscreen){await tile.requestFullscreen();return}
+  const video=tile.querySelector('video');if(video?.webkitEnterFullscreen){video.webkitEnterFullscreen();return}
+  tile.classList.add('fullscreen-fallback');syncFullscreenButtons();
+ }catch{toast('Não foi possível abrir tela cheia neste navegador.');}
+}
+function syncFullscreenButtons(){
+ document.querySelectorAll('.tile-fullscreen').forEach(b=>{const t=b.parentElement;const on=document.fullscreenElement===t||t.classList.contains('fullscreen-fallback');b.textContent=on?'⤢ Sair da tela cheia':'⛶ Tela cheia';b.setAttribute('aria-label',b.textContent+' — '+(t.dataset.label||'vídeo'))});
+}
+document.addEventListener('fullscreenchange',syncFullscreenButtons);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.fullscreen-fallback').forEach(t=>t.classList.remove('fullscreen-fallback'));syncFullscreenButtons()}});
+function draw(){
+ updateVoiceDock();if(!room)return;const L=LivekitClient,T=voiceStage?.querySelector('#tiles');if(!T)return;
+ const q=room.localParticipant;
+ [['b-mic',q.isMicrophoneEnabled],['b-cam',q.isCameraEnabled],['b-scr',q.isScreenShareEnabled]].forEach(([id,on])=>{const b=voiceStage.querySelector('#'+id);if(b){b.className='cb'+(on?' on':id==='b-mic'?' off':'');b.setAttribute('aria-pressed',String(on))}});
+ const resolution=voiceStage.querySelector('#screen-resolution');if(resolution)resolution.disabled=q.isScreenShareEnabled;
+ let audio=voiceStage.querySelector('.remote-audio');if(!audio){audio=el('div',{className:'remote-audio',hidden:true});voiceStage.append(audio)}
+ const wanted=new Set(),audioWanted=new Set();
+ for(const p of [q,...room.remoteParticipants.values()]){
+  const identity=p.identity||'local',pubs=[...p.videoTrackPublications.values()].filter(x=>x.track&&!x.isMuted);
+  for(const v of pubs.length?pubs:[null]){
+   const key=identity+':'+(v?.trackSid||v?.source||'avatar');wanted.add(key);
+   let t=[...T.children].find(t=>t.dataset.key===key);
+   if(!t){
+    t=el('div',{className:'tile',onclick:e=>{if(!e.target.closest('button,input'))t.classList.toggle('big')},ondblclick:e=>{if(!e.target.closest('button,input'))toggleTileFullscreen(t)}});
+    t.dataset.key=key;T.append(t);
+   }
+   const label=(p.name||'?')+(p.isLocal?' (você)':'')+(v?(v.source===L.Track.Source.ScreenShare?' · Tela':' · Câmera'):'');
+   t.dataset.label=label;t.classList.toggle('sp',!!p.isSpeaking);
+   if(t._videoTrack!==v?.track){
+    if(t._videoTrack&&t._videoElement)t._videoTrack.detach(t._videoElement);
+    t.querySelectorAll('video,.av').forEach(e=>e.remove());
+    t._videoTrack=v?.track;t._videoElement=null;
+    if(v){const video=v.track.attach();video.muted=true;video.playsInline=true;t._videoElement=video;t.prepend(video)}
+   }
+   if(!v&&!t.querySelector('.av'))t.prepend(el('div',{className:'av',textContent:(p.name||'?')[0].toUpperCase()}));
+   let nm=t.querySelector('.nm');if(!nm){nm=el('span',{className:'nm'});t.append(nm)}nm.textContent=label+(p.isMicrophoneEnabled?'':' 🔇');
+   if(v&&!t.querySelector('.tile-fullscreen'))t.append(el('button',{className:'tile-fullscreen',onclick:e=>{e.stopPropagation();toggleTileFullscreen(t)}}));
+   if(!p.isLocal&&!t.querySelector('input'))t.append(el('input',{type:'range',min:0,max:1,step:.05,value:vol[identity]??1,title:'Volume de '+p.name,ariaLabel:'Volume de '+p.name,oninput:e=>{vol[identity]=+e.target.value;audio.querySelectorAll('audio').forEach(a=>{if(a.dataset.identity===identity)a.volume=vol[identity]*outputVolume});T.querySelectorAll('input').forEach(i=>{if(i.closest('.tile').dataset.key.startsWith(identity+':'))i.value=vol[identity]})}}));
+  }
+  if(!p.isLocal)for(const pub of p.audioTrackPublications.values()){
+   if(!pub.track)continue;const key=identity+':'+(pub.trackSid||pub.source);audioWanted.add(key);
+   let element=[...audio.children].find(a=>a.dataset.key===key);
+   if(element&&element._track!==pub.track){element._track.detach(element);element.remove();element=null}
+   if(!element){element=pub.track.attach();element.dataset.key=key;element.dataset.identity=identity;element._track=pub.track;audio.append(element)}
+   element.volume=(vol[identity]??1)*outputVolume;
+  }
+ }
+ for(const t of [...T.children])if(!wanted.has(t.dataset.key)){if(t._videoTrack)t._videoTrack.detach(t._videoElement);t.remove()}
+ for(const a of [...audio.children])if(!audioWanted.has(a.dataset.key)){a._track.detach(a);a.remove()}
+ syncFullscreenButtons();
+}
 // Preferências locais de interface e áudio.
 let outputVolume=1;
 try{outputVolume=Math.min(1,Math.max(0,Number(localStorage.getItem('roda-output')??1)));document.body.classList.toggle('compact',localStorage.getItem('roda-compact')==='true')}catch{}
