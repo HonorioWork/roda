@@ -249,7 +249,7 @@ async function pickSrv(s){stopSocial();viewMode='server';const attempt=++serverA
 const isAdm=()=>mem.some(m=>m.user_id===me.id&&m.role==='admin');
 function drawChs(){if(viewMode!=='server'){homeSidebar();return}const b=$('#chn');
  const st=el('select',{onchange:async e=>{await sb.from('profiles').update({status:e.target.value}).eq('id',me.id);prof.status=e.target.value;mem.forEach(m=>{if(m.user_id===me.id&&m.profiles)m.profiles.status=prof.status});drawMem()}},...[['online','Disponível'],['away','Ausente'],['busy','Ocupado']].map(([v,t])=>el('option',{value:v,textContent:t,selected:prof.status===v})));
- b.replaceChildren(el('div',{className:'sh'},el('b',{textContent:srv.name}),el('button',{title:'Copiar link de convite',textContent:'Convidar',onclick:()=>copyInvite()})),
+ b.replaceChildren(el('div',{className:'sh'},el('b',{textContent:srv.name}),...(isAdm()?[el('button',{title:'Renomear servidor',ariaLabel:'Renomear servidor',textContent:'✎',onclick:()=>renameServer(srv)})]:[]),el('button',{title:'Copiar link de convite',textContent:'Convidar',onclick:()=>copyInvite()})),
   el('div',{className:'channel-label',textContent:'⌄  Canais do servidor'}),...chs.map(c=>el('div',{},el('div',{className:'channel-row'},el('button',{className:'row'+(c.id===ch?.id?' on':''),textContent:(c.kind==='text'?'#  ':'🔊  ')+c.name,onclick:()=>{pickCh(c);shut()}}),...(isAdm()?[el('button',{className:'channel-edit',textContent:'✎',title:'Renomear '+c.name,ariaLabel:'Renomear '+c.name,onclick:()=>renameChannel(c)})]:[])),...(c.kind==='voice'?[(()=>{const n=el('div',{className:'channel-people'});n.dataset.channel=c.id;return n})()]:[]))),
   ...(isAdm()?[el('button',{className:'row',textContent:'+  Novo canal',onclick:async()=>{const v=await ask('Novo canal',[{label:'Nome do canal',max:40},{label:'Tipo',opts:[['text','Texto'],['voice','Voz']]}],'Criar');if(!v||!v[0])return;
    const{error}=await sb.from('channels').insert({server_id:srv.id,name:v[0],kind:v[1]});error?toast(error.message):pickSrv(srv)}})]:[]),
@@ -472,6 +472,21 @@ async function editProfile(){
  file.onchange=async()=>{const f=file.files[0];if(!f)return;if(f.size>8*1024*1024||!/^image\/(png|jpeg|webp)$/.test(f.type)){status.textContent='Use JPG, PNG ou WebP com até 8 MB.';return}processing=true;save.disabled=true;try{const bitmap=await createImageBitmap(f);const canvas=document.createElement('canvas');canvas.width=canvas.height=160;const ctx=canvas.getContext('2d'),side=Math.min(bitmap.width,bitmap.height);ctx.drawImage(bitmap,(bitmap.width-side)/2,(bitmap.height-side)/2,side,side,0,0,160,160);bitmap.close();photo=canvas.toDataURL('image/webp',.75);if(photo.length>90000)throw Error();preview.replaceChildren(el('img',{src:photo,alt:'Prévia da foto',style:'width:100%;height:100%;border-radius:50%;object-fit:cover'}));status.textContent='Foto preparada em tamanho leve.'}catch{status.textContent='Não foi possível preparar esta imagem.'}finally{processing=false;save.disabled=false}};
  const save=el('button',{className:'pri',textContent:'Salvar perfil',onclick:async()=>{if(processing||!name.value.trim())return;save.disabled=true;const{data,error}=await sb.from('profiles').update({username:name.value.trim(),avatar_url:photo}).eq('id',me.id).select('id,username,status,avatar_url').single();save.disabled=false;if(error||!data){status.textContent='Não foi possível salvar. O nome pode já estar em uso.';return}prof=data;profileCache.set(me.id,data);mem.forEach(m=>{if(m.user_id===me.id)m.profiles=data});names[me.id]=data.username;d.close();d.remove();if(viewMode==='server'){drawChs();drawMem()}else if(viewMode==='home')showHome();else homeSidebar();toast('Perfil atualizado. O novo nome na call aparece ao reconectar.')}});
  d.append(el('h2',{textContent:'Seu perfil'}),preview,el('label',{textContent:'Nome'}),name,el('label',{textContent:'Foto'}),file,el('button',{textContent:'Remover foto',onclick:()=>{photo=null;preview.replaceChildren(prof.username[0]);file.value=''}}),status,el('div',{className:'home-actions'},el('button',{textContent:'Cancelar',onclick:()=>{d.close();d.remove()}}),save));d.addEventListener('cancel',()=>d.remove());document.body.append(d);d.showModal();
+}
+async function renameServer(server){
+ if(!server||srv?.id!==server.id||!isAdm())return;
+ const v=await ask('Renomear servidor',[{label:'Nome do servidor',value:server.name,max:50}]);
+ if(!v?.[0]||v[0]===server.name)return;
+ try{
+  const{data,error}=await sb.from('servers').update({name:v[0]}).eq('id',server.id).select('id,name').single();
+  if(error||!data)throw error||new Error();
+  server.name=data.name;
+  const saved=servers.find(s=>s.id===data.id);if(saved)saved.name=data.name;
+  if(srv?.id===data.id)srv.name=data.name;
+  if(voiceServer?.id===data.id){voiceServer.name=data.name;const dock=document.getElementById('voice-dock');if(dock)dock.dataset.signature='';updateVoiceDock()}
+  drawSrvs();if(viewMode==='server'&&srv?.id===data.id)drawChs();else if(viewMode==='home')showHome();
+  toast('Nome do servidor atualizado');
+ }catch{toast('Não foi possível renomear. Confira sua conexão e permissão de administrador.')}
 }
 async function renameChannel(c){
  const v=await ask('Renomear sala',[{label:'Novo nome',value:c.name,max:40}]);if(!v?.[0])return;
