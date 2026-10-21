@@ -481,7 +481,7 @@ function enterHome(mode){stopSocial();serverAttempt++;parkVoice();if(rt){sb.remo
 function showHome(){
  enterHome('home');const pref=el('input',{type:'checkbox',checked:localStorage.getItem('roda-start')!=='server',onchange:e=>{try{localStorage.setItem('roda-start',e.target.checked?'home':'server')}catch{}}});
  $('#view').replaceChildren(el('section',{className:'home-page'},el('span',{className:'home-eyebrow',textContent:'SEU GRUPO, SEU ESPAÇO'}),el('h1',{textContent:'Bom te ver, '+prof.username+'.'}),el('p',{className:'muted',textContent:'Uma conversa, uma partida ou só companhia. Entre na roda.'}),
- el('div',{className:'home-actions'},el('button',{className:'pri',textContent:'Encontrar amigos',onclick:()=>showFriends('add')}),el('button',{textContent:'Editar meu perfil',onclick:editProfile}),...(nativeWindows?[]:[el('button',{textContent:androidDevice?'📱 Instalar no Android':'⬇ Instalar aplicativo',onclick:requestInstall})])),
+ el('div',{className:'home-actions'},el('button',{className:'pri',textContent:'Encontrar amigos',onclick:()=>showFriends('add')}),el('button',{textContent:'Editar meu perfil',onclick:editProfile}),...(nativeWindows?[]:[el('button',{textContent:androidDevice?'📱 Instalar no Android':windowsDevice?'⬇ Baixar programa para Windows':'⬇ Instalar aplicativo',onclick:windowsDevice&&!androidDevice?downloadWindows:requestInstall})])),
  el('h2',{textContent:'Seus servidores'}),el('div',{className:'server-cards'},...servers.map(s=>el('button',{className:'server-card',onclick:()=>pickSrv(s)},serverIcon(s,44),el('b',{textContent:s.name}),el('span',{className:'muted',textContent:'Abrir canais →'}))),el('button',{className:'server-card',textContent:'+ Criar servidor',onclick:createSrv}),el('button',{className:'server-card',textContent:'Entrar com convite',onclick:joinSrv})),
  el('label',{className:'home-pref'},pref,' Abrir esta página ao entrar')));
 }
@@ -616,8 +616,9 @@ function endCallServices(){
  if(voiceWasConnected){callTone(false);if(me&&voiceChannel&&!voiceChannel.private&&callPresenceAvailable){const userId=me.id,channelId=voiceChannel.id;presenceQueue=presenceQueue.catch(()=>{}).then(()=>sb.from('call_presence').delete().eq('user_id',userId).eq('channel_id',channelId)).catch(()=>{})}}voiceWasConnected=false;
 }
 let installEvent=null;const installButton=$('#install-app'),installAuth=$('#install-auth'),windowsDownload=$('#windows-download');
-const androidDevice=/Android/i.test(navigator.userAgent),installedApp=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-if(nativeWindows){installAuth.hidden=true;windowsDownload.hidden=true;installButton.hidden=true}else if(androidDevice){installAuth.textContent='📱 Instalar Roda no Android';windowsDownload.hidden=true}else installAuth.textContent='⬇ Instalar Roda como aplicativo';
+const androidDevice=/Android/i.test(navigator.userAgent),windowsDevice=/Windows/i.test(navigator.userAgent),installedApp=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const downloadWindows=()=>location.assign('downloads/Roda-Setup-1.2.0.msi');
+if(nativeWindows){installAuth.hidden=true;windowsDownload.hidden=true;installButton.hidden=true}else if(androidDevice){installAuth.textContent='📱 Instalar Roda no Android';windowsDownload.hidden=true}else if(windowsDevice){installAuth.textContent='⬇ Baixar programa para Windows';installButton.textContent='⬇ Baixar programa para Windows'}else installAuth.textContent='⬇ Instalar Roda como aplicativo';
 function installHelp(){
  const m=el('div',{id:'modal'}),close=()=>m.remove(),text=androidDevice?'Abra esta página no Google Chrome, toque no menu ⋮ e escolha “Instalar aplicativo” ou “Adicionar à tela inicial”.':'Abra o menu do navegador e escolha “Instalar Roda”. No iPhone ou iPad, use Compartilhar e depois “Adicionar à Tela de Início”.';
  m.onclick=e=>{if(e.target===m)close()};m.append(el('div',{className:'card'},el('h3',{textContent:'Instalar o Roda',style:'margin:0'}),el('p',{textContent:text,style:'color:var(--mut);line-height:1.6'}),el('button',{className:'pri',textContent:'Entendi',onclick:close})));document.body.append(m)
@@ -629,7 +630,7 @@ async function requestInstall(){
  try{await installEvent.prompt();await installEvent.userChoice;installEvent=null;installButton.hidden=true}finally{for(const button of [installButton,installAuth])button.disabled=false}
 }
 if(!nativeWindows)addEventListener('beforeinstallprompt',event=>{event.preventDefault();installEvent=event;installButton.hidden=installedApp()});
-installButton.onclick=installAuth.onclick=requestInstall;
+installButton.onclick=installAuth.onclick=windowsDevice&&!androidDevice?downloadWindows:requestInstall;
 addEventListener('appinstalled',()=>{installEvent=null;installButton.hidden=true;toast('Roda instalado como aplicativo')});
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script></body></html>
