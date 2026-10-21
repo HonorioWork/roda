@@ -3,6 +3,8 @@
 ## Em desenvolvimento — 2026-10-21
 
 ### Adicionado
+- Central de avisos dentro do Roda, com histórico, contador e toque de teste independente da permissão do navegador.
+- Página inicial com navegação visível para Amigos, Configurações e Notificações.
 - Central de configurações em tela cheia com busca e seções de conta, perfil, aparência, acessibilidade, voz e vídeo, notificações, privacidade, presença e segurança.
 - Preferências sincronizadas entre dispositivos por usuário.
 - Tema claro, tema do sistema, alto contraste, redução de movimento, densidade e tamanho do texto.
@@ -16,4 +18,9 @@
 - Todas as novas tabelas públicas têm RLS ativado e privilégios mínimos explícitos.
 - Configurações de conta só podem ser lidas e alteradas pelo próprio usuário.
 - Preferências protetivas ficam bloqueadas para contas marcadas como menores.
+
+### Corrigido
+- Chamadas privadas agora mostram o aviso interno mesmo quando as notificações do navegador estão bloqueadas.
+- O aplicativo Windows não duplica a faixa superior do site, usa barra escura e recalcula a área útil ao maximizar ou redimensionar.
+- Vídeos e telas compartilhadas usam a área útil inteira sem cortar a borda superior.
 
