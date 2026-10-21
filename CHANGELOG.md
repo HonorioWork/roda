@@ -5,6 +5,8 @@
 ### Adicionado
 - Central de avisos dentro do Roda, com histórico, contador e toque de teste independente da permissão do navegador.
 - Página inicial com navegação visível para Amigos, Configurações e Notificações.
+- Página pública de downloads que pode ser aberta sem entrar em uma conta.
+- Aviso nativo do Windows para chamadas privadas recebidas no aplicativo.
 - Central de configurações em tela cheia com busca e seções de conta, perfil, aparência, acessibilidade, voz e vídeo, notificações, privacidade, presença e segurança.
 - Preferências sincronizadas entre dispositivos por usuário.
 - Tema claro, tema do sistema, alto contraste, redução de movimento, densidade e tamanho do texto.
