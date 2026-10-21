@@ -461,7 +461,7 @@ function openSettings(){
  dialog.append(el('div',{className:'settings-layout'},nav,content));dialog.addEventListener('cancel',e=>{e.preventDefault();close()});dialog.addEventListener('click',e=>{if(e.target===dialog)close()});document.body.append(dialog);selectPage('voice');dialog.showModal();
 }// Home, amigos, perfil e controles de chamada.
 let rosterTimer=null,presenceQueue=Promise.resolve();let viewMode='home',socialEpoch=0,socialTimer=null,friendsCache=[],profileCache=new Map(),presenceTimer=null,pingTimer=null,pingBusy=false,pingMs=null,callRows=[],callPresenceAvailable=true,voiceWasConnected=false,renderFrame=0,callSoundContext=null;
-let callSignalChannel=null,incomingCall=null,outgoingCall=null,ringTimer=null,callNotification=null,callSignalTimeout=null;
+let callSignalChannel=null,incomingCall=null,outgoingCall=null,ringTimer=null,callNotification=null,callSignalTimeout=null,callSignalPollTimer=null,callSignalPolling=false;
 let callSounds=true;try{callSounds=localStorage.getItem('roda-call-sounds')!=='false'}catch{}
 function avatarFor(name,size){
  const node=el('div',{className:'ava',textContent:(name||'?')[0].toUpperCase(),style:'background:hsl('+hue(name)+' 70% 68%);'+(size?'width:'+size+'px;height:'+size+'px;font-size:'+size/2.4+'px':'')});
@@ -481,7 +481,7 @@ function enterHome(mode){stopSocial();serverAttempt++;parkVoice();if(rt){sb.remo
 function showHome(){
  enterHome('home');const pref=el('input',{type:'checkbox',checked:localStorage.getItem('roda-start')!=='server',onchange:e=>{try{localStorage.setItem('roda-start',e.target.checked?'home':'server')}catch{}}});
  $('#view').replaceChildren(el('section',{className:'home-page'},el('span',{className:'home-eyebrow',textContent:'SEU GRUPO, SEU ESPAÇO'}),el('h1',{textContent:'Bom te ver, '+prof.username+'.'}),el('p',{className:'muted',textContent:'Uma conversa, uma partida ou só companhia. Entre na roda.'}),
- el('div',{className:'home-actions'},el('button',{className:'pri',textContent:'Encontrar amigos',onclick:()=>showFriends('add')}),el('button',{textContent:'Editar meu perfil',onclick:editProfile}),...(nativeWindows?[]:[el('button',{textContent:androidDevice?'📱 Instalar no Android':windowsDevice?'⬇ Baixar programa para Windows':'⬇ Instalar aplicativo',onclick:windowsDevice&&!androidDevice?downloadWindows:requestInstall})])),
+ el('div',{className:'home-actions'},el('button',{className:'pri',textContent:'Encontrar amigos',onclick:()=>showFriends('add')}),el('button',{textContent:'Editar meu perfil',onclick:editProfile}),...('Notification' in window&&Notification.permission!=='granted'?[el('button',{textContent:'🔔 Ativar avisos de chamada',onclick:enableCallNotifications})]:[]),...(nativeWindows?[]:[el('button',{textContent:androidDevice?'📱 Instalar no Android':windowsDevice?'⬇ Baixar programa para Windows':'⬇ Instalar aplicativo',onclick:windowsDevice&&!androidDevice?downloadWindows:requestInstall})])),
  el('h2',{textContent:'Seus servidores'}),el('div',{className:'server-cards'},...servers.map(s=>el('button',{className:'server-card',onclick:()=>pickSrv(s)},serverIcon(s,44),el('b',{textContent:s.name}),el('span',{className:'muted',textContent:'Abrir canais →'}))),el('button',{className:'server-card',textContent:'+ Criar servidor',onclick:createSrv}),el('button',{className:'server-card',textContent:'Entrar com convite',onclick:joinSrv})),
  el('label',{className:'home-pref'},pref,' Abrir esta página ao entrar')));
 }
@@ -545,14 +545,23 @@ function handleCallUpdate(row){
  if(row.status==='accepted'){clearTimeout(callSignalTimeout);toast('Chamada atendida.')}else if(row.status==='declined'||row.status==='ended'){clearTimeout(callSignalTimeout);toast(row.status==='declined'?'A chamada foi recusada.':'A chamada terminou.');if(voiceChannel?.callSignalId===row.id)leaveVoice();outgoingCall=null}
 }
 async function findPendingPrivateCall(){if(!me)return;const{data}=await sb.from('private_calls').select('*').eq('recipient_id',me.id).eq('status','ringing').gt('expires_at',new Date().toISOString()).order('created_at',{ascending:false}).limit(1).maybeSingle();if(data)showIncomingCall(data)}
-function stopPrivateCallSignals(){clearTimeout(callSignalTimeout);callSignalTimeout=null;closeIncomingCall();outgoingCall=null;if(callSignalChannel){sb.removeChannel(callSignalChannel);callSignalChannel=null}}
+async function pollPrivateCalls(){
+ clearTimeout(callSignalPollTimer);callSignalPollTimer=null;if(!me||callSignalPolling)return;callSignalPolling=true;
+ try{await findPendingPrivateCall();if(outgoingCall){const{data}=await sb.from('private_calls').select('*').eq('id',outgoingCall.id).maybeSingle();if(data&&data.status!==outgoingCall.status)handleCallUpdate(data)}}catch{}finally{callSignalPolling=false;if(me&&callSignalChannel)callSignalPollTimer=setTimeout(pollPrivateCalls,document.hidden?7000:2500)}
+}
+function stopPrivateCallSignals(){clearTimeout(callSignalTimeout);clearTimeout(callSignalPollTimer);callSignalTimeout=callSignalPollTimer=null;callSignalPolling=false;closeIncomingCall();outgoingCall=null;if(callSignalChannel){sb.removeChannel(callSignalChannel);callSignalChannel=null}}
 function startPrivateCallSignals(){
  stopPrivateCallSignals();if(!me)return;
  callSignalChannel=sb.channel('private-calls-'+me.id)
   .on('postgres_changes',{event:'INSERT',schema:'public',table:'private_calls',filter:'recipient_id=eq.'+me.id},payload=>showIncomingCall(payload.new))
   .on('postgres_changes',{event:'UPDATE',schema:'public',table:'private_calls'},payload=>handleCallUpdate(payload.new))
-  .subscribe(status=>{if(status==='SUBSCRIBED')findPendingPrivateCall();if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')toast('Tentando reconectar as notificações de chamada…')});
+  .subscribe(status=>{if(status==='SUBSCRIBED')pollPrivateCalls();if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){toast('Tentando reconectar as notificações de chamada…');pollPrivateCalls()}});
+ pollPrivateCalls();
 }
+addEventListener('visibilitychange',()=>{if(me&&callSignalChannel&&!document.hidden)pollPrivateCalls()});
+addEventListener('focus',()=>{if(me&&callSignalChannel)pollPrivateCalls()});
+addEventListener('pointerdown',()=>{if(!callSounds)return;try{callSoundContext??=new AudioContext();callSoundContext.resume().catch(()=>{})}catch{}},{once:true,capture:true});
+async function enableCallNotifications(){if(!('Notification' in window))return toast('Este aparelho não oferece notificações do sistema.');try{const result=await Notification.requestPermission();toast(result==='granted'?'Avisos de chamada ativados.':'A permissão de notificações não foi liberada.')}catch{toast('Não foi possível ativar as notificações.')}}
 function showPrivateCall(peer,callSignalId){if(!peer)return null;enterHome('dm-call');const call={id:'dm-'+peer.id,name:'Call com '+tagged(peer),kind:'voice',private:true,peer,callSignalId};ch=call;$('#title').textContent='📞 '+tagged(peer);voiceView(call);return call}
 async function openPrivateCall(peer,options={}){
  if(!peer)return;if('Notification' in window&&Notification.permission==='default')Notification.requestPermission().catch(()=>{});
