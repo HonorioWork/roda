@@ -9,6 +9,7 @@
 - Seleção local de microfone, alto-falante e câmera; teste de microfone e prévia da câmera.
 - Preferências de compartilhamento em 720p ou 1080p, 30 ou 60 FPS e áudio do sistema.
 - Respostas a mensagens, edição com horário e mensagens fixadas por administradores.
+- Configurações de canal para tópico, slowmode, limite de participantes e qualidade de áudio.
 - Campos ampliados de perfil, base de cargos, categorias, permissões de canal, presença de voz, auditoria e denúncias.
 
 ### Segurança

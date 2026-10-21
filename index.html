@@ -160,6 +160,7 @@ let wl,tt;const toast=t=>{let b=$('#toast');if(!b){b=el('div',{id:'toast'});docu
 function ask(title,fields,okText){return new Promise(res=>{
  const m=el('div',{id:'modal'}),close=v=>{m.remove();res(v)};
  const inps=fields.map(f=>f.opts?el('select',{},...f.opts.map(([v,t])=>el('option',{value:v,textContent:t}))):el('input',{value:f.value||'',maxLength:f.max||200}));
+ inps.forEach((input,index)=>{if(fields[index].opts&&fields[index].value!==undefined)input.value=String(fields[index].value)});
  const ok=()=>close(inps.map(i=>i.value.trim()));
  inps.forEach(i=>i.onkeydown=e=>{if(e.key==='Enter')ok();if(e.key==='Escape')close(null)});
  m.onclick=e=>{if(e.target===m)close(null)};
@@ -293,9 +294,9 @@ function msgNode(m,ctx={}){const mine=m.user_id===me.id,n=names[m.user_id]||'?',
  d.append(ava(n),el('div',{style:'min-width:0'},...(reply?[el('div',{className:'muted',textContent:'↳ '+(names[reply.user_id]||'?')+': '+reply.content.slice(0,90)})]:[]),el('div',{},el('b',{textContent:(m.pinned?'📌 ':'')+n}),el('small',{textContent:new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})+((m.edited||m.edited_at)?' (editada)':'')})),el('p',{textContent:m.content})),tools);d.onclick=e=>{if(e.target.tagName!=='BUTTON')d.classList.toggle('sel')};return d}
 async function textView(c){
  const box=el('div',{id:'msgs'},el('div',{className:'chat-welcome'},el('span',{className:'welcome-symbol',textContent:'#'}),el('h2',{textContent:'Boas-vindas a #'+c.name+'!'}),el('p',{textContent:'Este é o começo da conversa neste canal.'}))),inp=el('input',{placeholder:'Mensagem em #'+c.name,maxLength:2000});
- let sending=false,replyTarget=null;const messages=new Map(),replyBar=el('div',{className:'muted',hidden:true,style:'padding:4px 10px'}),ctx={messages,reply:m=>{replyTarget=m;replyBar.hidden=false;replyBar.textContent='Respondendo a '+(names[m.user_id]||'?')+' — clique para cancelar';inp.focus()}};replyBar.onclick=()=>{replyTarget=null;replyBar.hidden=true};
- const send=async()=>{const t=inp.value.trim();if(!t||sending)return;sending=true;inp.disabled=true;
- try{const{error}=await sb.from('messages').insert({channel_id:c.id,user_id:me.id,content:t,reply_to:replyTarget?.id||null});if(error)throw error;inp.value='';replyTarget=null;replyBar.hidden=true;note('')}
+ let sending=false,replyTarget=null,lastSentAt=0;const messages=new Map(),replyBar=el('div',{className:'muted',hidden:true,style:'padding:4px 10px'}),ctx={messages,reply:m=>{replyTarget=m;replyBar.hidden=false;replyBar.textContent='Respondendo a '+(names[m.user_id]||'?')+' — clique para cancelar';inp.focus()}};replyBar.onclick=()=>{replyTarget=null;replyBar.hidden=true};
+ const send=async()=>{const t=inp.value.trim(),remaining=Math.ceil(((Number(c.slowmode_seconds)||0)*1000-(Date.now()-lastSentAt))/1000);if(!t||sending)return;if(remaining>0)return note('Aguarde '+remaining+'s para enviar outra mensagem neste canal.');sending=true;inp.disabled=true;
+ try{const{error}=await sb.from('messages').insert({channel_id:c.id,user_id:me.id,content:t,reply_to:replyTarget?.id||null});if(error)throw error;lastSentAt=Date.now();inp.value='';replyTarget=null;replyBar.hidden=true;note('')}
  catch(e){note('Mensagem não enviada. Seu texto foi mantido; tente novamente.')}
  finally{sending=false;inp.disabled=false;inp.focus()}};
  inp.onkeydown=e=>{if(e.key==='Enter')send()};
@@ -535,9 +536,11 @@ async function editProfile(){
  d.append(el('h2',{textContent:'Seu perfil'}),preview,el('label',{textContent:'Nome'}),name,el('label',{textContent:'Foto'}),file,el('button',{textContent:'Remover foto',onclick:()=>{photo=null;preview.replaceChildren(prof.username[0]);file.value=''}}),status,el('div',{className:'home-actions'},el('button',{textContent:'Cancelar',onclick:()=>{d.close();d.remove()}}),save));d.addEventListener('cancel',()=>d.remove());document.body.append(d);d.showModal();
 }
 async function renameChannel(c){
- const v=await ask('Renomear sala',[{label:'Novo nome',value:c.name,max:40}]);if(!v?.[0])return;
- const{data,error}=await sb.from('channels').update({name:v[0]}).eq('id',c.id).select('id,name').single();if(error||!data)return toast('Não foi possível renomear. Apenas administradores podem editar salas.');
- c.name=data.name;if(voiceChannel?.id===c.id){voiceChannel.name=data.name;updateVoiceDock()}if(ch?.id===c.id)$('#title').textContent=(c.kind==='voice'?'🔊 ':'# ')+data.name;drawChs();toast('Sala renomeada');
+ const fields=[{label:'Nome',value:c.name,max:40},{label:'Tópico ou descrição',value:c.topic||'',max:200},...(c.kind==='text'?[{label:'Intervalo entre mensagens',value:c.slowmode_seconds||0,opts:[['0','Sem slowmode'],['5','5 segundos'],['10','10 segundos'],['30','30 segundos'],['60','1 minuto']]}]:[{label:'Limite de participantes',value:c.user_limit||0,opts:[['0','Sem limite'],['2','2 pessoas'],['5','5 pessoas'],['10','10 pessoas'],['25','25 pessoas']]},{label:'Qualidade de áudio',value:c.bitrate||64000,opts:[['64000','64 kbps — leve'],['96000','96 kbps'],['128000','128 kbps — alta']]}])];
+ const v=await ask('Configurar canal',fields,'Salvar');if(!v?.[0])return;
+ const values={name:v[0],topic:v[1]||null,...(c.kind==='text'?{slowmode_seconds:Number(v[2])}:{user_limit:Number(v[2]),bitrate:Number(v[3])})};
+ const{data,error}=await sb.from('channels').update(values).eq('id',c.id).select('*').single();if(error||!data)return toast('Não foi possível editar. Apenas administradores podem configurar salas.');
+ Object.assign(c,data);if(voiceChannel?.id===c.id){Object.assign(voiceChannel,data);updateVoiceDock()}if(ch?.id===c.id)$('#title').textContent=(c.kind==='voice'?'🔊 ':'# ')+data.name;drawChs();toast('Canal atualizado');
 }
 async function fetchFriends(){
  const{data,error}=await sb.from('friendships').select('*').or('sender_id.eq.'+me.id+',recipient_id.eq.'+me.id).order('created_at',{ascending:false}).limit(200);
