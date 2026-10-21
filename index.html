@@ -127,7 +127,7 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
   <p class="auth-switch" id="auth-switch">Ainda não tem uma conta? <button type="button" id="switch-mode">Crie a sua</button></p>
   <p class="auth-note" id="auth-note">Se recebeu um convite, entre ou crie sua conta para participar.</p>
   <button type="button" id="install-auth" class="auth-link" style="display:block;width:100%;text-align:center;margin-top:12px">📱 Instalar Roda neste aparelho</button>
-  <a id="windows-download" href="downloads/Roda-Setup-1.2.0.msi" download style="display:block;text-align:center;color:#8992b8;font-size:11px;text-decoration:none;margin-top:7px">Windows: baixar programa independente</a>
+  <a id="windows-download" href="downloads/Roda-Setup-1.3.0.msi" download style="display:block;text-align:center;color:#8992b8;font-size:11px;text-decoration:none;margin-top:7px">Windows: baixar programa com atualização automática</a>
  </div>
 </section>
 <div id="app" hidden>
@@ -626,7 +626,7 @@ function endCallServices(){
 }
 let installEvent=null;const installButton=$('#install-app'),installAuth=$('#install-auth'),windowsDownload=$('#windows-download');
 const androidDevice=/Android/i.test(navigator.userAgent),windowsDevice=/Windows/i.test(navigator.userAgent),installedApp=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-const downloadWindows=()=>location.assign('downloads/Roda-Setup-1.2.0.msi');
+const downloadWindows=()=>location.assign('downloads/Roda-Setup-1.3.0.msi');
 if(nativeWindows){installAuth.hidden=true;windowsDownload.hidden=true;installButton.hidden=true}else if(androidDevice){installAuth.textContent='📱 Instalar Roda no Android';windowsDownload.hidden=true}else if(windowsDevice){installAuth.textContent='⬇ Baixar programa para Windows';installButton.textContent='⬇ Baixar programa para Windows'}else installAuth.textContent='⬇ Instalar Roda como aplicativo';
 function installHelp(){
  const m=el('div',{id:'modal'}),close=()=>m.remove(),text=androidDevice?'Abra esta página no Google Chrome, toque no menu ⋮ e escolha “Instalar aplicativo” ou “Adicionar à tela inicial”.':'Abra o menu do navegador e escolha “Instalar Roda”. No iPhone ou iPad, use Compartilhar e depois “Adicionar à Tela de Início”.';
