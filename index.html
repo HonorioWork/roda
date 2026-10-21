@@ -140,6 +140,7 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
 const CFG={URL:"https://vrqqvfhggugyrtboxklz.supabase.co",KEY:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZycXF2ZmhnZ3VneXJ0Ym94a2x6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNjQ0MDYsImV4cCI6MjEwNzg0MDQwNn0.JhIYD9jgsDpfx7Q5gEfQU7Owty9gGICBw5FltpMLv2Q"};
 const $=s=>document.querySelector(s);
 const nativeWindows=new URLSearchParams(location.search).get('app')==='windows';
+const windowsAppMatch=navigator.userAgent.match(/RodaWindows\/([\d.]+)/i),nativeVersion=windowsAppMatch?.[1]||null;
 if(!CFG.URL.startsWith('https://')){$('#auth').replaceChildren(Object.assign(document.createElement('p'),{textContent:'Falta configurar o Supabase. Abra o index.html em um editor de texto e troque https://vrqqvfhggugyrtboxklz.supabase.co e eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZycXF2ZmhnZ3VneXJ0Ym94a2x6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNjQ0MDYsImV4cCI6MjEwNzg0MDQwNn0.JhIYD9jgsDpfx7Q5gEfQU7Owty9gGICBw5FltpMLv2Q pelos dados do seu projeto.'}));throw new Error('config')}
 if(!window.supabase){authMessage('Não foi possível carregar o aplicativo. Verifique sua conexão e recarregue a página.');throw new Error('Supabase indisponível')}
 function authMessage(message){document.getElementById('aerr').textContent=message;document.getElementById('aerr').hidden=false}
@@ -233,7 +234,7 @@ sb.auth.onAuthStateChange((event,session)=>{
 async function start(u){if(me?.id===u.id)return;me=u;
  ({data:prof}=await sb.from('profiles').select('*').eq('id',u.id).single());
  if(!prof){me=null;sb.auth.signOut();return}
- $('#auth').hidden=true;$('#app').hidden=false;
+ $('#auth').hidden=true;$('#app').hidden=false;setTimeout(offerNativeUpdate,300);
  startPrivateCallSignals();
  const code=new URLSearchParams(location.search).get('convite');
  if(code){const{error}=await sb.rpc('join_by_code',{code});if(error)toast('Não foi possível usar este convite.');else history.replaceState({},'',location.pathname)}
@@ -627,6 +628,13 @@ function endCallServices(){
 let installEvent=null;const installButton=$('#install-app'),installAuth=$('#install-auth'),windowsDownload=$('#windows-download');
 const androidDevice=/Android/i.test(navigator.userAgent),windowsDevice=/Windows/i.test(navigator.userAgent),installedApp=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 const downloadWindows=()=>location.assign('downloads/Roda-Setup-1.3.0.msi');
+const versionAtLeast=(current,required)=>{const a=String(current).split('.').map(Number),b=String(required).split('.').map(Number);for(let i=0;i<Math.max(a.length,b.length);i++){if((a[i]||0)>(b[i]||0))return true;if((a[i]||0)<(b[i]||0))return false}return true};
+function offerNativeUpdate(){
+ if(!nativeWindows||!nativeVersion||versionAtLeast(nativeVersion,'1.3.0')||document.querySelector('#native-update'))return;
+ const m=el('div',{id:'modal'}),card=el('div',{id:'native-update',className:'card'}),later=()=>m.remove();
+ card.append(el('h3',{textContent:'Atualização necessária',style:'margin:0'}),el('p',{textContent:'Instale a versão 1.3.0 uma única vez. Depois disso, o Roda instalará sozinho as próximas atualizações.',style:'color:var(--mut);line-height:1.6'}),el('div',{style:'display:flex;gap:8px;justify-content:flex-end'},el('button',{textContent:'Depois',onclick:later}),el('button',{className:'pri',textContent:'Atualizar agora',onclick:downloadWindows})));
+ m.append(card);document.body.append(m)
+}
 if(nativeWindows){installAuth.hidden=true;windowsDownload.hidden=true;installButton.hidden=true}else if(androidDevice){installAuth.textContent='📱 Instalar Roda no Android';windowsDownload.hidden=true}else if(windowsDevice){installAuth.textContent='⬇ Baixar programa para Windows';installButton.textContent='⬇ Baixar programa para Windows'}else installAuth.textContent='⬇ Instalar Roda como aplicativo';
 function installHelp(){
  const m=el('div',{id:'modal'}),close=()=>m.remove(),text=androidDevice?'Abra esta página no Google Chrome, toque no menu ⋮ e escolha “Instalar aplicativo” ou “Adicionar à tela inicial”.':'Abra o menu do navegador e escolha “Instalar Roda”. No iPhone ou iPad, use Compartilhar e depois “Adicionar à Tela de Início”.';
