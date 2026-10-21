@@ -127,6 +127,7 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
   <form id="auth-form">
    <div id="name-field" hidden><label for="un">Como podemos chamar você?</label><input id="un" name="username" placeholder="Seu nome de usuário" autocomplete="nickname" maxlength="40" disabled></div>
    <div id="email-field"><label for="em">E-mail</label><input id="em" name="email" type="email" placeholder="voce@exemplo.com" autocomplete="email" required></div>
+   <div id="code-field" hidden><label for="otp-code">Código recebido</label><input id="otp-code" name="one-time-code" type="text" placeholder="Digite o código do e-mail" inputmode="numeric" autocomplete="one-time-code" minlength="6" maxlength="8" pattern="[0-9]*" disabled><small>Confira também a caixa de spam.</small></div>
    <div id="password-field"><label for="pw" id="password-label">Senha</label><div class="password-wrap"><input id="pw" name="password" type="password" placeholder="Digite sua senha" autocomplete="current-password" required><button type="button" id="show-password" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button></div><small id="password-help" hidden>Use pelo menos 8 caracteres. Evite senhas que você já utiliza.</small></div>
    <div id="confirm-field" hidden><label for="pw-confirm">Confirme sua senha</label><input id="pw-confirm" name="password-confirmation" type="password" placeholder="Digite a senha novamente" autocomplete="new-password" disabled></div>
    <button type="button" id="bfg" class="auth-link">Esqueci minha senha</button>
@@ -178,24 +179,25 @@ function ask(title,fields,okText){return new Promise(res=>{
  document.body.append(m);inps[0].focus()})}
 function empty(){$('#view').replaceChildren(el('div',{className:'empty'},el('h2',{textContent:'Bem-vindo ao Roda'}),el('p',{textContent:'Crie seu primeiro servidor ou entre no de um amigo com um convite.',style:'color:var(--mut);margin:0'}),el('button',{className:'pri',textContent:'Criar servidor',onclick:createSrv}),el('button',{textContent:'Entrar com convite',onclick:joinSrv})))}
 const authErr=t=>authFeedback(t);
-let authMode='login',authBusy=false,recovering=new URLSearchParams(location.hash.slice(1)).get('type')==='recovery';
+let authMode='login',authBusy=false,resetEmail='',recovering=new URLSearchParams(location.hash.slice(1)).get('type')==='recovery';
 function authFeedback(message,success=false){const target=$('#aerr');target.textContent=message||'';target.hidden=!message;target.className=success?'success':''}
 function setAuthMode(mode){
  if(authBusy)return;authMode=mode;authFeedback('');
- const signup=mode==='signup',recovery=mode==='recovery',reset=mode==='reset';
- $('#auth-tabs').hidden=reset||recovery;
+ const signup=mode==='signup',recovery=mode==='recovery',reset=mode==='reset',otp=mode==='otp';
+ $('#auth-tabs').hidden=reset||otp||recovery;
  $('#tab-login').setAttribute('aria-pressed',String(mode==='login'));$('#tab-signup').setAttribute('aria-pressed',String(signup));
  $('#name-field').hidden=!signup;$('#un').disabled=!signup;$('#un').required=signup;
- $('#email-field').hidden=recovery;$('#em').disabled=recovery;
- $('#password-field').hidden=reset;$('#pw').disabled=reset;$('#pw').required=!reset;
+ $('#email-field').hidden=recovery;$('#em').disabled=recovery||otp;
+ $('#code-field').hidden=!otp;$('#otp-code').disabled=!otp;$('#otp-code').required=otp;if(!otp)$('#otp-code').value='';
+ $('#password-field').hidden=reset||otp;$('#pw').disabled=reset||otp;$('#pw').required=!(reset||otp);
  $('#pw').minLength=signup||recovery?8:1;$('#pw').autocomplete=signup||recovery?'new-password':'current-password';
  $('#pw').value='';$('#pw-confirm').value='';$('#pw').type='password';$('#pw-confirm').type='password';$('#show-password').textContent='Mostrar';$('#show-password').setAttribute('aria-label','Mostrar senha');$('#show-password').setAttribute('aria-pressed','false');
  $('#confirm-field').hidden=!(signup||recovery);$('#pw-confirm').disabled=!(signup||recovery);$('#pw-confirm').required=signup||recovery;
  $('#password-help').hidden=!(signup||recovery);$('#password-label').textContent=recovery?'Nova senha':'Senha';
  $('#bfg').hidden=mode!=='login';
- const copy={login:['BOM TER VOCÊ DE VOLTA','Entre na roda.','Use seu e-mail e sua senha para continuar.','Entrar'],signup:['TEM LUGAR PARA VOCÊ','Crie sua conta.','Escolha seu nome e crie uma senha para começar.','Criar minha conta'],reset:['VAMOS RESOLVER','Esqueceu a senha?','Informe seu e-mail para receber o link de recuperação.','Enviar link'],recovery:['UM NOVO COMEÇO','Crie uma nova senha.','Escolha sua nova senha e confirme abaixo.','Salvar nova senha']}[mode];
+ const copy={login:['BOM TER VOCÊ DE VOLTA','Entre na roda.','Use seu e-mail e sua senha para continuar.','Entrar'],signup:['TEM LUGAR PARA VOCÊ','Crie sua conta.','Escolha seu nome e crie uma senha para começar.','Criar minha conta'],reset:['VAMOS RESOLVER','Esqueceu a senha?','Informe seu e-mail para receber as instruções de recuperação.','Enviar código'],otp:['CONFIRA SEU E-MAIL','Digite o código.','Use o código enviado para '+(resetEmail||$('#em').value||'seu e-mail')+'. Se a mensagem mostrar um botão, você também pode abri-lo.','Validar código'],recovery:['UM NOVO COMEÇO','Crie uma nova senha.','Escolha sua nova senha e confirme abaixo.','Salvar nova senha']}[mode];
  $('#auth-kicker').textContent=copy[0];$('#auth-title').textContent=copy[1];$('#auth-subtitle').textContent=copy[2];$('#auth-submit').textContent=copy[3]+' →';
- $('#auth-switch').replaceChildren(document.createTextNode(mode==='login'?'Ainda não tem uma conta? ':signup?'Já tem uma conta? ':''),el('button',{type:'button',id:'switch-mode',textContent:mode==='login'?'Crie a sua':'Voltar para entrar',onclick:async()=>{if(recovering){await sb.auth.signOut();recovering=false}setAuthMode(mode==='login'?'signup':'login')}}));
+ $('#auth-switch').replaceChildren(document.createTextNode(mode==='login'?'Ainda não tem uma conta? ':signup?'Já tem uma conta? ':otp?'Não recebeu o código? ':''),el('button',{type:'button',id:'switch-mode',textContent:mode==='login'?'Crie a sua':otp?'Enviar novamente':'Voltar para entrar',onclick:async()=>{if(recovering){await sb.auth.signOut();recovering=false}if(otp){setAuthMode('reset');return}resetEmail='';setAuthMode(mode==='login'?'signup':'login')}}));
  const url=new URL(location.href);if(mode==='signup')url.searchParams.set('acesso','criar');else url.searchParams.delete('acesso');history.replaceState({},'',url);
 }
 $('#tab-login').onclick=()=>setAuthMode('login');$('#tab-signup').onclick=()=>setAuthMode('signup');$('#bfg').onclick=()=>setAuthMode('reset');
@@ -205,6 +207,7 @@ function friendlyAuthError(error){
  if(/invalid login credentials/i.test(text))return 'E-mail ou senha incorretos. Confira os dados e tente novamente.';
  if(/already registered|already been registered/i.test(text))return 'Este e-mail já tem uma conta. Entre ou recupere sua senha.';
  if(/email not confirmed/i.test(text))return 'Confirme seu e-mail antes de entrar. Confira também a caixa de spam.';
+ if(/otp_expired|token has expired|invalid.*token|token.*invalid/i.test(text))return 'Código inválido ou vencido. Confira o código ou solicite outro.';
  if(/rate limit|too many|after .*seconds/i.test(text))return 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.';
  if(/database error saving new user|duplicate key/i.test(text))return 'Não foi possível criar a conta. Tente outro nome de usuário.';
  if(/password/i.test(text))return 'A senha não atende aos requisitos. Use uma senha maior, com letras, números e símbolos.';
@@ -212,9 +215,10 @@ function friendlyAuthError(error){
 }
 $('#auth-form').onsubmit=async event=>{
  event.preventDefault();if(authBusy)return;authFeedback('');
- const mode=authMode,email=$('#em').value.trim(),password=$('#pw').value;
+ const mode=authMode,email=(mode==='otp'?resetEmail:$('#em').value).trim(),password=$('#pw').value,token=$('#otp-code').value.trim();
  if((mode==='signup'||mode==='recovery')&&password!==$('#pw-confirm').value)return authFeedback('As senhas não são iguais. Digite a mesma senha nos dois campos.');
  if(mode==='signup'&&!$('#un').value.trim())return authFeedback('Digite seu nome de usuário.');
+ if(mode==='otp'&&!/^\d{6,8}$/.test(token))return authFeedback('Digite o código numérico recebido por e-mail.');
  authBusy=true;$('#auth-form').setAttribute('aria-busy','true');$('#auth-submit').disabled=true;$('#auth-submit').textContent='Aguarde…';
  for(const button of document.querySelectorAll('#auth-tabs button,#bfg,#auth-switch button'))button.disabled=true;
  let message='',success=false,nextMode;
@@ -225,13 +229,14 @@ $('#auth-form').onsubmit=async event=>{
    if(error)throw error;
    if(!data.session){message='Confira seu e-mail para confirmar o cadastro. Se já tem uma conta, entre ou recupere sua senha.';success=true;nextMode='login'}
   }
-  if(mode==='reset'){const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:new URL(location.pathname,location.origin).href});if(error)throw error;message='Se houver uma conta com esse e-mail, você receberá um link para criar uma nova senha. Confira também o spam.';success=true}
+  if(mode==='reset'){const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:new URL(location.pathname,location.origin).href});if(error)throw error;resetEmail=email;nextMode='otp';message='Confira seu e-mail. Digite o código recebido ou abra o botão de recuperação da mensagem.';success=true}
+  if(mode==='otp'){recovering=true;const{error}=await sb.auth.verifyOtp({email,token,type:'recovery'});if(error){recovering=false;throw error}nextMode='recovery';message='Código confirmado. Agora escolha sua nova senha.';success=true}
   if(mode==='recovery'){const{error}=await sb.auth.updateUser({password});if(error)throw error;recovering=false;await sb.auth.signOut();nextMode='login';message='Senha atualizada. Entre com sua nova senha.';success=true}
  }catch(error){message=friendlyAuthError(error)}
  finally{
   authBusy=false;$('#auth-form').removeAttribute('aria-busy');$('#auth-submit').disabled=false;
   for(const button of document.querySelectorAll('#auth-tabs button,#bfg,#auth-switch button'))button.disabled=false;
-  if(nextMode)setAuthMode(nextMode);else $('#auth-submit').textContent=({login:'Entrar',signup:'Criar minha conta',reset:'Enviar link',recovery:'Salvar nova senha'})[authMode]+' →';
+  if(nextMode)setAuthMode(nextMode);else $('#auth-submit').textContent=({login:'Entrar',signup:'Criar minha conta',reset:'Enviar código',otp:'Validar código',recovery:'Salvar nova senha'})[authMode]+' →';
   if(message)authFeedback(message,success);
  }
 };
