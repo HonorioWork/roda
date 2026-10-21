@@ -52,6 +52,8 @@ header{display:flex;gap:10px;align-items:center;padding:12px 16px;border-bottom:
 #modal{position:fixed;inset:0;background:#000a;display:grid;place-items:center;z-index:20;padding:16px}
 .card{background:var(--p1);border:1px solid var(--ln);border-radius:18px;padding:22px;width:min(380px,100%);display:grid;gap:10px;animation:in .15s}
 #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--p3);border:1px solid var(--ln);padding:10px 18px;border-radius:12px;z-index:30;box-shadow:0 8px 24px #0008}
+.incoming-call{position:fixed;inset:0;z-index:110;display:grid;place-items:center;padding:20px;background:#000b;backdrop-filter:blur(5px)}
+.incoming-card{width:min(390px,100%);display:grid;justify-items:center;gap:12px;padding:28px;background:#232327;border:1px solid #3b3b44;border-radius:18px;box-shadow:0 24px 80px #000b;text-align:center}.incoming-card h2{margin:2px 0 0}.incoming-card p{margin:0;color:var(--mut)}.incoming-card .ava{box-shadow:0 0 0 4px #43b58144}.incoming-actions{display:flex;gap:10px;width:100%;margin-top:10px}.incoming-actions button{flex:1;padding:12px}.incoming-actions .accept-call{background:#248046;border-color:#248046;color:#fff;font-weight:700}.incoming-actions .decline-call{background:#d83142;border-color:#d83142;color:#fff;font-weight:700}
 @keyframes in{from{opacity:0;transform:translateY(6px)}}
 
 
@@ -125,7 +127,7 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
   <p class="auth-switch" id="auth-switch">Ainda não tem uma conta? <button type="button" id="switch-mode">Crie a sua</button></p>
   <p class="auth-note" id="auth-note">Se recebeu um convite, entre ou crie sua conta para participar.</p>
   <button type="button" id="install-auth" class="auth-link" style="display:block;width:100%;text-align:center;margin-top:12px">📱 Instalar Roda neste aparelho</button>
-  <a id="windows-download" href="downloads/Roda-Setup-1.1.0.msi" download style="display:block;text-align:center;color:#8992b8;font-size:11px;text-decoration:none;margin-top:7px">Windows: baixar instalador MSI</a>
+  <a id="windows-download" href="downloads/Roda-Setup-1.2.0.msi" download style="display:block;text-align:center;color:#8992b8;font-size:11px;text-decoration:none;margin-top:7px">Windows: baixar programa independente</a>
  </div>
 </section>
 <div id="app" hidden>
@@ -137,6 +139,7 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
 <script>
 const CFG={URL:"https://vrqqvfhggugyrtboxklz.supabase.co",KEY:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZycXF2ZmhnZ3VneXJ0Ym94a2x6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNjQ0MDYsImV4cCI6MjEwNzg0MDQwNn0.JhIYD9jgsDpfx7Q5gEfQU7Owty9gGICBw5FltpMLv2Q"};
 const $=s=>document.querySelector(s);
+const nativeWindows=new URLSearchParams(location.search).get('app')==='windows';
 if(!CFG.URL.startsWith('https://')){$('#auth').replaceChildren(Object.assign(document.createElement('p'),{textContent:'Falta configurar o Supabase. Abra o index.html em um editor de texto e troque https://vrqqvfhggugyrtboxklz.supabase.co e eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZycXF2ZmhnZ3VneXJ0Ym94a2x6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNjQ0MDYsImV4cCI6MjEwNzg0MDQwNn0.JhIYD9jgsDpfx7Q5gEfQU7Owty9gGICBw5FltpMLv2Q pelos dados do seu projeto.'}));throw new Error('config')}
 if(!window.supabase){authMessage('Não foi possível carregar o aplicativo. Verifique sua conexão e recarregue a página.');throw new Error('Supabase indisponível')}
 function authMessage(message){document.getElementById('aerr').textContent=message;document.getElementById('aerr').hidden=false}
@@ -224,14 +227,14 @@ sb.auth.onAuthStateChange((event,session)=>{
  if(event==='PASSWORD_RECOVERY'){recovering=true;setTimeout(()=>{setAuthMode('recovery');$('#app').hidden=true;$('#auth').hidden=false},0);return}
  if(recovering&&session)return;
  if(session)setTimeout(()=>start(session.user).catch(()=>authErr('Não foi possível carregar sua conta. Recarregue a página.')),0);
- else{stopSocial();friendsCache=[];profileCache.clear();leaveVoice();if(rt){sb.removeChannel(rt);rt=null}me=null;prof=null;srv=null;ch=null;serverAttempt++;$('#app').hidden=true;$('#auth').hidden=false}
+ else{stopSocial();stopPrivateCallSignals();friendsCache=[];profileCache.clear();leaveVoice();if(rt){sb.removeChannel(rt);rt=null}me=null;prof=null;srv=null;ch=null;serverAttempt++;$('#app').hidden=true;$('#auth').hidden=false}
 });
 
 async function start(u){if(me?.id===u.id)return;me=u;
  ({data:prof}=await sb.from('profiles').select('*').eq('id',u.id).single());
  if(!prof){me=null;sb.auth.signOut();return}
  $('#auth').hidden=true;$('#app').hidden=false;
- if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();
+ startPrivateCallSignals();
  const code=new URLSearchParams(location.search).get('convite');
  if(code){const{error}=await sb.rpc('join_by_code',{code});if(error)toast('Não foi possível usar este convite.');else history.replaceState({},'',location.pathname)}
  loadServers()}
@@ -305,14 +308,16 @@ function parkVoice(){if(!voiceStage)return;if(document.fullscreenElement&&voiceS
 function updateVoiceDock(){let dock=document.getElementById('voice-dock');if(!dock){dock=el('aside',{id:'voice-dock',className:'voice-dock',ariaLabel:'Sua chamada ativa'});document.body.append(dock)}dock.hidden=!voiceChannel;if(!voiceChannel){dock.dataset.signature='';return}const currentChannel=voiceChannel,currentServer=voiceServer;
 const signature=[joining,currentChannel.id,currentChannel.name,currentChannel.private,room?.localParticipant.isMicrophoneEnabled].join('|');if(dock.dataset.signature===signature)return;dock.dataset.signature=signature;
 dock.replaceChildren(el('strong',{textContent:joining?'Conectando à voz…':'Voz conectada'}),el('p',{textContent:currentChannel.name+' / '+(currentServer?.name||'')}),el('small',{id:'call-ping',textContent:pingMs===null?'Ping: —':'Ping: '+pingMs+' ms',title:'Tempo de ida e volta da conexão de mídia'}),el('div',{className:'voice-dock-actions'},
-el('button',{textContent:'Voltar à call',onclick:async()=>{if(currentChannel.private){openPrivateCall(currentChannel.peer);return}if(srv?.id!==currentServer?.id)await pickSrv(currentServer);if(voiceChannel?.id===currentChannel.id)pickCh(currentChannel);shut()}}),
+el('button',{textContent:'Voltar à call',onclick:async()=>{if(currentChannel.private){showPrivateCall(currentChannel.peer,currentChannel.callSignalId);return}if(srv?.id!==currentServer?.id)await pickSrv(currentServer);if(voiceChannel?.id===currentChannel.id)pickCh(currentChannel);shut()}}),
 el('button',{textContent:room?.localParticipant.isMicrophoneEnabled?'🎤':'🔇',title:'Alternar microfone',ariaLabel:'Alternar microfone',disabled:joining,onclick:async()=>{try{const lp=room?.localParticipant;if(lp)await lp.setMicrophoneEnabled(!lp.isMicrophoneEnabled);draw()}catch{toast('Confira a permissão do microfone.')}}}),
 el('button',{className:'dg',textContent:'Sair',title:'Desconectar chamada',onclick:()=>{leaveVoice();if(ch?.kind==='voice')voiceView(ch);note('Você saiu da sala de voz.')}})));}
 function voiceView(c){if(voiceChannel?.id===c.id&&voiceStage){$('#view').replaceChildren(voiceStage);draw();return}$('#view').replaceChildren(el('div',{className:'voice-screen'},el('div',{id:'tiles'},el('div',{className:'empty',style:'grid-column:1/-1'},el('h2',{textContent:c.name}),el('p',{textContent:'Entre para conversar por voz, vídeo ou tela.',style:'color:var(--mut);margin:0'}),el('button',{className:'pri',textContent:'Entrar na sala de voz',onclick:()=>join(c)}))),el('div',{id:'ctl'})));if(room||joining){const btn=$('#view .pri');if(btn)btn.textContent='Trocar para esta sala'}}
 function leaveVoice(){
  endCallServices();
- voiceAttempt++;joining=false;const old=room;room=null;voiceChannel=null;voiceServer=null;if(voiceStage?.parentElement?.id==='voice-parking')voiceStage.remove();voiceStage=null;updateVoiceDock();renderCallPeople();
+ voiceAttempt++;joining=false;const old=room,signalId=voiceChannel?.private?voiceChannel.callSignalId:null;room=null;voiceChannel=null;voiceServer=null;if(voiceStage?.parentElement?.id==='voice-parking')voiceStage.remove();voiceStage=null;updateVoiceDock();renderCallPeople();
  if(old){detachMedia(old);old.disconnect()}
+ if(signalId&&me)sb.from('private_calls').update({status:'ended'}).eq('id',signalId).in('status',['ringing','accepted']).then(()=>{}).catch(()=>{});
+ if(outgoingCall?.id===signalId)outgoingCall=null;
  const lock=wl;wl=null;lock?.release().catch(()=>{});
 }
 function detachMedia(r){for(const p of [r.localParticipant,...r.remoteParticipants.values()])
@@ -399,7 +404,7 @@ function draw(){
     t._videoTrack=v?.track;t._videoElement=null;
     if(v){const video=v.track.attach();video.muted=true;video.playsInline=true;t._videoElement=video;t.prepend(video)}
    }
-   if(!v&&!t.querySelector('.av'))t.prepend(el('div',{className:'av',textContent:(p.name||'?')[0].toUpperCase()}));
+   if(!v&&!t.querySelector('.av')){const callProfile=identity===me?.id?prof:profileCache.get(identity)||mem.find(m=>m.user_id===identity)?.profiles,photo=avatarFor(callProfile?.username||p.name||'?',84);photo.classList.add('av');t.prepend(photo)}
    let nm=t.querySelector('.nm');if(!nm){nm=el('span',{className:'nm'});t.append(nm)}nm.textContent=label+(p.isMicrophoneEnabled?'':' 🔇');
    if(v&&!t.querySelector('.tile-fullscreen'))t.append(el('button',{className:'tile-fullscreen',onclick:e=>{e.stopPropagation();toggleTileFullscreen(t)}}));
    if(!p.isLocal&&!t.querySelector('input'))t.append(el('input',{type:'range',min:0,max:1,step:.05,value:vol[identity]??1,title:'Volume de '+p.name,ariaLabel:'Volume de '+p.name,oninput:e=>{vol[identity]=+e.target.value;audio.querySelectorAll('audio').forEach(a=>{if(a.dataset.identity===identity)a.volume=vol[identity]*outputVolume});T.querySelectorAll('input').forEach(i=>{if(i.closest('.tile').dataset.key.startsWith(identity+':'))i.value=vol[identity]})}}));
@@ -456,6 +461,7 @@ function openSettings(){
  dialog.append(el('div',{className:'settings-layout'},nav,content));dialog.addEventListener('cancel',e=>{e.preventDefault();close()});dialog.addEventListener('click',e=>{if(e.target===dialog)close()});document.body.append(dialog);selectPage('voice');dialog.showModal();
 }// Home, amigos, perfil e controles de chamada.
 let rosterTimer=null,presenceQueue=Promise.resolve();let viewMode='home',socialEpoch=0,socialTimer=null,friendsCache=[],profileCache=new Map(),presenceTimer=null,pingTimer=null,pingBusy=false,pingMs=null,callRows=[],callPresenceAvailable=true,voiceWasConnected=false,renderFrame=0,callSoundContext=null;
+let callSignalChannel=null,incomingCall=null,outgoingCall=null,ringTimer=null,callNotification=null,callSignalTimeout=null;
 let callSounds=true;try{callSounds=localStorage.getItem('roda-call-sounds')!=='false'}catch{}
 function avatarFor(name,size){
  const node=el('div',{className:'ava',textContent:(name||'?')[0].toUpperCase(),style:'background:hsl('+hue(name)+' 70% 68%);'+(size?'width:'+size+'px;height:'+size+'px;font-size:'+size/2.4+'px':'')});
@@ -475,7 +481,7 @@ function enterHome(mode){stopSocial();serverAttempt++;parkVoice();if(rt){sb.remo
 function showHome(){
  enterHome('home');const pref=el('input',{type:'checkbox',checked:localStorage.getItem('roda-start')!=='server',onchange:e=>{try{localStorage.setItem('roda-start',e.target.checked?'home':'server')}catch{}}});
  $('#view').replaceChildren(el('section',{className:'home-page'},el('span',{className:'home-eyebrow',textContent:'SEU GRUPO, SEU ESPAÇO'}),el('h1',{textContent:'Bom te ver, '+prof.username+'.'}),el('p',{className:'muted',textContent:'Uma conversa, uma partida ou só companhia. Entre na roda.'}),
- el('div',{className:'home-actions'},el('button',{className:'pri',textContent:'Encontrar amigos',onclick:()=>showFriends('add')}),el('button',{textContent:'Editar meu perfil',onclick:editProfile}),el('button',{textContent:androidDevice?'📱 Instalar no Android':'⬇ Instalar aplicativo',onclick:requestInstall})),
+ el('div',{className:'home-actions'},el('button',{className:'pri',textContent:'Encontrar amigos',onclick:()=>showFriends('add')}),el('button',{textContent:'Editar meu perfil',onclick:editProfile}),...(nativeWindows?[]:[el('button',{textContent:androidDevice?'📱 Instalar no Android':'⬇ Instalar aplicativo',onclick:requestInstall})])),
  el('h2',{textContent:'Seus servidores'}),el('div',{className:'server-cards'},...servers.map(s=>el('button',{className:'server-card',onclick:()=>pickSrv(s)},serverIcon(s,44),el('b',{textContent:s.name}),el('span',{className:'muted',textContent:'Abrir canais →'}))),el('button',{className:'server-card',textContent:'+ Criar servidor',onclick:createSrv}),el('button',{className:'server-card',textContent:'Entrar com convite',onclick:joinSrv})),
  el('label',{className:'home-pref'},pref,' Abrir esta página ao entrar')));
 }
@@ -520,7 +526,40 @@ async function showFriends(tab='all'){
  search.oninput=render;
  try{const data=await fetchFriends();if(epoch!==socialEpoch)return;friendsCache=data;homeSidebar();render()}catch{if(epoch===socialEpoch)status.textContent='Amigos ainda não estão disponíveis. A atualização do banco precisa ser ativada.'}
 }
-function openPrivateCall(peer){if(!peer)return;enterHome('dm-call');const call={id:'dm-'+peer.id,name:'Call com '+tagged(peer),kind:'voice',private:true,peer};ch=call;$('#title').textContent='📞 '+tagged(peer);voiceView(call)}
+async function profileById(id){if(id===me?.id)return prof;let profile=profileCache.get(id);if(profile)return profile;const{data}=await sb.from('profiles').select('id,username,status,avatar_url,tag_number').eq('id',id).maybeSingle();if(data)profileCache.set(id,data);return data}
+function stopIncomingRing(){clearInterval(ringTimer);ringTimer=null;try{callNotification?.close()}catch{}callNotification=null}
+function closeIncomingCall(){stopIncomingRing();document.getElementById('incoming-call')?.remove();incomingCall=null}
+function startIncomingRing(){stopIncomingRing();callTone(true);ringTimer=setInterval(()=>callTone(true),1800)}
+async function showIncomingCall(row){
+ if(!me||row.recipient_id!==me.id||row.status!=='ringing'||new Date(row.expires_at)<=new Date())return;
+ if(incomingCall?.id===row.id)return;closeIncomingCall();incomingCall=row;
+ const caller=await profileById(row.caller_id);if(!caller||incomingCall?.id!==row.id)return;
+ const overlay=el('div',{id:'incoming-call',className:'incoming-call',role:'alertdialog',ariaModal:'true',ariaLabel:'Chamada privada recebida'}),accept=el('button',{className:'accept-call',textContent:'📞 Atender'}),decline=el('button',{className:'decline-call',textContent:'Recusar'});
+ const finish=async status=>{accept.disabled=decline.disabled=true;const{error}=await sb.from('private_calls').update({status}).eq('id',row.id).eq('recipient_id',me.id).eq('status','ringing');if(error){toast('Não foi possível responder à chamada.');accept.disabled=decline.disabled=false;return}closeIncomingCall();if(status==='accepted'){const call=showPrivateCall(caller,row.id);await join(call)}};
+ accept.onclick=()=>finish('accepted');decline.onclick=()=>finish('declined');overlay.append(el('div',{className:'incoming-card'},avatarFor(caller.username,76),el('h2',{textContent:tagged(caller)}),el('p',{textContent:'está ligando para você'}),el('div',{className:'incoming-actions'},decline,accept)));document.body.append(overlay);startIncomingRing();
+ if('Notification' in window&&Notification.permission==='granted'){try{callNotification=new Notification('Chamada privada no Roda',{body:tagged(caller)+' está ligando para você',icon:'icons/icon-192.png',tag:'roda-private-call'});callNotification.onclick=()=>{window.focus();callNotification?.close()}}catch{}}
+}
+function handleCallUpdate(row){
+ if(incomingCall?.id===row.id&&row.status!=='ringing')closeIncomingCall();
+ if(outgoingCall?.id!==row.id)return;outgoingCall=row;
+ if(row.status==='accepted'){clearTimeout(callSignalTimeout);toast('Chamada atendida.')}else if(row.status==='declined'||row.status==='ended'){clearTimeout(callSignalTimeout);toast(row.status==='declined'?'A chamada foi recusada.':'A chamada terminou.');if(voiceChannel?.callSignalId===row.id)leaveVoice();outgoingCall=null}
+}
+async function findPendingPrivateCall(){if(!me)return;const{data}=await sb.from('private_calls').select('*').eq('recipient_id',me.id).eq('status','ringing').gt('expires_at',new Date().toISOString()).order('created_at',{ascending:false}).limit(1).maybeSingle();if(data)showIncomingCall(data)}
+function stopPrivateCallSignals(){clearTimeout(callSignalTimeout);callSignalTimeout=null;closeIncomingCall();outgoingCall=null;if(callSignalChannel){sb.removeChannel(callSignalChannel);callSignalChannel=null}}
+function startPrivateCallSignals(){
+ stopPrivateCallSignals();if(!me)return;
+ callSignalChannel=sb.channel('private-calls-'+me.id)
+  .on('postgres_changes',{event:'INSERT',schema:'public',table:'private_calls',filter:'recipient_id=eq.'+me.id},payload=>showIncomingCall(payload.new))
+  .on('postgres_changes',{event:'UPDATE',schema:'public',table:'private_calls'},payload=>handleCallUpdate(payload.new))
+  .subscribe(status=>{if(status==='SUBSCRIBED')findPendingPrivateCall();if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')toast('Tentando reconectar as notificações de chamada…')});
+}
+function showPrivateCall(peer,callSignalId){if(!peer)return null;enterHome('dm-call');const call={id:'dm-'+peer.id,name:'Call com '+tagged(peer),kind:'voice',private:true,peer,callSignalId};ch=call;$('#title').textContent='📞 '+tagged(peer);voiceView(call);return call}
+async function openPrivateCall(peer,options={}){
+ if(!peer)return;if('Notification' in window&&Notification.permission==='default')Notification.requestPermission().catch(()=>{});
+ let signalId=options.callSignalId||null;
+ if(options.signal!==false){const{data,error}=await sb.from('private_calls').insert({caller_id:me.id,recipient_id:peer.id}).select('*').single();if(error)toast('A call abriu, mas não foi possível avisar seu amigo.');else{outgoingCall=data;signalId=data.id;toast('Chamando '+tagged(peer)+'…');clearTimeout(callSignalTimeout);callSignalTimeout=setTimeout(async()=>{if(outgoingCall?.id!==data.id||outgoingCall.status!=='ringing')return;await sb.from('private_calls').update({status:'ended'}).eq('id',data.id);outgoingCall=null;if(voiceChannel?.callSignalId===data.id)leaveVoice();toast('Ninguém atendeu a chamada.')},60000)}}
+ const call=showPrivateCall(peer,signalId);if(options.autoJoin!==false&&call)join(call);return call
+}
 async function openDM(peer){
  if(!peer)return;enterHome('dm');const epoch=socialEpoch;$('#title').textContent='@ '+tagged(peer);
  const box=el('div',{id:'msgs'}),inp=el('input',{placeholder:'Conversar com @'+peer.username,maxLength:2000,ariaLabel:'Mensagem privada'}),status=el('p',{className:'muted',role:'status'});let sending=false,lastSignature='';
@@ -578,7 +617,7 @@ function endCallServices(){
 }
 let installEvent=null;const installButton=$('#install-app'),installAuth=$('#install-auth'),windowsDownload=$('#windows-download');
 const androidDevice=/Android/i.test(navigator.userAgent),installedApp=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-if(androidDevice){installAuth.textContent='📱 Instalar Roda no Android';windowsDownload.hidden=true}else installAuth.textContent='⬇ Instalar Roda como aplicativo';
+if(nativeWindows){installAuth.hidden=true;windowsDownload.hidden=true;installButton.hidden=true}else if(androidDevice){installAuth.textContent='📱 Instalar Roda no Android';windowsDownload.hidden=true}else installAuth.textContent='⬇ Instalar Roda como aplicativo';
 function installHelp(){
  const m=el('div',{id:'modal'}),close=()=>m.remove(),text=androidDevice?'Abra esta página no Google Chrome, toque no menu ⋮ e escolha “Instalar aplicativo” ou “Adicionar à tela inicial”.':'Abra o menu do navegador e escolha “Instalar Roda”. No iPhone ou iPad, use Compartilhar e depois “Adicionar à Tela de Início”.';
  m.onclick=e=>{if(e.target===m)close()};m.append(el('div',{className:'card'},el('h3',{textContent:'Instalar o Roda',style:'margin:0'}),el('p',{textContent:text,style:'color:var(--mut);line-height:1.6'}),el('button',{className:'pri',textContent:'Entendi',onclick:close})));document.body.append(m)
@@ -589,7 +628,7 @@ async function requestInstall(){
  for(const button of [installButton,installAuth])button.disabled=true;
  try{await installEvent.prompt();await installEvent.userChoice;installEvent=null;installButton.hidden=true}finally{for(const button of [installButton,installAuth])button.disabled=false}
 }
-addEventListener('beforeinstallprompt',event=>{event.preventDefault();installEvent=event;installButton.hidden=installedApp()});
+if(!nativeWindows)addEventListener('beforeinstallprompt',event=>{event.preventDefault();installEvent=event;installButton.hidden=installedApp()});
 installButton.onclick=installAuth.onclick=requestInstall;
 addEventListener('appinstalled',()=>{installEvent=null;installButton.hidden=true;toast('Roda instalado como aplicativo')});
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
