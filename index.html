@@ -475,7 +475,7 @@ function enterHome(mode){stopSocial();serverAttempt++;parkVoice();if(rt){sb.remo
 function showHome(){
  enterHome('home');const pref=el('input',{type:'checkbox',checked:localStorage.getItem('roda-start')!=='server',onchange:e=>{try{localStorage.setItem('roda-start',e.target.checked?'home':'server')}catch{}}});
  $('#view').replaceChildren(el('section',{className:'home-page'},el('span',{className:'home-eyebrow',textContent:'SEU GRUPO, SEU ESPAÇO'}),el('h1',{textContent:'Bom te ver, '+prof.username+'.'}),el('p',{className:'muted',textContent:'Uma conversa, uma partida ou só companhia. Entre na roda.'}),
- el('div',{className:'home-actions'},el('button',{className:'pri',textContent:'Encontrar amigos',onclick:()=>showFriends('add')}),el('button',{textContent:'Editar meu perfil',onclick:editProfile})),
+ el('div',{className:'home-actions'},el('button',{className:'pri',textContent:'Encontrar amigos',onclick:()=>showFriends('add')}),el('button',{textContent:'Editar meu perfil',onclick:editProfile}),el('button',{textContent:androidDevice?'📱 Instalar no Android':'⬇ Instalar aplicativo',onclick:requestInstall})),
  el('h2',{textContent:'Seus servidores'}),el('div',{className:'server-cards'},...servers.map(s=>el('button',{className:'server-card',onclick:()=>pickSrv(s)},serverIcon(s,44),el('b',{textContent:s.name}),el('span',{className:'muted',textContent:'Abrir canais →'}))),el('button',{className:'server-card',textContent:'+ Criar servidor',onclick:createSrv}),el('button',{className:'server-card',textContent:'Entrar com convite',onclick:joinSrv})),
  el('label',{className:'home-pref'},pref,' Abrir esta página ao entrar')));
 }
