@@ -74,3 +74,36 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
 .private-call-head{display:flex;align-items:center;gap:var(--space-3);min-height:64px;padding:var(--space-3) var(--space-5);border-bottom:1px solid var(--color-border);background:var(--color-surface)}.private-call-head>div{display:grid;gap:2px}.private-call-head span{color:var(--color-muted);font-size:var(--font-xs)}.private-call-status{margin-left:auto!important;color:var(--color-success)!important}.private-call-head+.tiles,#tiles{min-width:0}
 @media(max-width:767px){.private-call-head{padding-inline:var(--space-3)}.private-call-status{display:none}}
 .member-role-select{width:auto;max-width:150px;min-height:28px;padding:2px 6px;border:0;background:var(--color-bg);font-size:10px}.role-dialog{width:min(620px,calc(100vw - 28px));padding:var(--space-6);background:var(--color-surface);color:var(--color-text)}.role-dialog::backdrop{background:#000b}.role-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-4)}.role-dialog-head h2,.role-dialog-head p{margin:0 0 var(--space-2)}.role-list{display:grid;gap:var(--space-2);margin-top:var(--space-4)}.role-manager-row{display:flex;align-items:center;gap:var(--space-3);min-height:54px;padding:var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface-raised)}.role-manager-row i{width:14px;height:14px;border-radius:50%;flex:none}.role-manager-row b{flex:1;min-width:0}
+
+/* Cabeçalho compacto do servidor e ações de conversa privada */
+.server-compact-head{display:flex;align-items:center;gap:var(--space-2);min-width:0}
+.server-compact-head>b{flex:1;min-width:0}
+.server-settings-trigger,.dm-icon-action{display:grid;place-items:center;flex:none;width:var(--touch-target);height:var(--touch-target);min-width:var(--touch-target);min-height:var(--touch-target);padding:0;border:0;background:transparent;color:var(--color-muted);font-size:18px}
+.server-settings-trigger:hover,.server-settings-trigger:focus-visible,.dm-icon-action:hover,.dm-icon-action:focus-visible,.dm-icon-action.on{background:var(--color-surface-raised);color:var(--color-text)}
+.server-menu-dialog{width:min(460px,calc(100vw - 28px));padding:var(--space-5);background:var(--color-surface);color:var(--color-text)}
+.server-menu-dialog::backdrop,.peer-profile-dialog::backdrop{background:#000b}
+.server-menu-head{display:flex;align-items:center;gap:var(--space-3);min-width:0;margin-bottom:var(--space-4)}
+.server-menu-head>div{flex:1;min-width:0}.server-menu-head h2,.server-menu-head p{margin:0}
+.server-menu-head>button,.peer-profile-close{width:var(--touch-target);height:var(--touch-target);padding:0}
+.server-menu-actions{display:grid;gap:var(--space-2)}
+.server-menu-action{display:flex;align-items:center;gap:var(--space-3);width:100%;min-height:48px;padding:var(--space-3);text-align:left;background:var(--color-surface-raised)}
+.server-menu-icon{display:grid;place-items:center;width:28px;color:var(--color-muted);font-size:18px}
+.server-menu-close{width:100%;margin-top:var(--space-4)}
+.dm-head{min-width:0}.dm-peer{display:flex;align-items:center;gap:var(--space-2);min-width:0;flex:1}
+.dm-peer strong{min-width:0}.dm-actions{display:flex;align-items:center;justify-content:flex-end;gap:var(--space-1);min-width:0}
+.dm-search{width:min(230px,24vw);min-width:130px;height:36px;padding:6px 10px}
+.dm-row.pinned{color:var(--color-text)}.dm-pin-mark{margin-left:auto;color:var(--color-warning);font-size:12px}
+.peer-profile-dialog{position:relative;width:min(420px,calc(100vw - 28px));padding:0;overflow:hidden;background:var(--color-surface);color:var(--color-text)}
+.peer-profile-banner{height:88px;background:linear-gradient(135deg,var(--color-accent),var(--color-surface-raised))}
+.peer-profile-close{position:absolute;top:var(--space-3);right:var(--space-3)}
+.peer-profile-body{display:grid;gap:var(--space-2);padding:0 var(--space-5) var(--space-5)}
+.peer-profile-body>.ava{margin-top:-42px;border:5px solid var(--color-surface)}
+.peer-profile-body h2,.peer-profile-body h3,.peer-profile-body p{margin:0}
+@media(max-width:900px){
+ .dm-head{align-items:flex-start}.dm-actions{flex-wrap:wrap}.dm-search{order:2;width:100%;flex-basis:100%}
+}
+@media(max-width:767px){
+ .server-menu-dialog,.peer-profile-dialog{max-height:calc(100dvh - 24px)}
+ .dm-head{display:grid;grid-template-columns:minmax(0,1fr);padding:var(--space-2) var(--space-3)}
+ .dm-actions{justify-content:flex-start}.dm-search{min-width:0}
+}
