@@ -154,3 +154,6 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
  .dm-actions{display:grid;grid-template-columns:repeat(4,var(--touch-target));justify-content:start}
  .dm-search{grid-column:1/-1;width:100%}.security-actions{display:grid}.security-actions button{width:100%}
 }
+
+/* A página Início já possui avisos próprios; evita controles duplicados no cabeçalho. */
+body:has(.home-page) header #notif-btn,body:has(.home-page) header #mbtn{display:none}
