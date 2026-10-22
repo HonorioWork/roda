@@ -30,3 +30,7 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
 #comp{margin-bottom:calc(var(--space-4) + env(safe-area-inset-bottom));flex:none}
 .voice-dock,#toast{margin-bottom:env(safe-area-inset-bottom)}
 @media(max-width:767px){#side{padding-bottom:env(safe-area-inset-bottom)}#ctl{padding-bottom:calc(var(--space-3) + env(safe-area-inset-bottom))}.notification-dialog{max-height:calc(var(--app-height) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - var(--space-4)*2)}}
+.skeleton{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3);pointer-events:none}
+.skeleton::before,.skeleton span{content:"";display:block;background:linear-gradient(90deg,var(--color-surface-raised),var(--color-surface-hover),var(--color-surface-raised));background-size:220% 100%;animation:skeleton-shift 1.2s ease-in-out infinite;border-radius:var(--radius-sm)}
+.skeleton::before{width:36px;height:36px;border-radius:50%;flex:none}.skeleton span{height:12px;flex:1}.skeleton-server{width:44px;height:44px;padding:0}.skeleton-server::before{width:44px;height:44px}.skeleton-channel::before{display:none}.skeleton-home{min-height:96px;border:1px solid var(--color-border);border-radius:var(--radius-md)}
+@keyframes skeleton-shift{to{background-position:-220% 0}}@media(prefers-reduced-motion:reduce){.skeleton::before,.skeleton span{animation:none}}
