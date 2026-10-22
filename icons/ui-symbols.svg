@@ -19,4 +19,6 @@
   <symbol id="volume" viewBox="0 0 24 24"><path d="M4 10h4l5-4v12l-5-4H4v-4ZM16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></symbol>
   <symbol id="hash" viewBox="0 0 24 24"><path d="M10 3 8 21M16 3l-2 18M4 9h16M3 15h16"/></symbol>
   <symbol id="info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></symbol>
+  <symbol id="rotate-camera" viewBox="0 0 24 24"><path d="M5 8V4l-3 3 3 3V8a8 8 0 0 1 13.7-2M19 16v4l3-3-3-3v2a8 8 0 0 1-13.7 2"/><rect x="7" y="8" width="10" height="8" rx="2"/><circle cx="12" cy="12" r="2"/></symbol>
+  <symbol id="phone-off" viewBox="0 0 24 24"><path d="M6 15c4-3 8-3 12 0l-2 4-3-1v-2H11v2l-3 1-2-4Z"/><path d="M4 4l16 16"/></symbol>
 </svg>
