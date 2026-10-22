@@ -3,7 +3,7 @@
 ## Em desenvolvimento — 2026-10-21
 
 ### Adicionado
-- Recuperação de senha no próprio Roda em três etapas: e-mail, código de uso único e criação da nova senha, mantendo o link de recuperação como alternativa.
+- Recuperação de senha no próprio Roda em três etapas: e-mail, código de uso único e criação da nova senha.
 - Central de avisos dentro do Roda, com histórico, contador e toque de teste independente da permissão do navegador.
 - Página inicial com navegação visível para Amigos, Configurações e Notificações.
 - Página pública de downloads que pode ser aberta sem entrar em uma conta.
