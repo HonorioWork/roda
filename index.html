@@ -288,7 +288,7 @@ async function pickSrv(s){stopSocial();viewMode='server';const attempt=++serverA
  const[{data:c},{data:m}]=await Promise.all([sb.from('channels').select('*').eq('server_id',s.id).order('name'),
   sb.from('members').select('user_id,role,profiles(username,status,avatar_url,tag_number)').eq('server_id',s.id)]);
  if(attempt!==serverAttempt||!me)return;chs=c||[];mem=m||[];names=Object.fromEntries(mem.map(x=>[x.user_id,x.profiles?.username]));drawChs();drawMem();
- pickCh(chs.find(x=>x.kind==='text')||chs[0]);refreshCallRoster()}
+  const remembered=userSettings.navigation.lastChannels?.[s.id],target=chs.find(x=>x.id===remembered)||chs.find(x=>x.kind==='text')||chs[0];pickCh(target);refreshCallRoster()}
 const isAdm=()=>mem.some(m=>m.user_id===me.id&&m.role==='admin');
 function orderedServers(){const order=userSettings.navigation?.serverOrder||[];return [...servers].sort((a,b)=>{const ai=order.indexOf(a.id),bi=order.indexOf(b.id);return (ai<0?9999:ai)-(bi<0?9999:bi)})}
 async function saveServerOrder(ids){userSettings.navigation.serverOrder=ids;servers=orderedServers();drawSrvs();try{await persistUserSettings(userSettings)}catch{try{localStorage.setItem('roda-server-order',JSON.stringify(ids))}catch{}}}
@@ -313,7 +313,8 @@ $('#menu').onclick=()=>dw('#side');$('#mbtn').onclick=()=>dw('#mem');$('#veil').
 $('#mobile-nav').onclick=e=>{const tab=e.target.closest('button')?.dataset.tab;if(tab==='home')showHome();if(tab==='servers')dw('#side');if(tab==='messages')showFriends();if(tab==='notifications')openNotificationCenter();if(tab==='profile')openSettings('account')};
 addEventListener('resize',()=>{if(innerWidth>900)shut()});
 // ---------- chat ----------
-function pickCh(c){stopSocial();viewMode='server';parkVoice();if(rt){sb.removeChannel(rt);rt=null}if(!c){ch=null;$('#view').replaceChildren(el('div',{className:'empty',textContent:'Este servidor ainda não tem canais.'}));return;}if(rt){sb.removeChannel(rt);rt=null}
+function pickCh(c){stopSocial();viewMode='server';parkVoice();if(rt){sb.removeChannel(rt);rt=null}if(!c){ch=null;$('#view').replaceChildren(EmptyState('#','Sem canais','Este servidor ainda não tem canais.'));return;}if(rt){sb.removeChannel(rt);rt=null}
+  if(srv?.id){userSettings.navigation.lastChannels={...(userSettings.navigation.lastChannels||{}),[srv.id]:c.id};persistUserSettings(userSettings).catch(()=>{})}
  ch=c;drawChs();drawMem();$('#title').textContent=(c.kind==='text'?'# ':'🔊 ')+c.name;note('');
  c.kind==='text'?textView(c):voiceView(c);refreshCallRoster();rosterTimer=setInterval(refreshCallRoster,20000)}
 function msgNode(m,ctx={}){const mine=m.user_id===me.id,n=names[m.user_id]||'?',d=el('div',{className:'msg',id:'m'+m.id}),tools=el('div',{className:'tools'}),reply=m.reply_to&&ctx.messages?.get(m.reply_to);
