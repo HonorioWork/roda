@@ -1,0 +1,15 @@
+:root{
+  --color-bg:#1a1a1e;--color-surface:#121214;--color-surface-raised:#232327;--color-surface-hover:#303035;
+  --color-border:#2b2b30;--color-text:#f2f3f5;--color-muted:#96979f;--color-accent:#5865f2;
+  --color-success:#43b581;--color-danger:#ed4245;--color-warning:#f0b232;
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px;
+  --radius-sm:6px;--radius-md:10px;--radius-lg:16px;--radius-pill:999px;
+  --shadow-popover:0 8px 30px #0008;--shadow-modal:0 24px 90px #0009;
+  --font-xs:11px;--font-sm:12px;--font-md:14px;--font-lg:18px;--font-xl:28px;
+  --touch-target:40px;--app-height:100dvh;
+  --bg:var(--color-bg);--p1:var(--color-surface);--p2:var(--color-surface-raised);--p3:var(--color-surface-hover);
+  --ln:var(--color-border);--tx:var(--color-text);--mut:var(--color-muted);--ac:var(--color-accent);
+  --vc:var(--color-success);--dg:var(--color-danger);
+}
+.theme-light{--color-bg:#eef1f5;--color-surface:#fff;--color-surface-raised:#e3e7ed;--color-surface-hover:#d4dae3;--color-border:#c6ccd6;--color-text:#202229;--color-muted:#5f6672}
+@media(prefers-color-scheme:light){.theme-system{--color-bg:#eef1f5;--color-surface:#fff;--color-surface-raised:#e3e7ed;--color-surface-hover:#d4dae3;--color-border:#c6ccd6;--color-text:#202229;--color-muted:#5f6672}}
