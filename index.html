@@ -702,7 +702,7 @@ async function openDM(peer){
 function scheduleDraw(){if(renderFrame)return;renderFrame=requestAnimationFrame(()=>{renderFrame=0;draw()})}
 function updateSpeaking(){
  if(!room||!voiceStage)return;const speaking=new Set([room.localParticipant,...room.remoteParticipants.values()].filter(p=>p.isSpeaking).map(p=>p.identity||'local'));
- voiceStage.querySelectorAll('.tile').forEach(t=>t.classList.toggle('sp',speaking.has(t.dataset.key.split(':')[0])));document.querySelectorAll('.channel-person').forEach(row=>row.classList.toggle('speaking',speaking.has(row.dataset.participant)));
+  const stage=voiceStage.querySelector('#tiles'),active=[];voiceStage.querySelectorAll('.tile').forEach(t=>{const on=speaking.has(t.dataset.key.split(':')[0]);t.classList.toggle('sp',on);t.setAttribute('aria-label',(t.dataset.label||'Participante')+(on?' — falando':''));if(on)active.push(t)});if(active.length&&stage)stage.prepend(...active);document.querySelectorAll('.channel-person').forEach(row=>row.classList.toggle('speaking',speaking.has(row.dataset.participant)));
 }
 async function callTone(enter){
  if(!callSounds)return;try{callSoundContext??=new AudioContext();await callSoundContext.resume();const now=callSoundContext.currentTime;
