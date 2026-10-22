@@ -287,7 +287,7 @@ async function pickSrv(s){stopSocial();viewMode='server';const attempt=++serverA
  showLoading($('#chn'),'channel',6,'Carregando canais');
  const[{data:c},{data:m}]=await Promise.all([sb.from('channels').select('*').eq('server_id',s.id).order('name'),
   sb.from('members').select('user_id,role,profiles(username,status,avatar_url,tag_number)').eq('server_id',s.id)]);
- if(attempt!==serverAttempt||!me)return;chs=c||[];mem=m||[];names=Object.fromEntries(mem.map(x=>[x.user_id,x.profiles?.username]));drawChs();drawMem();
+  if(attempt!==serverAttempt||!me)return;chs=c||[];mem=m||[];names=Object.fromEntries(mem.map(x=>[x.user_id,x.profiles?.username]));drawChs();drawMem();watchCallRoster();
   const remembered=userSettings.navigation.lastChannels?.[s.id],target=chs.find(x=>x.id===remembered)||chs.find(x=>x.kind==='text')||chs[0];pickCh(target);refreshCallRoster()}
 const isAdm=()=>mem.some(m=>m.user_id===me.id&&m.role==='admin');
 function orderedServers(){const order=userSettings.navigation?.serverOrder||[];return [...servers].sort((a,b)=>{const ai=order.indexOf(a.id),bi=order.indexOf(b.id);return (ai<0?9999:ai)-(bi<0?9999:bi)})}
@@ -540,7 +540,7 @@ function openSettings(initialPage='account'){
  nav.prepend(el('h3',{textContent:prof?.display_name||prof?.username||'Roda'}),search);dialog.append(el('div',{className:'settings-layout'},nav,content));dialog.addEventListener('cancel',e=>{e.preventDefault();close()});document.body.append(dialog);render();dialog.showModal();
 }
 // Home, amigos, perfil e controles de chamada.
-let rosterTimer=null,presenceQueue=Promise.resolve();let viewMode='home',socialEpoch=0,socialTimer=null,friendsCache=[],profileCache=new Map(),presenceTimer=null,pingTimer=null,pingBusy=false,pingMs=null,callRows=[],callPresenceAvailable=true,voiceWasConnected=false,renderFrame=0,callSoundContext=null;
+let rosterTimer=null,callRosterRt=null,presenceQueue=Promise.resolve();let viewMode='home',socialEpoch=0,socialTimer=null,friendsCache=[],profileCache=new Map(),presenceTimer=null,pingTimer=null,pingBusy=false,pingMs=null,callRows=[],callPresenceAvailable=true,voiceWasConnected=false,renderFrame=0,callSoundContext=null;
 let callSignalChannel=null,incomingCall=null,outgoingCall=null,ringTimer=null,callNotification=null,callSignalTimeout=null,callSignalPollTimer=null,callSignalPolling=false;
 let appNotifications=[],unreadNotifications=0;
 try{appNotifications=JSON.parse(localStorage.getItem('roda-notifications')||'[]').slice(0,30)}catch{}
@@ -573,7 +573,7 @@ function avatarFor(name,size){
  }
  return node;
 }
-function stopSocial(){socialEpoch++;clearTimeout(socialTimer);socialTimer=null;clearInterval(rosterTimer);rosterTimer=null}
+function stopSocial(){socialEpoch++;clearTimeout(socialTimer);socialTimer=null;clearInterval(rosterTimer);rosterTimer=null;if(callRosterRt){sb.removeChannel(callRosterRt);callRosterRt=null}}
 function homeSidebar(){
  $('#chn').replaceChildren(el('div',{className:'sh'},el('b',{textContent:'Seu espaço'})),el('button',{className:'row'+(viewMode==='home'?' on':''),textContent:'⌂  Início',onclick:showHome}),el('button',{className:'row'+(viewMode==='friends'?' on':''),textContent:'♟  Amigos',onclick:()=>showFriends()}),el('div',{className:'channel-label',textContent:'Mensagens diretas'}),
  ...friendsCache.filter(f=>f.status==='accepted').slice(0,30).map(f=>el('button',{className:'row',textContent:'@ '+(f.peer?tagged(f.peer):'Amigo'),onclick:()=>openDM(f.peer)})),
@@ -715,25 +715,26 @@ function renderCallPeople(){
  voiceStage?.querySelector('.call-people')?.remove();
  document.querySelectorAll('.channel-people').forEach(node=>{
   const live=room&&voiceChannel?.id===node.dataset.channel;
-  const people=live?[room.localParticipant,...room.remoteParticipants.values()].map(p=>({id:p.identity||me?.id,name:p.name||names[p.identity]||'Participante',muted:!p.isMicrophoneEnabled,speaking:!!p.isSpeaking})):callRows.filter(p=>p.channel_id===node.dataset.channel).map(p=>({id:p.user_id,name:names[p.user_id]||'Participante',muted:false,speaking:false}));
+  const people=live?[room.localParticipant,...room.remoteParticipants.values()].map(p=>({id:p.identity||me?.id,name:p.name||names[p.identity]||'Participante',muted:!p.isMicrophoneEnabled,deafened:false,videoOn:p.isCameraEnabled,screenSharing:p.isScreenShareEnabled,speaking:!!p.isSpeaking})):callRows.filter(p=>p.channel_id===node.dataset.channel).map(p=>({id:p.user_id,name:names[p.user_id]||'Participante',muted:p.muted,deafened:p.deafened,videoOn:p.video_on,screenSharing:p.screen_sharing,speaking:false}));
   const signature=JSON.stringify(people.map(p=>[p.id,p.name,p.muted,(p.id===me?.id?prof:mem.find(m=>m.user_id===p.id)?.profiles)?.avatar_url]));
-  if(node.dataset.signature!==signature){node.dataset.signature=signature;node.replaceChildren(...people.map(p=>{const row=el('div',{className:'channel-person',title:p.name+(p.muted?' — microfone desligado':'')},ava(p.name,24),el('span',{className:'channel-person-name',textContent:p.name}),...(p.muted?[el('span',{className:'channel-mute',textContent:'🔇',ariaLabel:'Microfone desligado'})]:[]));row.dataset.participant=p.id;return row}));}
+  if(node.dataset.signature!==signature){node.dataset.signature=signature;const visible=people.slice(0,5);node.replaceChildren(...visible.map(p=>{const icons=el('span',{className:'voice-state-icons'},...(p.muted?[el('span',{textContent:'🔇',ariaLabel:'Microfone desligado'})]:[]),...(p.deafened?[el('span',{textContent:'🎧',ariaLabel:'Áudio desativado'})]:[]),...(p.videoOn?[el('span',{textContent:'📷',ariaLabel:'Câmera ligada'})]:[]),...(p.screenSharing?[el('span',{textContent:'🖥',ariaLabel:'Compartilhando tela'})]:[]));const row=el('div',{className:'channel-person',title:p.name},ava(p.name,24),el('span',{className:'channel-person-name',textContent:p.name}),icons);row.dataset.participant=p.id;return row}),...(people.length>5?[el('div',{className:'channel-overflow',textContent:'+'+(people.length-5)+' participantes'})]:[]));}
   node.hidden=!people.length;node.setAttribute('aria-label','Participantes deste canal');
   node.querySelectorAll('.channel-person').forEach(row=>row.classList.toggle('speaking',people.some(p=>p.id===row.dataset.participant&&p.speaking)));
  });
 }
 async function heartbeatCall(){
  if(!room||!voiceChannel||voiceChannel.private||!me||!callPresenceAvailable)return;
- const active=room,channelId=voiceChannel.id,userId=me.id;presenceQueue=presenceQueue.catch(()=>{}).then(async()=>{if(room!==active)return;const result=await sb.from('call_presence').upsert({user_id:userId,channel_id:channelId});if(result.error)callPresenceAvailable=false});await presenceQueue;
+  const active=room,channelId=voiceChannel.id,userId=me.id,lp=room.localParticipant;presenceQueue=presenceQueue.catch(()=>{}).then(async()=>{if(room!==active)return;const result=await sb.from('call_presence').upsert({user_id:userId,channel_id:channelId,muted:!lp.isMicrophoneEnabled,deafened:false,video_on:lp.isCameraEnabled,screen_sharing:lp.isScreenShareEnabled});if(result.error)callPresenceAvailable=false});await presenceQueue;
 }
 async function refreshCallRoster(){
  renderCallPeople();
  if(!srv||viewMode!=='server'||document.hidden||!callPresenceAvailable)return;
  const id=srv.id,ids=chs.filter(c=>c.kind==='voice').map(c=>c.id);if(!ids.length)return;
- const{data,error}=await sb.from('call_presence').select('user_id,channel_id').in('channel_id',ids).gte('updated_at',new Date(Date.now()-90000).toISOString());
+  const{data,error}=await sb.from('call_presence').select('user_id,channel_id,muted,deafened,video_on,screen_sharing').in('channel_id',ids).gte('updated_at',new Date(Date.now()-90000).toISOString());
  if(error){callPresenceAvailable=false;return}if(srv?.id!==id||viewMode!=='server')return;callRows=data||[];
  renderCallPeople();
 }
+function watchCallRoster(){if(callRosterRt){sb.removeChannel(callRosterRt);callRosterRt=null}if(!srv)return;const serverId=srv.id,ids=chs.filter(c=>c.kind==='voice').map(c=>c.id);callRosterRt=sb.channel('voice-roster-'+serverId).on('postgres_changes',{event:'*',schema:'public',table:'call_presence'},payload=>{const channelId=payload.new?.channel_id||payload.old?.channel_id;if(ids.includes(channelId))refreshCallRoster()}).subscribe()}
 function beginCallServices(){
  voiceWasConnected=true;callTone(true);clearInterval(pingTimer);clearInterval(presenceTimer);pingTimer=setInterval(refreshPing,10000);refreshPing();if(!voiceChannel?.private){heartbeatCall();presenceTimer=setInterval(heartbeatCall,30000)}renderCallPeople();
 }
