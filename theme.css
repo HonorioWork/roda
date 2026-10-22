@@ -107,3 +107,50 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
  .dm-head{display:grid;grid-template-columns:minmax(0,1fr);padding:var(--space-2) var(--space-3)}
  .dm-actions{justify-content:flex-start}.dm-search{min-width:0}
 }
+
+
+/* Ajustes 1.4.3: temas completos, janela compacta e informações de segurança */
+.theme-light{
+  color-scheme:light;--color-bg:#f2f3f5;--color-surface:#ffffff;--color-surface-raised:#e9ebef;
+  --color-surface-hover:#dfe2e7;--color-border:#c8cdd5;--color-text:#1e1f22;--color-muted:#5c6370;
+  --bg:var(--color-bg);--p1:var(--color-surface);--p2:var(--color-surface-raised);--p3:var(--color-surface-hover);
+  --ln:var(--color-border);--tx:var(--color-text);--mut:var(--color-muted);--acx:#fff
+}
+.theme-light,.theme-light main,.theme-light #view{background:var(--color-bg);color:var(--color-text)}
+.theme-light #app:before{background:#f8f9fa;color:#4e5561;border-color:var(--color-border)}
+.theme-light #side,.theme-light #chn,.theme-light #mem,.theme-light .home-toolbar,.theme-light .home-aside,
+.theme-light .settings-dialog,.theme-light .settings-main,.theme-light .notification-dialog,.theme-light .dm-head,
+.theme-light .private-call-head{background:var(--color-surface);color:var(--color-text);border-color:var(--color-border)}
+.theme-light #srvs,.theme-light .settings-nav,.theme-light .auth-intro{background:#e3e6eb}
+.theme-light .me,.theme-light #comp,.theme-light .settings-card,.theme-light .notice-status,
+.theme-light .notification-item,.theme-light .active-person,.theme-light .server-card,.theme-light .role-manager-row,
+.theme-light .incoming-card,.theme-light .voice-dock,.theme-light .call-people{background:var(--color-surface-raised);border-color:var(--color-border);color:var(--color-text)}
+.theme-light .row.on,.theme-light .settings-nav button.active,.theme-light .auth-tabs button[aria-pressed=true]{background:var(--color-surface-hover);color:var(--color-text)}
+.theme-light .row:hover,.theme-light .mi:hover,.theme-light .channel-person:hover,.theme-light .msg:hover{background:color-mix(in srgb,var(--color-surface-hover) 72%,transparent);color:var(--color-text)}
+.theme-light .msg p,.theme-light .channel-person,.theme-light .call-person{color:#343840}
+.theme-light #tiles,.theme-light #ctl{background:#e5e7eb}.theme-light .tile{background:#f8f9fb;border-color:var(--color-border)}
+.theme-light .tile .av{background:#d9dde5;color:#30343b}.theme-light .tile video{background:#111}
+.theme-light .settings-main select,.theme-light .settings-main input,.theme-light .settings-main textarea,
+.theme-light #auth-form input{background:#fff;color:var(--color-text);border-color:var(--color-border)}
+.theme-light .mic-meter{background:#d7dbe2}.theme-light .unsaved-bar{background:#fff;border-color:var(--color-border);box-shadow:var(--shadow-popover)}
+.theme-light .home-hero{background:linear-gradient(135deg,#5865f214,#fff 60%);border-color:var(--color-border)}
+.theme-light .incoming-call{background:#ffffffcc}.theme-light dialog::backdrop{background:#30343b80}
+.security-info{display:grid;gap:var(--space-3)}.security-info .settings-card{margin:0}
+.security-card-title{display:flex;align-items:center;gap:var(--space-2)}.security-card-title h3{margin:0}
+.security-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:var(--radius-md);background:var(--color-surface-hover)}
+.security-list{margin:var(--space-2) 0 0;padding-left:22px;color:var(--color-muted);font-size:var(--font-sm);line-height:1.7}
+.security-note{padding:var(--space-3);border-left:3px solid var(--color-warning);background:color-mix(in srgb,var(--color-warning) 8%,transparent)}
+.security-actions{display:flex;gap:var(--space-2);flex-wrap:wrap}.security-actions button{min-height:var(--touch-target)}
+@media(max-width:767px){
+ html.native-windows #app{padding-top:0}html.native-windows #app:before{display:none}
+ html.native-windows main{min-width:0}.settings-dialog.app-settings{inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;border-radius:0}
+ .settings-dialog.app-settings .settings-layout{height:100%;grid-template-rows:auto minmax(0,1fr)}
+ .settings-dialog.app-settings .settings-nav{overflow-x:auto;flex-wrap:nowrap;min-height:68px}
+ .settings-dialog.app-settings .settings-nav button{flex:0 0 auto;width:auto;min-height:40px}
+ .settings-dialog.app-settings .settings-main{height:auto;min-height:0}
+}
+@media(max-width:520px){
+ .home-toolbar{padding-inline:var(--space-2)}.home-toolbar button{padding-inline:var(--space-2);white-space:nowrap}
+ .dm-actions{display:grid;grid-template-columns:repeat(4,var(--touch-target));justify-content:start}
+ .dm-search{grid-column:1/-1;width:100%}.security-actions{display:grid}.security-actions button{width:100%}
+}

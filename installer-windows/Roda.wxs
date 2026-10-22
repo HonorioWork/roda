@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="Roda" Language="1046" Version="1.4.3" Manufacturer="HonorioWork"
+           UpgradeCode="7E546CE7-3CC0-4AF3-A9E7-7E7C6FF70641">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perUser" Platform="x64"
+             Description="Instala o aplicativo independente Roda para Windows" />
+    <MajorUpgrade DowngradeErrorMessage="Ja existe uma versao mais nova do Roda instalada." />
+    <MediaTemplate EmbedCab="yes" />
+    <Property Id="ARPNOMODIFY" Value="1" />
+    <Property Id="ARPURLINFOABOUT" Value="https://honoriowork.github.io/roda/" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://honoriowork.github.io/roda/downloads/" />
+    <Property Id="ARPCONTACT" Value="HonorioWork" />
+    <Property Id="ARPPRODUCTICON" Value="RodaIcon.ico" />
+    <Icon Id="RodaIcon.ico" SourceFile="..\aplicativo-windows\Roda.ico" />
+
+    <Property Id="WEBVIEW2VERSION">
+      <RegistrySearch Id="FindWebView2" Root="HKLM"
+                      Key="SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
+                      Name="pv" Type="raw" Win64="no" />
+    </Property>
+    <Condition Message="O componente Microsoft Edge WebView2 Runtime e necessario. Atualize o Windows ou instale o WebView2 Runtime.">Installed OR WEBVIEW2VERSION</Condition>
+
+    <Feature Id="RodaFeature" Title="Roda" Level="1">
+      <ComponentRef Id="RodaApplication" />
+      <ComponentRef Id="RodaStartMenuShortcut" />
+      <ComponentRef Id="RodaDesktopShortcut" />
+    </Feature>
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="LocalAppDataFolder">
+        <Directory Id="INSTALLFOLDER" Name="Roda" />
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="RodaProgramMenuFolder" Name="Roda" />
+      </Directory>
+      <Directory Id="DesktopFolder" />
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="RodaApplication" Guid="50338A02-BC47-4E6B-A345-DCE4ED10C497" Win64="yes">
+        <File Id="RodaExe" Source="..\aplicativo-windows\dist\Roda.exe" Checksum="yes" />
+        <File Id="RodaExeConfig" Source="..\aplicativo-windows\dist\Roda.exe.config" />
+        <File Id="WebView2Core" Source="..\aplicativo-windows\dist\Microsoft.Web.WebView2.Core.dll" />
+        <File Id="WebView2WinForms" Source="..\aplicativo-windows\dist\Microsoft.Web.WebView2.WinForms.dll" />
+        <File Id="WebView2Loader" Source="..\aplicativo-windows\dist\WebView2Loader.dll" />
+        <File Id="RodaReadme" Source="..\aplicativo-windows\dist\LEIAME.txt" />
+        <RemoveFolder Id="RemoveRodaInstallFolder" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\HonorioWork\Roda" Name="Installed"
+                       Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="RodaProgramMenuFolder">
+      <Component Id="RodaStartMenuShortcut" Guid="E4F920EE-904C-4F90-BDB3-F98C9BDD27B7">
+        <Shortcut Id="RodaStartMenuLink" Name="Roda" Description="Abrir o aplicativo Roda"
+                  Target="[INSTALLFOLDER]Roda.exe" WorkingDirectory="INSTALLFOLDER" Icon="RodaIcon.ico" />
+        <RemoveFolder Id="RemoveRodaProgramMenuFolder" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\HonorioWork\Roda" Name="StartMenuShortcut"
+                       Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="RodaDesktopShortcut" Guid="B282154C-18CF-49CC-A95F-0C8EEA17D641">
+        <Shortcut Id="RodaDesktopLink" Name="Roda" Description="Abrir o aplicativo Roda"
+                  Target="[INSTALLFOLDER]Roda.exe" WorkingDirectory="INSTALLFOLDER" Icon="RodaIcon.ico" />
+        <RegistryValue Root="HKCU" Key="Software\HonorioWork\Roda" Name="DesktopShortcut"
+                       Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+</Wix>

@@ -1,0 +1,15 @@
+RODA PARA WINDOWS
+
+Esta e a versao independente para computador.
+Ela abre em uma janela propria, sem iniciar Edge, Chrome ou outro navegador.
+O aplicativo usa o WebView2 Runtime do Windows e carrega a versao publica do Roda.
+Assim, correcoes do site chegam automaticamente sem reinstalar o programa.
+O Roda tambem verifica atualizacoes do proprio aplicativo ao abrir. Quando uma
+versao nova e publicada, ele baixa, confere o arquivo e instala automaticamente.
+
+Requisitos: Windows 10 ou 11, internet e Microsoft Edge WebView2 Runtime.
+
+
+ASSINATURA DIGITAL
+O instalador oficial deve ser assinado com certificado publico da HonorioWork.
+Sem esse certificado, o Windows SmartScreen pode exibir aviso de editor desconhecido.

@@ -137,7 +137,7 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
   <p class="auth-switch" id="auth-switch">Ainda não tem uma conta? <button type="button" id="switch-mode">Crie a sua</button></p>
   <p class="auth-note" id="auth-note">Se recebeu um convite, entre ou crie sua conta para participar.</p>
   <button type="button" id="install-auth" class="auth-link" style="display:block;width:100%;text-align:center;margin-top:12px">📱 Instalar Roda neste aparelho</button>
-  <a id="windows-download" class="pri public-download" href="downloads/Roda-Setup-1.4.2-corrigido.msi" download>⬇ Baixar Roda para Windows</a>
+  <a id="windows-download" class="pri public-download" href="downloads/Roda-Setup-1.4.3.msi" download>⬇ Baixar Roda para Windows</a>
   <a class="download-more" href="downloads/">Downloads e instalação sem login</a>
  </div>
 </section>
@@ -511,7 +511,7 @@ let userSettings=mergeSettings(),settingsAvailable=true,outputVolume=1,callSound
 let devicePreferences={input:'',output:'',camera:'',facingMode:'user'};
 try{devicePreferences={input:'',output:'',camera:'',facingMode:'user',...JSON.parse(localStorage.getItem('roda-devices')||'{}')};vol=JSON.parse(localStorage.getItem('roda-participant-volumes')||'{}');userSettings.appearance.compact=localStorage.getItem('roda-compact')==='true';userSettings.voice.outputVolume=Math.min(1,Math.max(0,Number(localStorage.getItem('roda-output')??1)));userSettings.voice.callSounds=localStorage.getItem('roda-call-sounds')!=='false'}catch{}
 function applySettings(){
- const a=userSettings.appearance,v=userSettings.voice;document.body.classList.toggle('theme-light',a.theme==='light'||(a.theme==='system'&&matchMedia('(prefers-color-scheme:light)').matches));document.body.classList.toggle('compact',!!a.compact);document.body.classList.toggle('high-contrast',!!a.highContrast);document.body.classList.toggle('reduce-motion',!!a.reduceMotion);document.body.classList.toggle('hide-avatars',a.showAvatars===false);document.documentElement.style.setProperty('--chat-font',(Math.min(22,Math.max(12,Number(a.fontSize)||14)))+'px');outputVolume=Math.min(1,Math.max(0,Number(v.outputVolume)??1));callSounds=v.callSounds!==false;screenResolution=v.screenResolution==='720'?'720':'1080';screenFps=Number(v.screenFps)===60?60:30;if(room)draw();
+ const a=userSettings.appearance,v=userSettings.voice,isLight=a.theme==='light'||(a.theme==='system'&&matchMedia('(prefers-color-scheme:light)').matches);document.body.classList.toggle('theme-light',isLight);document.querySelector('meta[name="theme-color"]')?.setAttribute('content',isLight?'#eef1f5':'#1a1a1e');if(nativeWindows&&window.chrome?.webview)try{window.chrome.webview.postMessage('RODA_THEME\t'+(isLight?'light':'dark'))}catch{}document.body.classList.toggle('compact',!!a.compact);document.body.classList.toggle('high-contrast',!!a.highContrast);document.body.classList.toggle('reduce-motion',!!a.reduceMotion);document.body.classList.toggle('hide-avatars',a.showAvatars===false);document.documentElement.style.setProperty('--chat-font',(Math.min(22,Math.max(12,Number(a.fontSize)||14)))+'px');outputVolume=Math.min(1,Math.max(0,Number(v.outputVolume)??1));callSounds=v.callSounds!==false;screenResolution=v.screenResolution==='720'?'720':'1080';screenFps=Number(v.screenFps)===60?60:30;if(room)draw();
  try{localStorage.setItem('roda-compact',String(!!a.compact));localStorage.setItem('roda-output',String(outputVolume));localStorage.setItem('roda-call-sounds',String(callSounds));localStorage.setItem('roda-devices',JSON.stringify(devicePreferences))}catch{}
 }
 async function loadUserSettings(){
@@ -572,7 +572,16 @@ function openSettings(initialPage='account'){
   }else if(page==='presence'){
    body=el('div',{},selectField('Presença',profileDraft.status,v=>profileDraft.status=v,[['online','Disponível'],['away','Ausente'],['busy','Não perturbe']]),textField('Status personalizado',profileDraft.custom_status,v=>profileDraft.custom_status=v,{max:100}),selectField('Limpar status',draft.presence.expires,v=>draft.presence.expires=v,[['never','Não limpar'],['30m','Em 30 minutos'],['1h','Em 1 hora'],['4h','Em 4 horas'],['today','Hoje']]));
   }else{
-   const report=el('button',{className:'settings-danger',textContent:'Denunciar um problema',onclick:async()=>{const values=await ask('Denunciar problema',[{label:'Descreva o problema',value:'',max:1000}],'Enviar denúncia');if(!values?.[0])return;const{error}=await sb.from('reports').insert({reporter_id:me.id,target_type:'server',target_id:srv?.id||me.id,reason:values[0]});toast(error?'Não foi possível enviar a denúncia.':'Denúncia registrada para análise.')}});body=el('div',{},el('div',{className:'settings-card'},el('h3',{textContent:'Roda 1.4.2'}),el('p',{textContent:'As configurações da conta são sincronizadas. O programa para Windows carrega automaticamente esta versão online.'})),report,el('button',{className:'dg',textContent:'Sair da conta',onclick:()=>{dialog.remove();sb.auth.signOut()}}));
+   const infoCard=(icon,title,text,...items)=>el('section',{className:'settings-card security-card'},el('div',{className:'security-card-title'},el('span',{className:'security-icon',textContent:icon,ariaHidden:'true'}),el('h3',{textContent:title})),el('p',{textContent:text}),...(items.length?[el('ul',{className:'security-list'},...items.map(item=>el('li',{textContent:item})))]:[]));
+   const report=el('button',{className:'settings-danger',textContent:'Denunciar um problema',onclick:async()=>{const values=await ask('Denunciar problema',[{label:'Descreva o problema',value:'',max:1000}],'Enviar denúncia');if(!values?.[0])return;const{error}=await sb.from('reports').insert({reporter_id:me.id,target_type:'server',target_id:srv?.id||me.id,reason:values[0]});toast(error?'Não foi possível enviar a denúncia.':'Denúncia registrada para análise.')}});
+   body=el('div',{className:'security-info'},
+    el('div',{className:'settings-card app-about'},el('h3',{textContent:'Roda 1.4.3'}),el('p',{textContent:'O programa para Windows usa a mesma versão online do Roda e recebe correções automaticamente.'})),
+    infoCard('🛡','Privacidade e LGPD','O Roda usa dados necessários para criar sua conta, manter conversas, servidores, amizades e chamadas funcionando. O tratamento deve seguir finalidade, necessidade, segurança e transparência.','Dados de cadastro e perfil','Mensagens, amizades e participação em servidores','Estado técnico de chamadas, dispositivos e conexão'),
+    infoCard('🔐','Como os dados são protegidos','O acesso é controlado pela sua conta e pelas permissões dos servidores. Áudio e vídeo são transmitidos durante a chamada; mantenha sua senha em segredo e encerre sessões em aparelhos compartilhados.','Use uma senha exclusiva','Revise convites e permissões antes de entrar','Denuncie conteúdo ou comportamento inadequado'),
+    infoCard('📄','Seus direitos','Pela LGPD, você pode solicitar confirmação do tratamento, acesso, correção e, quando aplicável, exclusão, portabilidade, informação sobre compartilhamento e revisão ou revogação de consentimento. Procure o responsável pelo Roda para exercer esses direitos.'),
+    el('p',{className:'security-note',textContent:'Este resumo é informativo e não substitui uma política de privacidade completa nem orientação jurídica.'}),
+    el('div',{className:'security-actions'},report,el('button',{className:'dg',textContent:'Sair da conta',onclick:()=>{dialog.remove();sb.auth.signOut()}}))
+   );
   }
   content.replaceChildren(heading(pageNodes[page]?.[1]||'Configurações'),body,status,bar);bar.hidden=!isDirty()
  }
@@ -826,7 +835,7 @@ function syncAppViewport(){
 syncAppViewport();addEventListener('resize',syncAppViewport,{passive:true});window.visualViewport?.addEventListener('resize',syncAppViewport,{passive:true});
 let installEvent=null;const installButton=$('#install-app'),installAuth=$('#install-auth'),windowsDownload=$('#windows-download');
 const androidDevice=/Android/i.test(navigator.userAgent),windowsDevice=/Windows/i.test(navigator.userAgent),installedApp=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-const downloadWindows=()=>location.assign('downloads/Roda-Setup-1.4.2-corrigido.msi');
+const downloadWindows=()=>location.assign('downloads/Roda-Setup-1.4.3.msi');
 const versionAtLeast=(current,required)=>{const a=String(current).split('.').map(Number),b=String(required).split('.').map(Number);for(let i=0;i<Math.max(a.length,b.length);i++){if((a[i]||0)>(b[i]||0))return true;if((a[i]||0)<(b[i]||0))return false}return true};
 function offerNativeUpdate(){
  if(!nativeWindows||!nativeVersion||versionAtLeast(nativeVersion,'1.4.1')||document.querySelector('#native-update'))return;
