@@ -176,3 +176,23 @@ a{color:var(--color-accent)}
 .cb .ui-icon{width:21px;height:21px}
 .cb.on{color:var(--color-accent);border-color:var(--color-accent)}
 .cb.off .ui-icon,.cb.dg .ui-icon{color:#fff}
+
+
+/* Cartão de perfil: composição centralizada e responsiva. */
+#peer-profile.peer-profile-dialog{width:min(440px,calc(100vw - 28px));max-height:min(620px,calc(100dvh - 28px));margin:auto;border-radius:var(--radius-lg)}
+#peer-profile .peer-profile-banner{height:112px}
+#peer-profile .peer-profile-close{top:var(--space-3);right:var(--space-3);display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--color-accent) 70%,var(--color-border));background:color-mix(in srgb,var(--color-bg) 88%,transparent);color:var(--color-text);font-size:18px}
+#peer-profile .peer-profile-body{display:grid;justify-items:center;gap:var(--space-3);padding:0 var(--space-6) var(--space-6)!important;text-align:center}
+#peer-profile .peer-profile-body>.ava{margin:-46px auto 0;border:5px solid var(--color-surface);box-shadow:var(--shadow-popover)}
+#peer-profile .peer-profile-body h2{width:100%;margin-top:var(--space-1);overflow-wrap:anywhere;font-size:22px;line-height:1.2}
+#peer-profile .peer-profile-body h3{margin-top:var(--space-2);font-size:15px}
+#peer-profile .common-servers{justify-content:center;width:100%}
+#peer-profile .home-actions{justify-content:center;width:100%;margin-top:var(--space-1)}
+#peer-profile .home-actions button{min-width:124px;min-height:42px}
+@media(max-width:480px){
+ #peer-profile.peer-profile-dialog{width:calc(100vw - 20px);max-height:calc(100dvh - 20px)}
+ #peer-profile .peer-profile-banner{height:96px}
+ #peer-profile .peer-profile-body{padding:0 var(--space-4) var(--space-4)!important}
+ #peer-profile .home-actions{display:grid;grid-template-columns:1fr 1fr}
+ #peer-profile .home-actions button{min-width:0;width:100%}
+}
