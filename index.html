@@ -179,7 +179,8 @@ function ask(title,fields,okText){return new Promise(res=>{
  document.body.append(m);inps[0].focus()})}
 function Skeleton(kind='message',count=3){return Array.from({length:count},()=>el('div',{className:'skeleton skeleton-'+kind,ariaHidden:'true'},el('span')))}
 function showLoading(area,kind,count,label='Carregando'){area.replaceChildren(el('div',{role:'status',ariaLabel:label,className:'loading-stack'},...Skeleton(kind,count)))}
-function empty(){$('#view').replaceChildren(el('div',{className:'empty'},el('h2',{textContent:'Bem-vindo ao Roda'}),el('p',{textContent:'Crie seu primeiro servidor ou entre no de um amigo com um convite.',style:'color:var(--mut);margin:0'}),el('button',{className:'pri',textContent:'Criar servidor',onclick:createSrv}),el('button',{textContent:'Entrar com convite',onclick:joinSrv})))}
+function EmptyState(icon,title,description,action){const node=el('div',{className:'empty-state'},el('span',{className:'empty-state-icon',textContent:icon,ariaHidden:'true'}),el('h2',{textContent:title}),el('p',{textContent:description}));if(action)node.append(el('button',{className:'pri',textContent:action.label,onclick:action.run}));return node}
+function empty(){$('#view').replaceChildren(EmptyState('◉','Bem-vindo ao Roda','Crie seu primeiro servidor ou entre com um convite.',{label:'Criar servidor',run:createSrv}),el('button',{textContent:'Entrar com convite',onclick:joinSrv}))}
 const authErr=t=>authFeedback(t);
 let authMode='login',authBusy=false,resetEmail='',recovering=new URLSearchParams(location.hash.slice(1)).get('type')==='recovery';
 function authFeedback(message,success=false){const target=$('#aerr');target.textContent=message||'';target.hidden=!message;target.className=success?'success':''}
@@ -321,7 +322,7 @@ async function textView(c){
  const emo=el('div',{id:'emo',hidden:true},...['😀','😂','😍','😎','🤔','😭','👍','👏','🔥','🎉','❤️','😮','🙏','💀','👀','✨','🎮','🍕'].map(x=>el('button',{textContent:x,onclick:()=>{inp.value+=x;inp.focus();emo.hidden=true}})));
  $('#view').replaceChildren(box,replyBar,el('div',{id:'comp'},emo,el('button',{textContent:'😊',title:'Emojis',onclick:()=>emo.hidden=!emo.hidden}),inp,el('button',{className:'pri',textContent:'Enviar',onclick:send})));
   const{data}=await sb.from('messages').select('*').eq('channel_id',c.id).order('created_at',{ascending:false}).limit(80);
-  if(ch!==c)return;loading.remove();(data||[]).forEach(m=>messages.set(m.id,m));(data||[]).reverse().forEach(m=>box.append(msgNode(m,ctx)));box.scrollTop=box.scrollHeight;
+  if(ch!==c)return;loading.remove();(data||[]).forEach(m=>messages.set(m.id,m));(data||[]).reverse().forEach(m=>box.append(msgNode(m,ctx)));if(!data?.length)box.append(EmptyState('✦','Nenhuma mensagem','Comece a conversa neste canal.',{label:'Escrever mensagem',run:()=>inp.focus()}));box.scrollTop=box.scrollHeight;
  rt=sb.channel('m'+c.id).on('postgres_changes',{event:'*',schema:'public',table:'messages',filter:'channel_id=eq.'+c.id},p=>{
   if(p.eventType==='INSERT'){messages.set(p.new.id,p.new);box.append(msgNode(p.new,ctx));while(box.querySelectorAll('.msg').length>100)box.querySelector('.msg').remove();box.scrollTop=box.scrollHeight;
    if(userSettings.notifications.desktop&&userSettings.notifications.messages&&p.new.user_id!==me.id&&document.hidden&&'Notification' in window&&Notification.permission==='granted')new Notification((names[p.new.user_id]||'?')+' em #'+c.name,{body:p.new.content})}
@@ -608,7 +609,7 @@ async function showFriends(tab='all'){
    if(f.status==='accepted')actions.append(el('button',{textContent:'Mensagem',onclick:()=>openDM(f.peer)}),el('button',{textContent:'📞 Call',onclick:()=>openPrivateCall(f.peer)}));
    actions.append(el('button',{textContent:f.status==='accepted'?'Remover':f.sender_id===me.id?'Cancelar pedido':'Recusar',onclick:()=>{if(f.status!=='accepted'||confirm('Remover esta amizade?'))change('remove')}}));
    list.append(el('div',{className:'friend-item'},ava(f.peer?.username,40),el('div',{style:'flex:1;min-width:0'},el('b',{textContent:f.peer?tagged(f.peer):'Conta indisponível'}),el('p',{className:'muted',textContent:f.status==='pending'?(f.sender_id===me.id?'Pedido enviado':'Quer ser seu amigo'):({online:'Disponível',away:'Ausente',busy:'Ocupado'}[f.peer?.status]||'')}),...(f.status==='accepted'?[el('div',{className:'common-servers'},...(f.commonServers?.length?f.commonServers.map(s=>el('span',{className:'common-server',textContent:'◉ '+s.name})):[el('span',{className:'muted',textContent:'Nenhum servidor em comum'})]))]:[])),actions));
-  }if(!items.length)list.append(el('p',{className:'muted',textContent:'Nada por aqui ainda. Adicione alguém pelo nome do perfil.'}));
+   }if(!items.length)list.append(EmptyState('♟',search.value?'Nenhum resultado':'Nenhum amigo por aqui',search.value?'Tente outro nome.':'Adicione alguém pelo identificador do Roda.',{label:search.value?'Limpar busca':'Adicionar amigo',run:()=>{if(search.value){search.value='';render()}else showFriends('add')}}));
  };
  if(tab==='add'){
   search.placeholder='nome#0000';search.setAttribute('aria-label','Nome e número do amigo');status.textContent='Digite o identificador completo, por exemplo nome#0000.';
