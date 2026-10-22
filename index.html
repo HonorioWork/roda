@@ -145,6 +145,7 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
 <nav id="side"><div id="srvs"></div><div id="chn"></div></nav>
 <main><header><button id="menu" aria-label="Abrir menu">☰</button><b id="title"></b><span id="note" role="status" aria-live="polite"></span><button id="notif-btn" class="header-icon" aria-label="Central de notificações" title="Central de notificações">🔔<span id="notif-badge" hidden>0</span></button><button id="mbtn" aria-label="Membros">👥</button></header><section id="view"></section></main>
 <aside id="mem"></aside><div id="veil"></div></div>
+<nav id="mobile-nav" aria-label="Navegação principal"><button data-tab="home" aria-label="Início">⌂<span>Início</span></button><button data-tab="servers" aria-label="Servidores">◉<span>Servidores</span></button><button data-tab="messages" aria-label="Mensagens">✉<span>Mensagens</span></button><button data-tab="notifications" aria-label="Notificações">🔔<i id="mobile-notif-dot" hidden></i><span>Avisos</span></button><button data-tab="profile" aria-label="Perfil">●<span>Perfil</span></button></nav>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/livekit-client@2.5.7/dist/livekit-client.umd.min.js"></script>
 <script>
@@ -160,6 +161,7 @@ const sb=supabase.createClient(CFG.URL,CFG.KEY);
 const el=(t,p={},...k)=>{const e=Object.assign(document.createElement(t),p);e.append(...k);return e};
 let me,prof,servers=[],srv,chs=[],mem=[],ch,rt,room,vol={},names={},joining=false,voiceAttempt=0,serverAttempt=0;
 const note=t=>$('#note').textContent=t||'';
+function updateMobileNav(){document.querySelectorAll('#mobile-nav button').forEach(button=>button.classList.toggle('active',(button.dataset.tab==='home'&&viewMode==='home')||(button.dataset.tab==='servers'&&viewMode==='server')||(button.dataset.tab==='messages'&&(viewMode==='friends'||viewMode==='dm'))))}
 
 const hue=s=>{let h=0;for(const c of s||'?')h=(h*31+c.charCodeAt(0))%360;return h};
 const ava=(n,z)=>avatarFor(n,z);
@@ -278,7 +280,7 @@ async function deleteServer(server,dialog){if(!server||server.owner!==me.id||!co
 async function renameServer(server){serverEditor(server)}
 async function joinSrv(){const v=await ask('Entrar com convite',[{label:'Código ou link do convite'}],'Entrar');if(!v||!v[0])return;
  const{data,error}=await sb.rpc('join_by_code',{code:v[0].split('convite=').pop().trim()});error?toast('Convite inválido.'):(toast('Você entrou no servidor'),loadServers(data))}
-function drawSrvs(){$('#srvs').replaceChildren(el('button',{className:'add roda-home',textContent:'⌂',title:'Página inicial',ariaLabel:'Página inicial',onclick:showHome}),el('button',{className:'add',textContent:'♟',title:'Amigos',ariaLabel:'Amigos',onclick:()=>showFriends()}),...orderedServers().map(s=>{const b=el('button',{className:'sv'+(viewMode==='server'&&s.id===srv?.id?' on':''),title:s.name,ariaLabel:s.name,onclick:()=>{if(b.dataset.skipClick){delete b.dataset.skipClick;return}pickSrv(s)}});b.append(serverIcon(s,44));bindServerReorder(b,s);return b}),
+function drawSrvs(){updateMobileNav();$('#srvs').replaceChildren(el('button',{className:'add roda-home',textContent:'⌂',title:'Página inicial',ariaLabel:'Página inicial',onclick:showHome}),el('button',{className:'add',textContent:'♟',title:'Amigos',ariaLabel:'Amigos',onclick:()=>showFriends()}),...orderedServers().map(s=>{const b=el('button',{className:'sv'+(viewMode==='server'&&s.id===srv?.id?' on':''),title:s.name,ariaLabel:s.name,onclick:()=>{if(b.dataset.skipClick){delete b.dataset.skipClick;return}pickSrv(s)}});b.append(serverIcon(s,44));bindServerReorder(b,s);return b}),
  el('button',{className:'add',title:'Criar servidor',textContent:'+',onclick:createSrv}),el('button',{className:'add',title:'Entrar com convite',textContent:'↪',onclick:joinSrv}))}
 async function pickSrv(s){stopSocial();viewMode='server';const attempt=++serverAttempt;parkVoice();srv=s;drawSrvs();
  try{const recent=[s.id,...JSON.parse(localStorage.getItem('roda-recent-servers')||'[]').filter(id=>id!==s.id)].slice(0,3);localStorage.setItem('roda-recent-servers',JSON.stringify(recent))}catch{}
@@ -308,6 +310,7 @@ function drawMem(){$('#mem').replaceChildren(el('b',{textContent:'Membros ('+mem
 const shut=()=>{$('#side').classList.remove('open');$('#mem').classList.remove('open');document.body.classList.remove('dw')};
 const dw=id=>{const e=$(id),o=!e.classList.contains('open');shut();e.classList.toggle('open',o);document.body.classList.toggle('dw',o)};
 $('#menu').onclick=()=>dw('#side');$('#mbtn').onclick=()=>dw('#mem');$('#veil').onclick=shut;
+$('#mobile-nav').onclick=e=>{const tab=e.target.closest('button')?.dataset.tab;if(tab==='home')showHome();if(tab==='servers')dw('#side');if(tab==='messages')showFriends();if(tab==='notifications')openNotificationCenter();if(tab==='profile')openSettings('account')};
 addEventListener('resize',()=>{if(innerWidth>900)shut()});
 // ---------- chat ----------
 function pickCh(c){stopSocial();viewMode='server';parkVoice();if(rt){sb.removeChannel(rt);rt=null}if(!c){ch=null;$('#view').replaceChildren(el('div',{className:'empty',textContent:'Este servidor ainda não tem canais.'}));return;}if(rt){sb.removeChannel(rt);rt=null}
@@ -546,7 +549,7 @@ function systemNotificationState(){
  if(Notification.permission==='denied')return{text:'Bloqueados pelo navegador. Os avisos internos e o toque continuam ativos; para avisos fora do Roda, libere a permissão nas configurações do site.',action:'Como liberar no navegador'};
  return{text:'Ainda não configurados. Os avisos internos já funcionam; você também pode permitir avisos fora do Roda.',action:'Permitir avisos do sistema'};
 }
-function updateNotificationBadge(){const badge=$('#notif-badge');if(!badge)return;badge.hidden=!unreadNotifications;badge.textContent=unreadNotifications>99?'99+':String(unreadNotifications)}
+function updateNotificationBadge(){const badge=$('#notif-badge'),dot=$('#mobile-notif-dot');if(badge){badge.hidden=!unreadNotifications;badge.textContent=unreadNotifications>99?'99+':String(unreadNotifications)}if(dot)dot.hidden=!unreadNotifications}
 function storeAppNotifications(){try{localStorage.setItem('roda-notifications',JSON.stringify(appNotifications.slice(0,30)))}catch{}}
 function pushAppNotification(title,body,kind='info'){
  const item={id:Date.now()+Math.random(),title,body,kind,createdAt:new Date().toISOString()};appNotifications.unshift(item);appNotifications=appNotifications.slice(0,30);unreadNotifications++;storeAppNotifications();updateNotificationBadge();return item
