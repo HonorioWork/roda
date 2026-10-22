@@ -1,6 +1,6 @@
 :root{
   --color-bg:#1a1a1e;--color-surface:#121214;--color-surface-raised:#232327;--color-surface-hover:#303035;
-  --color-border:#2b2b30;--color-text:#f2f3f5;--color-muted:#96979f;--color-accent:#5865f2;
+  --color-border:#2b2b30;--color-text:#f2f3f5;--color-muted:#96979f;--color-accent:#f5b942;--color-icon:#f5b942;
   --color-success:#43b581;--color-danger:#ed4245;--color-warning:#f0b232;
   --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px;
   --radius-sm:6px;--radius-md:10px;--radius-lg:16px;--radius-pill:999px;
@@ -8,11 +8,11 @@
   --font-xs:11px;--font-sm:12px;--font-md:14px;--font-lg:18px;--font-xl:28px;
   --touch-target:40px;--app-height:100dvh;
   --bg:var(--color-bg);--p1:var(--color-surface);--p2:var(--color-surface-raised);--p3:var(--color-surface-hover);
-  --ln:var(--color-border);--tx:var(--color-text);--mut:var(--color-muted);--ac:var(--color-accent);
+  --ln:var(--color-border);--tx:var(--color-text);--mut:var(--color-muted);--ac:var(--color-accent);--acx:#1b1405;
   --vc:var(--color-success);--dg:var(--color-danger);
 }
-.theme-light{--color-bg:#eef1f5;--color-surface:#fff;--color-surface-raised:#e3e7ed;--color-surface-hover:#d4dae3;--color-border:#c6ccd6;--color-text:#202229;--color-muted:#5f6672}
-@media(prefers-color-scheme:light){.theme-system{--color-bg:#eef1f5;--color-surface:#fff;--color-surface-raised:#e3e7ed;--color-surface-hover:#d4dae3;--color-border:#c6ccd6;--color-text:#202229;--color-muted:#5f6672}}
+.theme-light{--color-icon:#a76400;--color-bg:#eef1f5;--color-surface:#fff;--color-surface-raised:#e3e7ed;--color-surface-hover:#d4dae3;--color-border:#c6ccd6;--color-text:#202229;--color-muted:#5f6672}
+@media(prefers-color-scheme:light){.theme-system{--color-icon:#a76400;--color-bg:#eef1f5;--color-surface:#fff;--color-surface-raised:#e3e7ed;--color-surface-hover:#d4dae3;--color-border:#c6ccd6;--color-text:#202229;--color-muted:#5f6672}}
 html,body{width:100%;max-width:100%;overflow:hidden}body{min-width:0}
 #app{width:100%;height:var(--app-height);min-height:0;overflow:hidden}#side,#chn,main,#view,#mem{min-width:0;min-height:0}
 dialog,.card{max-width:calc(100vw - var(--space-4)*2);max-height:calc(var(--app-height) - var(--space-4)*2);overflow:auto}
@@ -114,7 +114,7 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
   color-scheme:light;--color-bg:#f2f3f5;--color-surface:#ffffff;--color-surface-raised:#e9ebef;
   --color-surface-hover:#dfe2e7;--color-border:#c8cdd5;--color-text:#1e1f22;--color-muted:#5c6370;
   --bg:var(--color-bg);--p1:var(--color-surface);--p2:var(--color-surface-raised);--p3:var(--color-surface-hover);
-  --ln:var(--color-border);--tx:var(--color-text);--mut:var(--color-muted);--acx:#fff
+  --ln:var(--color-border);--tx:var(--color-text);--mut:var(--color-muted);--acx:#1b1405
 }
 .theme-light,.theme-light main,.theme-light #view{background:var(--color-bg);color:var(--color-text)}
 .theme-light #app:before{background:#f8f9fa;color:#4e5561;border-color:var(--color-border)}
@@ -133,7 +133,7 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
 .theme-light .settings-main select,.theme-light .settings-main input,.theme-light .settings-main textarea,
 .theme-light #auth-form input{background:#fff;color:var(--color-text);border-color:var(--color-border)}
 .theme-light .mic-meter{background:#d7dbe2}.theme-light .unsaved-bar{background:#fff;border-color:var(--color-border);box-shadow:var(--shadow-popover)}
-.theme-light .home-hero{background:linear-gradient(135deg,#5865f214,#fff 60%);border-color:var(--color-border)}
+.theme-light .home-hero{background:linear-gradient(135deg,#f5b9421f,#fff 60%);border-color:var(--color-border)}
 .theme-light .incoming-call{background:#ffffffcc}.theme-light dialog::backdrop{background:#30343b80}
 .security-info{display:grid;gap:var(--space-3)}.security-info .settings-card{margin:0}
 .security-card-title{display:flex;align-items:center;gap:var(--space-2)}.security-card-title h3{margin:0}
@@ -157,3 +157,17 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
 
 /* A página Início já possui avisos próprios; evita controles duplicados no cabeçalho. */
 body:has(.home-page) header #notif-btn,body:has(.home-page) header #mbtn{display:none}
+
+
+/* Identidade visual preta e amarela: ícones próprios e contraste consistente. */
+.ui-icon{display:inline-block;width:1.15em;height:1.15em;flex:none;vertical-align:-.18em;color:var(--color-icon);fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.icon-button,.add.roda-home,#srvs>.add{color:var(--color-icon)}
+.conversation-search,.row{align-items:center;gap:var(--space-3)}
+.conversation-search{display:flex}
+#mobile-nav .ui-icon{width:20px;height:20px}
+#mobile-nav button.active{color:var(--color-accent);box-shadow:inset 0 -2px var(--color-accent)}
+.dm-icon-action .ui-icon,.server-settings-trigger .ui-icon,.me button .ui-icon{width:19px;height:19px}
+.pri{background:var(--color-accent);color:var(--acx);border-color:var(--color-accent)}
+.pri:hover{background:#ffd166;border-color:#ffd166}
+a{color:var(--color-accent)}
+::selection{background:color-mix(in srgb,var(--color-accent) 40%,transparent)}
