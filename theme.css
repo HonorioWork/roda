@@ -24,3 +24,9 @@ dialog,.card{max-width:calc(100vw - var(--space-4)*2);max-height:calc(var(--app-
 .channel-row{min-width:0}.channel-row>.row{min-width:0}.friend-item>div,.mi>span,.server-card{min-width:0}
 .server-card b,.friend-item b,.dm-head strong,.channel-person-name{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tools{align-items:center}.tools button,.channel-edit{flex:none}
+body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+#app{padding-bottom:env(safe-area-inset-bottom)}#srvs{padding-left:env(safe-area-inset-left)}#mem{padding-right:env(safe-area-inset-right)}
+#msgs{scroll-padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+#comp{margin-bottom:calc(var(--space-4) + env(safe-area-inset-bottom));flex:none}
+.voice-dock,#toast{margin-bottom:env(safe-area-inset-bottom)}
+@media(max-width:767px){#side{padding-bottom:env(safe-area-inset-bottom)}#ctl{padding-bottom:calc(var(--space-3) + env(safe-area-inset-bottom))}.notification-dialog{max-height:calc(var(--app-height) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - var(--space-4)*2)}}
