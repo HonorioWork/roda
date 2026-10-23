@@ -257,3 +257,11 @@ a{color:var(--color-accent)}
  .media-volume-list{width:100%;margin-left:0}.media-volume-row{width:100%}.media-volume{min-width:0;flex:1}
  .media-volume span{min-width:88px}.media-volume input{min-width:0}
 }
+
+
+/* Ajuda para compartilhar tela com áudio. */
+.screen-audio-help{position:fixed;inset:0;z-index:140;display:grid;place-items:center;padding:var(--space-4);background:#000c;backdrop-filter:blur(5px)}
+.screen-audio-card{width:min(500px,100%);gap:var(--space-3);border-color:color-mix(in srgb,var(--color-accent) 60%,var(--color-border));box-shadow:var(--shadow-modal)}
+.screen-audio-card h2{margin:0;font-size:21px}.screen-audio-card p{margin:0;color:var(--color-muted);line-height:1.6}
+.screen-audio-card ol{margin:0;padding-left:22px;color:var(--color-text);line-height:1.8}.screen-audio-card .home-actions{justify-content:flex-end}
+@media(max-width:480px){.screen-audio-card .home-actions{display:grid;grid-template-columns:1fr}.screen-audio-card button{width:100%}}
