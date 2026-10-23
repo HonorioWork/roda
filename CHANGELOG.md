@@ -1,3 +1,9 @@
+## 2026-10-23
+- A grade da chamada não muda mais de posição quando alguém fala e a tela cheia permanece ativa.
+- O botão “Ativar áudio” agora acompanha e libera a reprodução do navegador.
+- Servidores podem ser reordenados somente arrastando, com a ordem salva na conta.
+- Canais e conversas privadas aceitam imagens e arquivos de até 20 MB.
+
 # Histórico de mudanças do Roda
 
 ## Em desenvolvimento — 2026-10-21
