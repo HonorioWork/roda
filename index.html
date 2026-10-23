@@ -474,7 +474,7 @@ function setParticipantVolume(participant,identity,value){
 function openMediaViewer(participant,publication,tile){
  if(!publication?.track)return;document.querySelector('#media-viewer')?.close();
  const identity=participant.identity||'local',isLocal=!!participant.isLocal,label=tile.dataset.label||participant.name||'Mídia',track=publication.track;
- const dialog=el('dialog',{id:'media-viewer',className:'media-viewer-dialog',ariaLabel:'Visualizando '+label}),stage=el('div',{className:'media-viewer-stage'}),video=track.attach();
+ const dialog=el('dialog',{id:'media-viewer',className:'media-viewer-dialog',ariaLabel:'Visualizando '+label}),stage=el('div',{className:'media-viewer-stage'}),video=track.attach();dialog.dataset.mediaKey=tile.dataset.key||'';
  video.muted=true;video.playsInline=true;video.autoplay=true;stage.dataset.label=label;stage.append(video);
  const close=el('button',{className:'media-viewer-close',ariaLabel:'Fechar visualizador',title:'Fechar',textContent:'×'}),full=el('button',{className:'media-viewer-full',ariaLabel:'Abrir mídia em tela cheia',title:'Tela cheia'},Icon('screen',18),document.createTextNode('Tela cheia'));
  let cleaned=false;const cleanup=()=>{if(cleaned)return;cleaned=true;try{track.detach(video)}catch{}dialog.remove()};
@@ -527,7 +527,7 @@ function draw(){
    pub.track.setVolume?.((vol[identity]??1)*outputVolume);element.volume=Math.min(1,(vol[identity]??1)*outputVolume);
   }
  }
- for(const t of [...T.children])if(!wanted.has(t.dataset.key)){if(t._videoTrack)t._videoTrack.detach(t._videoElement);if(document.querySelector('#media-viewer')?.dataset.mediaKey===t.dataset.key)document.querySelector('#media-viewer').close();t.remove()}
+ for(const t of [...T.children])if(!wanted.has(t.dataset.key)){if(t._videoTrack)t._videoTrack.detach(t._videoElement);const viewer=document.querySelector('#media-viewer');if(viewer&&viewer.dataset.mediaKey===t.dataset.key)viewer.close();t.remove()}
  for(const a of [...audio.children])if(!audioWanted.has(a.dataset.key)){a._track.detach(a);a.remove()}
  syncFullscreenButtons();
 }
