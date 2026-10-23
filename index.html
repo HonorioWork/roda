@@ -463,12 +463,19 @@ function syncFullscreenButtons(){
 }
 document.addEventListener('fullscreenchange',syncFullscreenButtons);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.fullscreen-fallback').forEach(t=>t.classList.remove('fullscreen-fallback'));syncFullscreenButtons()}});
-function setParticipantVolume(participant,identity,value){
- const next=Math.max(0,Math.min(2,Number(value)||0));vol[identity]=next;
+function isScreenAudioSource(source){return source===LivekitClient.Track.Source.ScreenShareAudio||String(source||'').includes('screen')}
+function audioSourceForVideo(publication){return publication?.source===LivekitClient.Track.Source.ScreenShare?LivekitClient.Track.Source.ScreenShareAudio:LivekitClient.Track.Source.Microphone}
+function audioSourcesForVideo(publication){return publication?.source===LivekitClient.Track.Source.ScreenShare?[LivekitClient.Track.Source.Microphone,LivekitClient.Track.Source.ScreenShareAudio]:[LivekitClient.Track.Source.Microphone]}
+function audioVolumeKey(identity,source){return identity+':'+(isScreenAudioSource(source)?'screen':'voice')}
+function audioVolumeName(source){return isScreenAudioSource(source)?'Áudio da tela':'Voz da pessoa'}
+function getAudioVolume(identity,source){return vol[audioVolumeKey(identity,source)]??vol[identity]??1}
+function setAudioVolume(participant,identity,source,value){
+ const key=audioVolumeKey(identity,source),next=Math.max(0,Math.min(2,Number(value)||0));vol[key]=next;
  try{localStorage.setItem('roda-participant-volumes',JSON.stringify(vol))}catch{}
- for(const pub of participant.audioTrackPublications.values())pub.track?.setVolume?.(next*outputVolume);
- voiceStage?.querySelectorAll('.remote-audio audio').forEach(audio=>{if(audio.dataset.identity===identity)audio.volume=Math.min(1,next*outputVolume)});
- voiceStage?.querySelectorAll('#tiles input[type="range"]').forEach(input=>{if(input.closest('.tile')?.dataset.key.startsWith(identity+':'))input.value=next});
+ for(const pub of participant.audioTrackPublications.values())if(audioVolumeKey(identity,pub.source)===key)pub.track?.setVolume?.(next*outputVolume);
+ voiceStage?.querySelectorAll('.remote-audio audio').forEach(audio=>{if(audio.dataset.volumeKey===key)audio.volume=Math.min(1,next*outputVolume)});
+ voiceStage?.querySelectorAll('input[data-volume-key]').forEach(input=>{if(input.dataset.volumeKey===key)input.value=next});
+ voiceStage?.querySelectorAll('output[data-volume-key]').forEach(output=>{if(output.dataset.volumeKey===key)output.textContent=Math.round(next*100)+'%'});
  return next
 }
 function openMediaViewer(participant,publication,tile){
@@ -481,10 +488,15 @@ function openMediaViewer(participant,publication,tile){
  close.onclick=()=>dialog.close();full.onclick=()=>toggleTileFullscreen(stage);
  const controls=el('div',{className:'media-viewer-controls'},el('strong',{className:'truncate',textContent:label,title:label}),full);
  if(!isLocal){
-  const value=vol[identity]??1,amount=el('output',{textContent:Math.round(value*100)+'%'}),slider=el('input',{type:'range',min:0,max:2,step:.05,value,title:'Volume de '+participant.name,ariaLabel:'Volume de '+participant.name+' de 0 a 200 por cento'}),mute=el('button',{className:'media-viewer-mute',ariaLabel:'Silenciar ou restaurar som',title:'Silenciar'},Icon('volume',18));
-  slider.oninput=()=>{const next=setParticipantVolume(participant,identity,slider.value);amount.textContent=Math.round(next*100)+'%';mute.classList.toggle('muted',next===0)};
-  mute.onclick=()=>{const current=Number(slider.value),next=current===0?Number(mute.dataset.previous||1):0;if(current>0)mute.dataset.previous=String(current);slider.value=String(next);slider.oninput()};
-  controls.append(el('label',{className:'media-volume'},Icon('volume',18),slider,amount),mute)
+  const volumeControls=el('div',{className:'media-volume-list'});
+  for(const source of audioSourcesForVideo(publication)){
+   const volumeKey=audioVolumeKey(identity,source),value=getAudioVolume(identity,source),amount=el('output',{textContent:Math.round(value*100)+'%'}),slider=el('input',{type:'range',min:0,max:2,step:.05,value,title:audioVolumeName(source)+' de '+participant.name,ariaLabel:audioVolumeName(source)+' de '+participant.name+' de 0 a 200 por cento'}),mute=el('button',{className:'media-viewer-mute',ariaLabel:'Silenciar ou restaurar '+audioVolumeName(source).toLowerCase(),title:'Silenciar'},Icon('volume',18));
+   slider.dataset.volumeKey=volumeKey;amount.dataset.volumeKey=volumeKey;
+   slider.oninput=()=>{const next=setAudioVolume(participant,identity,source,slider.value);amount.textContent=Math.round(next*100)+'%';mute.classList.toggle('muted',next===0)};
+   mute.onclick=()=>{const current=Number(slider.value),next=current===0?Number(mute.dataset.previous||1):0;if(current>0)mute.dataset.previous=String(current);slider.value=String(next);slider.oninput()};
+   volumeControls.append(el('div',{className:'media-volume-row'},el('label',{className:'media-volume'},Icon('volume',18),el('span',{textContent:audioVolumeName(source)}),slider,amount),mute))
+  }
+  controls.append(volumeControls)
  }else controls.append(el('span',{className:'muted',textContent:'O áudio local é controlado pelo dispositivo.'}));
  dialog.append(el('header',{className:'media-viewer-head'},el('span',{},Icon(publication.source===LivekitClient.Track.Source.ScreenShare?'screen':'video',20),document.createTextNode(publication.source===LivekitClient.Track.Source.ScreenShare?'Tela compartilhada':'Câmera')),close),stage,controls);
  dialog.addEventListener('cancel',event=>{event.preventDefault();dialog.close()});dialog.addEventListener('close',cleanup,{once:true});document.body.append(dialog);dialog.showModal()
@@ -502,7 +514,7 @@ function draw(){
    const key=identity+':'+(v?.trackSid||v?.source||'avatar');wanted.add(key);
    let t=[...T.children].find(t=>t.dataset.key===key);
    if(!t){
-    t=el('div',{className:'tile',onclick:e=>{if(!e.target.closest('button,input'))t.classList.toggle('big')},ondblclick:e=>{if(!e.target.closest('button,input'))toggleTileFullscreen(t)}});
+    t=el('div',{className:'tile',onclick:e=>{if(!e.target.closest('button,input,label'))t.classList.toggle('big')},ondblclick:e=>{if(!e.target.closest('button,input,label'))toggleTileFullscreen(t)}});
     t.dataset.key=key;T.append(t);
    }
    const label=(p.name||'?')+(p.isLocal?' (você)':'')+(v?(v.source===L.Track.Source.ScreenShare?' · Tela':' · Câmera'):'');
@@ -517,14 +529,23 @@ function draw(){
    let nm=t.querySelector('.nm');if(!nm){nm=el('span',{className:'nm'});t.append(nm)}nm.textContent=label+(p.isMicrophoneEnabled?'':' 🔇');
    if(v&&!t.querySelector('.tile-open-media'))t.append(el('button',{className:'tile-open-media',title:'Abrir mídia em uma tela separada',ariaLabel:'Abrir '+label+' em uma tela separada',onclick:e=>{e.stopPropagation();openMediaViewer(p,v,t)}},Icon(v.source===L.Track.Source.ScreenShare?'screen':'video',17),document.createTextNode('Abrir mídia')));
    if(v&&!t.querySelector('.tile-fullscreen'))t.append(el('button',{className:'tile-fullscreen',onclick:e=>{e.stopPropagation();toggleTileFullscreen(t)}}));
-   if(!p.isLocal&&!t.querySelector('input'))t.append(el('input',{type:'range',min:0,max:2,step:.05,value:vol[identity]??1,title:'Volume de '+p.name+' (0 a 200%)',ariaLabel:'Volume de '+p.name+' de 0 a 200 por cento',oninput:e=>{vol[identity]=+e.target.value;try{localStorage.setItem('roda-participant-volumes',JSON.stringify(vol))}catch{}for(const pub of p.audioTrackPublications.values())pub.track?.setVolume?.(vol[identity]*outputVolume);audio.querySelectorAll('audio').forEach(a=>{if(a.dataset.identity===identity)a.volume=Math.min(1,vol[identity]*outputVolume)});T.querySelectorAll('input').forEach(i=>{if(i.closest('.tile').dataset.key.startsWith(identity+':'))i.value=vol[identity]})}}));
+   if(!p.isLocal&&!t.querySelector('.tile-volume-stack')){
+    const volumeStack=el('div',{className:'tile-volume-stack'});
+    for(const source of audioSourcesForVideo(v)){
+     const volumeKey=audioVolumeKey(identity,source),value=getAudioVolume(identity,source),amount=el('output',{textContent:Math.round(value*100)+'%'}),slider=el('input',{type:'range',min:0,max:2,step:.05,value,title:audioVolumeName(source)+' de '+p.name+' (0 a 200%)',ariaLabel:audioVolumeName(source)+' de '+p.name+' de 0 a 200 por cento'});
+     slider.dataset.volumeKey=volumeKey;amount.dataset.volumeKey=volumeKey;slider.oninput=()=>setAudioVolume(p,identity,source,slider.value);
+     volumeStack.append(el('label',{className:'tile-volume',title:audioVolumeName(source)+' de '+p.name},Icon('volume',15),el('span',{textContent:isScreenAudioSource(source)?'Tela':'Pessoa'}),slider,amount))
+    }
+    t.append(volumeStack)
+   }
   }
   if(!p.isLocal)for(const pub of p.audioTrackPublications.values()){
    if(!pub.track)continue;const key=identity+':'+(pub.trackSid||pub.source);audioWanted.add(key);
    let element=[...audio.children].find(a=>a.dataset.key===key);
    if(element&&element._track!==pub.track){element._track.detach(element);element.remove();element=null}
+   const volumeKey=audioVolumeKey(identity,pub.source),value=getAudioVolume(identity,pub.source);
    if(!element){element=pub.track.attach();element.dataset.key=key;element.dataset.identity=identity;element._track=pub.track;audio.append(element);if(devicePreferences.output&&element.setSinkId)element.setSinkId(devicePreferences.output).catch(()=>{})}
-   pub.track.setVolume?.((vol[identity]??1)*outputVolume);element.volume=Math.min(1,(vol[identity]??1)*outputVolume);
+   element.dataset.volumeKey=volumeKey;pub.track.setVolume?.(value*outputVolume);element.volume=Math.min(1,value*outputVolume);
   }
  }
  for(const t of [...T.children])if(!wanted.has(t.dataset.key)){if(t._videoTrack)t._videoTrack.detach(t._videoElement);const viewer=document.querySelector('#media-viewer');if(viewer&&viewer.dataset.mediaKey===t.dataset.key)viewer.close();t.remove()}
