@@ -1,5 +1,7 @@
 ## 2026-10-24
 - O aplicativo Windows agora abre menor, centralizado e sempre dentro da área útil do monitor.
+- O status pode ser alterado na Home e nos servidores entre Disponível, Ausente, Não perturbe e Invisível.
+- Amigos e membros sem nenhuma sessão aberta no site ou aplicativo passam a aparecer como invisíveis automaticamente.
 
 ## 2026-10-23
 - A grade da chamada não muda mais de posição quando alguém fala e a tela cheia permanece ativa.
