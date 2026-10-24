@@ -287,7 +287,7 @@ a{color:var(--color-accent)}
 
 /* Mantém a página inicial inteira dentro de janelas menores do aplicativo. */
 .home-layout{width:100%;overflow:hidden}.discord-home-main,.home-aside{min-height:0;overflow:auto}
-@media(min-width:1001px) and (max-width:1199px){
+@media(min-width:1001px) and (max-width:1399px){
  html.native-windows #app{grid-template-columns:304px minmax(0,1fr)}
  html.native-windows #srvs{width:60px}
  html.native-windows #chn{width:244px}
@@ -295,6 +295,12 @@ a{color:var(--color-accent)}
  html.native-windows #mem{position:fixed;right:0;top:0;bottom:0;width:260px;z-index:16;transform:translateX(100%);transition:transform .18s ease;box-shadow:-12px 0 28px #0007}
  html.native-windows #mem.open{transform:none}
  html.native-windows #mbtn{display:grid}
+}
+@media(min-width:1200px) and (max-width:1399px){
+ html.native-windows #app{grid-template-columns:328px minmax(0,1fr)}
+ html.native-windows #srvs{width:64px}
+ html.native-windows #chn{width:264px}
+ html.native-windows .home-layout{grid-template-columns:minmax(0,1fr) 300px}
 }
 
 /* Seletor de presença legível, no estilo de aplicativos de comunidade. */

@@ -1,4 +1,7 @@
 ## 2026-10-24
+- O painel de membros vira uma gaveta lateral até 1399 px, sem empurrar o canal de voz para uma segunda linha.
+- Uma nova entrada na chamada agora aguarda o encerramento completo da conexão anterior do LiveKit.
+- A pré-entrada limpa câmera, microfone e medidor antes de conectar e permite entrar sem câmera quando a prévia falhar.
 - O aplicativo Windows agora abre menor, centralizado e sempre dentro da área útil do monitor.
 - O status pode ser alterado na Home e nos servidores entre Disponível, Ausente, Não perturbe e Invisível.
 - Amigos e membros sem nenhuma sessão aberta no site ou aplicativo passam a aparecer como invisíveis automaticamente.
