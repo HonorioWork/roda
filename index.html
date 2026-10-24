@@ -137,7 +137,7 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
   <p class="auth-switch" id="auth-switch">Ainda não tem uma conta? <button type="button" id="switch-mode">Crie a sua</button></p>
   <p class="auth-note" id="auth-note">Se recebeu um convite, entre ou crie sua conta para participar.</p>
   <button type="button" id="install-auth" class="auth-link" style="display:block;width:100%;text-align:center;margin-top:12px">📱 Instalar Roda neste aparelho</button>
-  <a id="windows-download" class="pri public-download" href="downloads/Roda-Setup-1.4.3.msi" download>⬇ Baixar Roda para Windows</a>
+  <a id="windows-download" class="pri public-download" href="downloads/Roda-Setup-1.4.4.msi" download>⬇ Baixar Roda para Windows</a>
   <a class="download-more" href="downloads/">Downloads e instalação sem login</a>
  </div>
 </section>
@@ -728,7 +728,7 @@ function openSettings(initialPage='account'){
    const infoCard=(icon,title,text,...items)=>el('section',{className:'settings-card security-card'},el('div',{className:'security-card-title'},el('span',{className:'security-icon',textContent:icon,ariaHidden:'true'}),el('h3',{textContent:title})),el('p',{textContent:text}),...(items.length?[el('ul',{className:'security-list'},...items.map(item=>el('li',{textContent:item})))]:[]));
    const report=el('button',{className:'settings-danger',textContent:'Denunciar um problema',onclick:async()=>{const values=await ask('Denunciar problema',[{label:'Descreva o problema',value:'',max:1000}],'Enviar denúncia');if(!values?.[0])return;const{error}=await sb.from('reports').insert({reporter_id:me.id,target_type:'server',target_id:srv?.id||me.id,reason:values[0]});toast(error?'Não foi possível enviar a denúncia.':'Denúncia registrada para análise.')}});
    body=el('div',{className:'security-info'},
-    el('div',{className:'settings-card app-about'},el('h3',{textContent:'Roda 1.4.3'}),el('p',{textContent:'O programa para Windows usa a mesma versão online do Roda e recebe correções automaticamente.'})),
+    el('div',{className:'settings-card app-about'},el('h3',{textContent:'Roda 1.4.4'}),el('p',{textContent:'O programa para Windows usa a mesma versão online do Roda e recebe correções automaticamente.'})),
     infoCard('🛡','Privacidade e LGPD','O Roda usa dados necessários para criar sua conta, manter conversas, servidores, amizades e chamadas funcionando. O tratamento deve seguir finalidade, necessidade, segurança e transparência.','Dados de cadastro e perfil','Mensagens, amizades e participação em servidores','Estado técnico de chamadas, dispositivos e conexão'),
     infoCard('🔐','Como os dados são protegidos','O acesso é controlado pela sua conta e pelas permissões dos servidores. Áudio e vídeo são transmitidos durante a chamada; mantenha sua senha em segredo e encerre sessões em aparelhos compartilhados.','Use uma senha exclusiva','Revise convites e permissões antes de entrar','Denuncie conteúdo ou comportamento inadequado'),
     infoCard('📄','Seus direitos','Pela LGPD, você pode solicitar confirmação do tratamento, acesso, correção e, quando aplicável, exclusão, portabilidade, informação sobre compartilhamento e revisão ou revogação de consentimento. Procure o responsável pelo Roda para exercer esses direitos.'),
@@ -989,7 +989,7 @@ function syncAppViewport(){
 syncAppViewport();addEventListener('resize',syncAppViewport,{passive:true});window.visualViewport?.addEventListener('resize',syncAppViewport,{passive:true});
 let installEvent=null;const installButton=$('#install-app'),installAuth=$('#install-auth'),windowsDownload=$('#windows-download');
 const androidDevice=/Android/i.test(navigator.userAgent),windowsDevice=/Windows/i.test(navigator.userAgent),installedApp=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-const downloadWindows=()=>location.assign('downloads/Roda-Setup-1.4.3.msi');
+const downloadWindows=()=>location.assign('downloads/Roda-Setup-1.4.4.msi');
 const versionAtLeast=(current,required)=>{const a=String(current).split('.').map(Number),b=String(required).split('.').map(Number);for(let i=0;i<Math.max(a.length,b.length);i++){if((a[i]||0)>(b[i]||0))return true;if((a[i]||0)<(b[i]||0))return false}return true};
 function offerNativeUpdate(){
  if(!nativeWindows||!nativeVersion||versionAtLeast(nativeVersion,'1.4.1')||document.querySelector('#native-update'))return;

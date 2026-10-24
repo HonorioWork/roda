@@ -13,7 +13,7 @@ Use um certificado público de assinatura de código emitido para a HonorioWork,
    `powershell -File ferramentas/assinar-windows.ps1 -Files aplicativo-windows/dist/Roda.exe -PfxPath C:\seguro\certificado.pfx`
 3. Monte o MSI.
 4. Assine o MSI:
-   `powershell -File ferramentas/assinar-windows.ps1 -Files downloads/Roda-Setup-1.4.3.msi -PfxPath C:\seguro\certificado.pfx`
+   `powershell -File ferramentas/assinar-windows.ps1 -Files downloads/Roda-Setup-1.4.4.msi -PfxPath C:\seguro\certificado.pfx`
 5. Confira em Propriedades > Assinaturas Digitais antes de publicar.
 
 Coloque a senha do PFX somente na variável de ambiente `RODA_SIGNING_PFX_PASSWORD`. Não grave certificado, senha ou chave privada no repositório.

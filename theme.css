@@ -298,3 +298,12 @@ a{color:var(--color-accent)}
 @media(display-mode:standalone){html,body,#app{min-height:100dvh}body{overscroll-behavior:none}header{padding-top:max(var(--space-3),env(safe-area-inset-top))}}
 @supports(padding:max(0px)){.mobile-call-active #mobile-nav{padding-bottom:max(var(--space-2),env(safe-area-inset-bottom))}}
 @media(max-width:767px){.server-groups-dialog{padding:var(--space-4)}.server-group-checks{grid-template-columns:1fr}.server-group-head{align-items:stretch}.server-group-head button{min-height:44px}}
+
+/* Mantém a página inicial inteira dentro de janelas menores do aplicativo. */
+.home-layout{width:100%;overflow:hidden}.discord-home-main,.home-aside{min-height:0;overflow:auto}
+@media(min-width:1001px) and (max-width:1199px){
+ html.native-windows #app{grid-template-columns:304px minmax(0,1fr)}
+ html.native-windows #srvs{width:60px}
+ html.native-windows #chn{width:244px}
+ html.native-windows .home-layout{grid-template-columns:minmax(0,1fr) 270px}
+}

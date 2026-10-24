@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*" Name="Roda" Language="1046" Version="1.4.3" Manufacturer="HonorioWork"
+  <Product Id="*" Name="Roda" Language="1046" Version="1.4.4" Manufacturer="HonorioWork"
            UpgradeCode="7E546CE7-3CC0-4AF3-A9E7-7E7C6FF70641">
     <Package InstallerVersion="500" Compressed="yes" InstallScope="perUser" Platform="x64"
              Description="Instala o aplicativo independente Roda para Windows" />

@@ -14,8 +14,8 @@ using Microsoft.Web.WebView2.WinForms;
 [assembly: System.Reflection.AssemblyTitle("Roda")]
 [assembly: System.Reflection.AssemblyProduct("Roda")]
 [assembly: System.Reflection.AssemblyCompany("HonorioWork")]
-[assembly: System.Reflection.AssemblyVersion("1.4.3.0")]
-[assembly: System.Reflection.AssemblyFileVersion("1.4.3.0")]
+[assembly: System.Reflection.AssemblyVersion("1.4.4.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.4.4.0")]
 
 namespace RodaWindows
 {
@@ -33,7 +33,7 @@ namespace RodaWindows
 
     internal sealed class RodaWindow : Form
     {
-        private const string CurrentVersion = "1.4.3";
+        private const string CurrentVersion = "1.4.4";
         private const string RodaUrl = "https://honoriowork.github.io/roda/?app=windows";
         private const string UpdateManifestUrl = "https://honoriowork.github.io/roda/updates/windows.json";
         private const string TrustedDownloadHost = "honoriowork.github.io";
@@ -47,8 +47,8 @@ namespace RodaWindows
         public RodaWindow()
         {
             Text = "Roda";
-            StartPosition = FormStartPosition.CenterScreen;
-            Size = new Size(1280, 800);
+            StartPosition = FormStartPosition.Manual;
+            Size = new Size(1180, 700);
             MinimumSize = new Size(420, 520);
             BackColor = Color.FromArgb(12, 17, 24);
             AutoScaleMode = AutoScaleMode.Dpi;
@@ -81,7 +81,25 @@ namespace RodaWindows
             Controls.Add(webView);
             Controls.Add(startupStatus);
             HandleCreated += delegate { ApplyTitleBar(true); };
+            Load += delegate { FitAndCenterWindow(); };
             Shown += InitializeRoda;
+        }
+
+        private void FitAndCenterWindow()
+        {
+            Rectangle workArea = Screen.FromPoint(Cursor.Position).WorkingArea;
+            int availableWidth = Math.Max(1, workArea.Width - 32);
+            int availableHeight = Math.Max(1, workArea.Height - 32);
+            int width = Math.Min(1180, (int)Math.Floor(workArea.Width * 0.88));
+            int height = Math.Min(700, (int)Math.Floor(workArea.Height * 0.90));
+
+            width = Math.Min(availableWidth, Math.Max(Math.Min(900, availableWidth), width));
+            height = Math.Min(availableHeight, Math.Max(Math.Min(560, availableHeight), height));
+            Bounds = new Rectangle(
+                workArea.Left + (workArea.Width - width) / 2,
+                workArea.Top + (workArea.Height - height) / 2,
+                width,
+                height);
         }
 
         private void ApplyTitleBar(bool dark)
