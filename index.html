@@ -91,7 +91,7 @@ body{font-family:"Segoe UI",system-ui,sans-serif;font-size:14px}button,input,sel
 .row{border-radius:5px;padding:8px 10px;color:#a0a0ab;font-size:14px}.row.on{background:#2b2b30;color:#fff}.row:hover{background:#252529}
 .me{margin:8px -1px 0;padding:9px 7px;gap:8px;border-radius:8px;background:#232327;flex-wrap:wrap}
 .me b{font-size:13px}.me select{border:0;background:transparent;font-size:10px;padding:0;color:#b0b0ba}.me button{border:0;background:transparent;padding:5px;color:#b5b5bf}
-.me-user{flex:1;min-width:0;display:grid}.presence-control{display:flex;align-items:center;gap:5px;min-width:0}.presence-control select{width:auto;max-width:100%;cursor:pointer}.presence-indicator{width:8px;height:8px;border-radius:50%;flex:none;background:#74767d}.presence-control.online .presence-indicator{background:#23a559}.presence-control.away .presence-indicator{background:#f0b232}.presence-control.busy .presence-indicator{background:#f23f43}.presence-control.invisible .presence-indicator{background:#74767d;box-shadow:inset 0 0 0 2px #232327;border:1px solid #949ba4}
+.me-user{flex:1;min-width:0;display:grid}.presence-indicator{width:9px;height:9px;border-radius:50%;flex:none;background:#74767d}.online .presence-indicator{background:#23a559}.away .presence-indicator{background:#f0b232}.busy .presence-indicator{background:#f23f43}.invisible .presence-indicator{background:#74767d;box-shadow:inset 0 0 0 2px #232327;border:1px solid #949ba4}
 .me .profile-settings{font-size:20px;line-height:1;padding:7px}.me .ava{border:2px solid #43b581}
 main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;box-shadow:0 1px 3px #0002;flex-shrink:0}#title{font-size:15px;white-space:nowrap}#note{margin-left:8px;font-size:11px}
 #mem{background:#18181c;border-left:1px solid #252529;padding:24px 12px}.mi{padding:8px;border-radius:5px;color:#c0c0c9;font-size:13px}.mi .ava{width:32px;height:32px}
@@ -777,15 +777,23 @@ function startUserPresence(){
 function stopUserPresence(){
  const channel=userPresenceChannel;userPresenceChannel=null;livePresence.clear();presenceReady=false;if(!channel)return;channel.untrack?.().catch(()=>{});sb.removeChannel(channel).catch(()=>{})
 }
-async function setOwnPresenceStatus(next,select){
- next=normalizePresenceStatus(next);const previous=normalizePresenceStatus(prof?.status);if(select)select.disabled=true;
+async function setOwnPresenceStatus(next,control){
+ next=normalizePresenceStatus(next);if(control)control.disabled=true;
  try{const{error}=await sb.from('profiles').update({status:next}).eq('id',me.id);if(error)throw error;prof.status=next;mem.forEach(member=>{if(member.user_id===me.id&&member.profiles)member.profiles.status=next});await trackOwnPresence();if(viewMode==='server'){drawChs();drawMem()}else homeSidebar();renderSocialPresence();toast('Status alterado para '+presenceLabel(next)+'.')}
- catch{if(select)select.value=previous;toast('Não foi possível alterar o status.')}
- finally{if(select)select.disabled=false}
+ catch{toast('Não foi possível alterar o status.')}
+ finally{if(control)control.disabled=false}
+}
+let presenceMenuTrigger=null;
+function closePresenceMenu(){const menu=document.querySelector('.presence-menu');menu?.remove();presenceMenuTrigger?.setAttribute('aria-expanded','false');presenceMenuTrigger=null;document.removeEventListener('pointerdown',dismissPresenceMenu,true);document.removeEventListener('keydown',presenceMenuKey)}
+function dismissPresenceMenu(event){const menu=document.querySelector('.presence-menu');if(menu&&!menu.contains(event.target)&&!presenceMenuTrigger?.contains(event.target))closePresenceMenu()}
+function presenceMenuKey(event){if(event.key==='Escape'){const trigger=presenceMenuTrigger;closePresenceMenu();trigger?.focus()}}
+function openPresenceMenu(trigger){
+ if(presenceMenuTrigger===trigger){closePresenceMenu();return}closePresenceMenu();presenceMenuTrigger=trigger;trigger.setAttribute('aria-expanded','true');const current=normalizePresenceStatus(prof?.status),descriptions={online:'Pronto para conversar',away:'Você pode demorar para responder',busy:'Você não receberá avisos na área de trabalho',invisible:'Você aparecerá offline'};
+ const menu=el('div',{className:'presence-menu',role:'menu',ariaLabel:'Escolher status'},...STATUS_OPTIONS.map(item=>el('button',{className:'presence-option '+item.value,role:'menuitemradio',ariaChecked:String(item.value===current),onclick:()=>{closePresenceMenu();setOwnPresenceStatus(item.value,trigger)}},el('span',{className:'presence-option-symbol'},el('span',{className:'presence-indicator'})),el('span',{className:'presence-option-copy'},el('strong',{textContent:item.label}),el('small',{textContent:descriptions[item.value]})),...(item.value===current?[el('span',{className:'presence-check',textContent:'✓',ariaLabel:'Selecionado'})]:[]))));
+ document.body.append(menu);const rect=trigger.getBoundingClientRect(),width=Math.min(300,innerWidth-16);menu.style.width=width+'px';const height=menu.offsetHeight;menu.style.left=Math.max(8,Math.min(rect.left,innerWidth-width-8))+'px';menu.style.top=(rect.top-height-8>=8?rect.top-height-8:Math.min(innerHeight-height-8,rect.bottom+8))+'px';setTimeout(()=>document.addEventListener('pointerdown',dismissPresenceMenu,true));document.addEventListener('keydown',presenceMenuKey);menu.querySelector('[aria-checked="true"]')?.focus()
 }
 function createPresenceControl(){
- const value=normalizePresenceStatus(prof?.status),select=el('select',{value,ariaLabel:'Alterar seu status'},...STATUS_OPTIONS.map(item=>el('option',{value:item.value,textContent:item.label,selected:item.value===value}))),wrap=el('label',{className:'presence-control '+value},el('span',{className:'presence-indicator',ariaHidden:'true'}),select);
- select.onchange=()=>{wrap.className='presence-control '+select.value;setOwnPresenceStatus(select.value,select)};return wrap
+ const value=normalizePresenceStatus(prof?.status),button=el('button',{className:'presence-trigger '+value,title:'Alterar status',ariaLabel:'Status atual: '+presenceLabel(value)+'. Alterar status',onclick:()=>openPresenceMenu(button)},el('span',{className:'presence-indicator',ariaHidden:'true'}),el('span',{className:'presence-trigger-label',textContent:presenceLabel(value)}),el('span',{className:'presence-chevron',textContent:'⌄',ariaHidden:'true'}));button.setAttribute('aria-haspopup','menu');button.setAttribute('aria-expanded','false');return button
 }
 let callSignalChannel=null,incomingCall=null,outgoingCall=null,ringTimer=null,callNotification=null,callSignalTimeout=null,callSignalPollTimer=null,callSignalPolling=false;
 let appNotifications=[],unreadNotifications=0;
