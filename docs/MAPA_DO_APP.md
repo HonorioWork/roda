@@ -10,7 +10,7 @@
 
 ## Estrutura
 - `index.html`: toda a interface e os fluxos de autenticação, servidores, chat, social, configurações e chamadas.
-- `theme.css`: tokens e estilos compartilhados adicionados por este lote.
+- `assets/styles/theme.css`: tokens e estilos compartilhados adicionados por este lote.
 - `sw.js`: cache do shell instalado.
 - `supabase/*.sql`: schema inicial e migrations aditivas com RLS.
 - `supabase/functions/lk-token/`: autorização das salas LiveKit.
@@ -27,7 +27,7 @@
 - Dados principais: `profiles`, `servers`, `members`, `channels`, `messages`, `friendships`, `direct_messages`, `call_presence`, `private_calls` e `reports`.
 
 ## Tema e tokens
-- `theme.css` centraliza cores, espaços 4/8/12/16/24/32, raios, sombras, tipografia e alturas de toque.
+- `assets/styles/theme.css` centraliza cores, espaços 4/8/12/16/24/32, raios, sombras, tipografia e alturas de toque.
 - Componentes tocados neste lote usam `--color-*`, `--space-*`, `--radius-*`, `--shadow-*` e `--font-*`.
 - O modo claro usa `.theme-light`; alto contraste e movimento reduzido já são classes globais.
 - CSS respeita `prefers-reduced-motion` e áreas seguras com `env(safe-area-inset-*)`.

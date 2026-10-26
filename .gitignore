@@ -1,0 +1,16 @@
+# Segredos locais
+.env
+.env.*
+!.env.example
+
+# Arquivos temporários e de editor
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Saídas de compilação não versionadas
+bin/
+obj/
