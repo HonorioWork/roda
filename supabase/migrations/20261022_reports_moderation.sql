@@ -34,7 +34,7 @@ begin
 end;
 $$;
 
-revoke all on function public.can_moderate_report(text,text) from public;
+revoke all on function public.can_moderate_report(text,text) from public, anon, authenticated;
 grant execute on function public.can_moderate_report(text,text) to authenticated;
 
 do $$
@@ -44,10 +44,10 @@ begin
     where schemaname = 'public' and tablename = 'reports' and policyname = 'reports_read_own'
   ) then
     alter policy reports_read_own on public.reports
-      using (public.can_moderate_report(target_type,target_id));
+      using (reporter_id = (select auth.uid()) or public.can_moderate_report(target_type,target_id));
   else
     create policy reports_read_own on public.reports for select to authenticated
-      using (public.can_moderate_report(target_type,target_id));
+      using (reporter_id = (select auth.uid()) or public.can_moderate_report(target_type,target_id));
   end if;
 end $$;
 
