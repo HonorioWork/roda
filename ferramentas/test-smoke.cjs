@@ -20,7 +20,9 @@ const server = http.createServer(async (request, response) => {
 });
 
 (async () => {
-  await new Promise(resolve => server.listen(41731, '127.0.0.1', resolve));
+  const externalUrl = process.env.RODA_TEST_URL;
+  if (!externalUrl) await new Promise(resolve => server.listen(41731, '127.0.0.1', resolve));
+  const baseUrl = externalUrl || 'http://127.0.0.1:41731/';
   const browser = await chromium.launch({ headless: true, executablePath: 'C:/Users/Honorio/AppData/Local/Programs/Opera GX/opera.exe' });
   try {
     const widths = [360, 390, 768, 1280, 1920, 2560];
@@ -28,7 +30,9 @@ const server = http.createServer(async (request, response) => {
       const page = await browser.newPage({ viewport: { width, height: 900 } });
       const errors = [];
       page.on('pageerror', error => errors.push(error.message));
-      await page.goto(`http://127.0.0.1:41731/?smoke=${width}`, { waitUntil: 'domcontentloaded' });
+      const target = new URL(baseUrl);
+      target.searchParams.set('smoke', String(width));
+      await page.goto(target.href, { waitUntil: 'domcontentloaded' });
       await page.waitForFunction(() => window.supabase && window.LivekitClient, null, { timeout: 15000 });
       assert.equal(await page.locator('#auth').isVisible(), true, `login invisível em ${width}px`);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), true, `overflow em ${width}px`);
@@ -40,10 +44,10 @@ const server = http.createServer(async (request, response) => {
     console.log('PASS: login, scripts, temas e seis larguras sem erro ou rolagem horizontal');
   } finally {
     await browser.close();
-    server.close();
+    if (server.listening) server.close();
   }
 })().catch(error => {
   console.error(error);
-  server.close();
+  if (server.listening) server.close();
   process.exitCode = 1;
 });
