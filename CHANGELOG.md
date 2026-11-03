@@ -61,3 +61,8 @@
 - O aplicativo Windows não duplica a faixa superior do site, usa barra escura e recalcula a área útil ao maximizar ou redimensionar.
 - Vídeos e telas compartilhadas usam a área útil inteira sem cortar a borda superior.
 
+# 2026-11-03 — Servidor de voz restaurado
+
+- A função `lk-token` agora lê as credenciais do LiveKit pelo Supabase Vault quando os segredos de ambiente não estiverem configurados.
+- As credenciais ficam criptografadas no banco e somente o backend com `service_role` pode consultá-las.
+

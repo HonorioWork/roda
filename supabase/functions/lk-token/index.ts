@@ -54,9 +54,30 @@ Deno.serve(async (request: Request) => {
       return json({ error: "Selecione uma chamada válida." }, 400);
     }
 
-    const key = Deno.env.get("LK_KEY");
-    const secret = Deno.env.get("LK_SECRET");
-    const url = Deno.env.get("LK_URL");
+    let key = Deno.env.get("LK_KEY");
+    let secret = Deno.env.get("LK_SECRET");
+    let url = Deno.env.get("LK_URL");
+
+    // O Vault mantém a voz funcionando quando os segredos de ambiente ainda
+    // não foram configurados no painel. Somente service_role pode ler a RPC.
+    if (!key || !secret || !url) {
+      const legacyServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      let serviceKey = legacyServiceKey;
+      if (!serviceKey) {
+        try {
+          serviceKey = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") || "{}").default;
+        } catch { /* configuração padrão ausente */ }
+      }
+      if (serviceKey) {
+        const admin = createClient(supabaseUrl, serviceKey, {
+          auth: { persistSession: false, autoRefreshToken: false },
+        });
+        const { data: config } = await admin.rpc("roda_voice_config").single();
+        key ||= config?.lk_key;
+        secret ||= config?.lk_secret;
+        url ||= config?.lk_url;
+      }
+    }
     if (!key || !secret || !url) return json({ error: "O servidor de voz ainda não foi configurado." }, 503);
     try { if (new URL(url).protocol !== "wss:") throw new Error(); }
     catch { return json({ error: "O endereço seguro do servidor de voz é inválido." }, 503); }
