@@ -25,6 +25,7 @@
 - A Edge Function `lk-token` foi republicada e passou a validar chamadas de servidor e chamadas privadas entre amigos.
 - O cache da PWA foi atualizado para distribuir a nova configuração imediatamente.
 - Perfil e preferências agora têm snapshot diário recuperável, independente de qualquer queda do LiveKit.
+- Corrigido o gatilho de snapshot que impedia novos cadastros e a mensagem incorreta sobre nome de usuário.
 
 ### Validado
 - Cadastro, perfil, login, criação de servidor, canais padrão e envio de mensagem passaram em teste real do backend.

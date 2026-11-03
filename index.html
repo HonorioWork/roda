@@ -226,7 +226,8 @@ function friendlyAuthError(error){
  if(/email not confirmed/i.test(text))return 'Confirme seu e-mail antes de entrar. Confira também a caixa de spam.';
  if(/otp_expired|token has expired|invalid.*token|token.*invalid/i.test(text))return 'Código inválido ou vencido. Confira o código ou solicite outro.';
  if(/rate limit|too many|after .*seconds/i.test(text))return 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.';
- if(/database error saving new user|duplicate key/i.test(text))return 'Não foi possível criar a conta. Tente outro nome de usuário.';
+ if(/duplicate key/i.test(text))return 'Não foi possível usar esses dados. Confira o nome e tente novamente.';
+ if(/database error saving new user|unexpected_failure|record .* has no field/i.test(text))return 'O servidor não conseguiu criar a conta. Aguarde um instante e tente novamente.';
  if(/password/i.test(text))return 'A senha não atende aos requisitos. Use uma senha maior, com letras, números e símbolos.';
  return 'Não foi possível concluir. Verifique sua conexão e tente novamente.';
 }
