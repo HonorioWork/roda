@@ -16,6 +16,19 @@
 
 # Histórico de mudanças do Roda
 
+## 2026-11-02
+
+### Restaurado
+- O site foi reconectado a um projeto Supabase ativo após a indisponibilidade do backend anterior.
+- A base completa de perfis, servidores, canais, mensagens, amizades, chamadas privadas, presença e arquivos foi recriada com RLS.
+- A criação de servidor agora associa o dono e gera automaticamente os canais `geral` e `Voz`.
+- A Edge Function `lk-token` foi republicada e passou a validar chamadas de servidor e chamadas privadas entre amigos.
+- O cache da PWA foi atualizado para distribuir a nova configuração imediatamente.
+
+### Validado
+- Cadastro, perfil, login, criação de servidor, canais padrão e envio de mensagem passaram em teste real do backend.
+- Login, scripts, temas e layout passaram nas larguras 360, 390, 768, 1280, 1920 e 2560 px.
+
 ## Em desenvolvimento — 2026-10-21
 
 ### Adicionado

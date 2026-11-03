@@ -150,12 +150,12 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/livekit-client@2.23.0/dist/livekit-client.umd.min.js"></script>
 <script>
-const CFG={URL:"https://vrqqvfhggugyrtboxklz.supabase.co",KEY:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZycXF2ZmhnZ3VneXJ0Ym94a2x6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNjQ0MDYsImV4cCI6MjEwNzg0MDQwNn0.JhIYD9jgsDpfx7Q5gEfQU7Owty9gGICBw5FltpMLv2Q"};
+const CFG={URL:"https://adcyvbrokfvmnewrmupq.supabase.co",KEY:"sb_publishable_g-K6VjCX0pz-QG2OFUpjBg_lC-KwKsX"};
 const $=s=>document.querySelector(s);
 const nativeWindows=new URLSearchParams(location.search).get('app')==='windows';
 if(nativeWindows)document.documentElement.classList.add('native-windows');
 const windowsAppMatch=navigator.userAgent.match(/RodaWindows\/([\d.]+)/i),nativeVersion=windowsAppMatch?.[1]||null;
-if(!CFG.URL.startsWith('https://')){$('#auth').replaceChildren(Object.assign(document.createElement('p'),{textContent:'Falta configurar o Supabase. Abra o index.html em um editor de texto e troque https://vrqqvfhggugyrtboxklz.supabase.co e eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZycXF2ZmhnZ3VneXJ0Ym94a2x6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyNjQ0MDYsImV4cCI6MjEwNzg0MDQwNn0.JhIYD9jgsDpfx7Q5gEfQU7Owty9gGICBw5FltpMLv2Q pelos dados do seu projeto.'}));throw new Error('config')}
+if(!CFG.URL.startsWith('https://')){$('#auth').replaceChildren(Object.assign(document.createElement('p'),{textContent:'O serviço do Roda ainda não foi configurado. Tente novamente mais tarde.'}));throw new Error('config')}
 if(!window.supabase){authMessage('Não foi possível carregar o aplicativo. Verifique sua conexão e recarregue a página.');throw new Error('Supabase indisponível')}
 function authMessage(message){document.getElementById('aerr').textContent=message;document.getElementById('aerr').hidden=false}
 const sb=supabase.createClient(CFG.URL,CFG.KEY);

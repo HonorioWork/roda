@@ -3,18 +3,18 @@
 ## Stack e execução
 - App estático sem bundler: `index.html`, CSS e JavaScript nativos.
 - Supabase JS 2.45.4: Auth, Postgres, Realtime e Edge Function `lk-token`.
-- LiveKit Client 2.5.7: voz, câmera e compartilhamento de tela.
+- LiveKit Client 2.23.0: voz, câmera e compartilhamento de tela.
 - PWA: `manifest.webmanifest` e `sw.js`; publicação pelo GitHub Pages.
-- Abrir localmente: `iniciar.bat`; publicação: copiar arquivos públicos para `publicacao-online/` e enviar a `main`.
+- Abrir localmente com um servidor HTTP estático; publicação: enviar a raiz do repositório para a `main`.
 - Não há scripts separados de build, lint, typecheck ou testes; validação é `node --check`, `git diff --check` e QA no navegador.
 
 ## Estrutura
 - `index.html`: toda a interface e os fluxos de autenticação, servidores, chat, social, configurações e chamadas.
 - `assets/styles/theme.css`: tokens e estilos compartilhados adicionados por este lote.
 - `sw.js`: cache do shell instalado.
-- `supabase/*.sql`: schema inicial e migrations aditivas com RLS.
+- `supabase/migrations/`: schema inicial e migrations aditivas com RLS.
 - `supabase/functions/lk-token/`: autorização das salas LiveKit.
-- `publicacao-online/`: checkout publicado em `HonorioWork/roda`.
+- A raiz do repositório é publicada em `HonorioWork/roda` pelo GitHub Pages.
 - `docs/`: arquitetura, mapa, plano e relatório do lote.
 
 ## Interface e estado

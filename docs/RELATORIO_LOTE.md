@@ -37,7 +37,7 @@
 - `20261022_voice_presence_details.sql`: estados de mudo, ensurdecido, câmera e tela + Realtime. Rollback documentado no arquivo.
 - `20261022_read_states.sql`: posição de leitura por usuário/canal, RLS própria. Rollback: remover `read_states`.
 - `20261022_reports_moderation.sql`: função e política para leitura por moderadores. Rollback documentado no arquivo.
-- As três alterações foram aplicadas com sucesso ao projeto Supabase `vrqqvfhggugyrtboxklz` em 22/10/2026.
+- Em 02/11/2026, o backend indisponível foi substituído pelo projeto ativo e todas as migrations foram reaplicadas; consulte `RESTAURACAO_2026-11-02.md`.
 
 ## Dependências e flags
 
