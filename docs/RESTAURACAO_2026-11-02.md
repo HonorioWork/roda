@@ -14,6 +14,13 @@ O GitHub Pages e o instalador continuavam disponíveis, mas o site apontava para
 - Realtime ativado para mensagens e sinalização de chamadas.
 - Edge Function `lk-token` publicada com autenticação e autorização para canais e chamadas privadas.
 - Cache da PWA incrementado para evitar arquivos antigos.
+- Perfis e preferências recebem um snapshot diário recuperável, totalmente independente do LiveKit e sem copiar senhas ou tokens.
+
+## Separação do LiveKit
+
+- O LiveKit recebe somente um identificador temporário, o nome exibido e permissões de entrada na sala.
+- Contas, senhas, perfis, servidores, mensagens, amizades e arquivos continuam no Supabase.
+- Uma falha do LiveKit impede apenas a mídia durante a chamada; não apaga, altera nem desconecta a conta.
 
 ## Validação
 

@@ -1,5 +1,6 @@
 const http = require('node:http');
 const fs = require('node:fs/promises');
+const fsSync = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
 const { chromium } = require('C:/Users/Honorio/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
@@ -23,7 +24,15 @@ const server = http.createServer(async (request, response) => {
   const externalUrl = process.env.RODA_TEST_URL;
   if (!externalUrl) await new Promise(resolve => server.listen(41731, '127.0.0.1', resolve));
   const baseUrl = externalUrl || 'http://127.0.0.1:41731/';
-  const browser = await chromium.launch({ headless: true, executablePath: 'C:/Users/Honorio/AppData/Local/Programs/Opera GX/opera.exe' });
+  const browserCandidates = [
+    process.env.RODA_BROWSER_PATH,
+    'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+    'C:/Program Files/Microsoft/Edge/Application/msedge.exe',
+    'C:/Program Files/Google/Chrome/Application/chrome.exe',
+    'C:/Users/Honorio/AppData/Local/Programs/Opera GX/opera.exe'
+  ].filter(Boolean);
+  const executablePath = browserCandidates.find(candidate => fsSync.existsSync(candidate));
+  const browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) });
   try {
     const widths = [360, 390, 768, 1280, 1920, 2560];
     for (const width of widths) {
