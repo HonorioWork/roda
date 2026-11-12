@@ -1,4 +1,5 @@
 ## 2026-11-12
+- Aplicativo Windows 1.4.6: mensagens de canais, mensagens privadas e chamadas agora aparecem no canto do Windows quando o Roda está na bandeja; clicar no aviso abre o aplicativo.
 - No Windows, clicar no X agora mantém o Roda e a chamada ativos na bandeja; o menu do ícone permite abrir ou sair de verdade.
 
 ## 2026-10-24

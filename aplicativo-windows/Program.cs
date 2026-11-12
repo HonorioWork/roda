@@ -14,8 +14,8 @@ using Microsoft.Web.WebView2.WinForms;
 [assembly: System.Reflection.AssemblyTitle("Roda")]
 [assembly: System.Reflection.AssemblyProduct("Roda")]
 [assembly: System.Reflection.AssemblyCompany("HonorioWork")]
-[assembly: System.Reflection.AssemblyVersion("1.4.5.0")]
-[assembly: System.Reflection.AssemblyFileVersion("1.4.5.0")]
+[assembly: System.Reflection.AssemblyVersion("1.4.6.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.4.6.0")]
 
 namespace RodaWindows
 {
@@ -33,7 +33,7 @@ namespace RodaWindows
 
     internal sealed class RodaWindow : Form
     {
-        private const string CurrentVersion = "1.4.5";
+        private const string CurrentVersion = "1.4.6";
         private const string RodaUrl = "https://honoriowork.github.io/roda/?app=windows";
         private const string UpdateManifestUrl = "https://honoriowork.github.io/roda/updates/windows.json";
         private const string TrustedDownloadHost = "honoriowork.github.io";
@@ -89,6 +89,10 @@ namespace RodaWindows
             Controls.Add(startupStatus);
             HandleCreated += delegate { ApplyTitleBar(true); };
             Load += delegate { FitAndCenterWindow(); };
+            Resize += delegate
+            {
+                PostWindowState(WindowState == FormWindowState.Minimized ? "RODA_BACKGROUND" : "RODA_FOREGROUND");
+            };
             Shown += InitializeRoda;
         }
 
@@ -149,6 +153,10 @@ namespace RodaWindows
                 core.Settings.AreBrowserAcceleratorKeysEnabled = false;
                 core.Settings.IsZoomControlEnabled = true;
                 core.Settings.UserAgent = core.Settings.UserAgent + " RodaWindows/" + CurrentVersion;
+                core.NavigationCompleted += delegate
+                {
+                    PostWindowState(Visible && WindowState != FormWindowState.Minimized ? "RODA_FOREGROUND" : "RODA_BACKGROUND");
+                };
 
                 core.NewWindowRequested += delegate(object requestSender, CoreWebView2NewWindowRequestedEventArgs request)
                 {
@@ -202,6 +210,12 @@ namespace RodaWindows
             Show();
             Activate();
             webView.Focus();
+            PostWindowState("RODA_FOREGROUND");
+        }
+
+        private void PostWindowState(string state)
+        {
+            try { webView.CoreWebView2?.PostWebMessageAsString(state); } catch { }
         }
 
         private void ExitRoda()
@@ -216,6 +230,7 @@ namespace RodaWindows
             {
                 args.Cancel = true;
                 ShowInTaskbar = false;
+                PostWindowState("RODA_BACKGROUND");
                 Hide();
                 if (!trayHintShown)
                 {

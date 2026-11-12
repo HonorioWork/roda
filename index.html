@@ -139,7 +139,7 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
   <p class="auth-switch" id="auth-switch">Ainda não tem uma conta? <button type="button" id="switch-mode">Crie a sua</button></p>
   <p class="auth-note" id="auth-note">Se recebeu um convite, entre ou crie sua conta para participar.</p>
   <button type="button" id="install-auth" class="auth-link" style="display:block;width:100%;text-align:center;margin-top:12px">📱 Instalar Roda neste aparelho</button>
-  <a id="windows-download" class="pri public-download" href="downloads/Roda-Setup-1.4.5.msi" download>⬇ Baixar Roda para Windows</a>
+  <a id="windows-download" class="pri public-download" href="downloads/Roda-Setup-1.4.6.msi" download>⬇ Baixar Roda para Windows</a>
   <a class="download-more" href="downloads/">Downloads e instalação sem login</a>
  </div>
 </section>
@@ -156,6 +156,8 @@ const $=s=>document.querySelector(s);
 const nativeWindows=new URLSearchParams(location.search).get('app')==='windows';
 if(nativeWindows)document.documentElement.classList.add('native-windows');
 const windowsAppMatch=navigator.userAgent.match(/RodaWindows\/([\d.]+)/i),nativeVersion=windowsAppMatch?.[1]||null;
+let nativeWindowHidden=false;
+if(nativeWindows&&window.chrome?.webview)try{window.chrome.webview.addEventListener('message',event=>{if(event.data==='RODA_BACKGROUND')nativeWindowHidden=true;if(event.data==='RODA_FOREGROUND')nativeWindowHidden=false})}catch{}
 if(!CFG.URL.startsWith('https://')){$('#auth').replaceChildren(Object.assign(document.createElement('p'),{textContent:'O serviço do Roda ainda não foi configurado. Tente novamente mais tarde.'}));throw new Error('config')}
 if(!window.supabase){authMessage('Não foi possível carregar o aplicativo. Verifique sua conexão e recarregue a página.');throw new Error('Supabase indisponível')}
 function authMessage(message){document.getElementById('aerr').textContent=message;document.getElementById('aerr').hidden=false}
@@ -290,7 +292,7 @@ sb.auth.onAuthStateChange((event,session)=>{
  if(event==='PASSWORD_RECOVERY'){recovering=true;setTimeout(()=>{setAuthMode('recovery');$('#app').hidden=true;$('#auth').hidden=false},0);return}
  if(recovering&&session)return;
  if(session)setTimeout(()=>start(session.user).catch(()=>authErr('Não foi possível carregar sua conta. Recarregue a página.')),0);
- else{stopSocial();stopUserPresence();stopPrivateCallSignals();friendsCache=[];profileCache.clear();leaveVoice();if(rt){sb.removeChannel(rt);rt=null}me=null;prof=null;srv=null;ch=null;serverAttempt++;$('#app').hidden=true;$('#auth').hidden=false}
+ else{stopSocial();stopUserPresence();stopPrivateCallSignals();stopMessageNotifications();friendsCache=[];profileCache.clear();leaveVoice();if(rt){sb.removeChannel(rt);rt=null}me=null;prof=null;srv=null;ch=null;serverAttempt++;$('#app').hidden=true;$('#auth').hidden=false}
 });
 
 async function start(u){if(me?.id===u.id)return;me=u;
@@ -298,7 +300,7 @@ async function start(u){if(me?.id===u.id)return;me=u;
  if(!prof){me=null;sb.auth.signOut();return}
  await loadUserSettings();
  $('#auth').hidden=true;$('#app').hidden=false;setTimeout(offerNativeUpdate,300);
-  startPrivateCallSignals();startUserPresence();
+   startPrivateCallSignals();startUserPresence();startMessageNotifications();
  const code=new URLSearchParams(location.search).get('convite');
  if(code){const{error}=await sb.rpc('join_by_code',{code});if(error)toast('Não foi possível usar este convite.');else history.replaceState({},'',location.pathname)}
  loadServers()}
@@ -449,7 +451,7 @@ async function textView(c){
   if(ch!==c)return;loading.remove();if(messageResult.error){box.append(ErrorState('Mensagens indisponíveis','Não foi possível carregar este canal.',()=>textView(c)));return}const ordered=(data||[]).reverse();ordered.forEach(m=>messages.set(m.id,m));let unreadNode=null;for(const m of ordered){if(!unreadNode&&readAt&&m.user_id!==me.id&&new Date(m.created_at)>new Date(readAt)){unreadNode=el('div',{className:'unread-line',textContent:'Novas mensagens'});box.append(unreadNode)}box.append(msgNode(m,ctx))}if(!data?.length)box.append(EmptyState('✦','Nenhuma mensagem','Comece a conversa neste canal.',{label:'Escrever mensagem',run:()=>inp.focus()}));jump.hidden=!unreadNode;jump.onclick=()=>unreadNode?.scrollIntoView({block:'center'});if(!unreadNode)box.scrollTop=box.scrollHeight;box.addEventListener('scroll',()=>{if(box.scrollHeight-box.scrollTop-box.clientHeight<50){markChannelRead(c.id);jump.hidden=true;unreadNode?.remove();unreadNode=null}},{passive:true});
  rt=sb.channel('m'+c.id).on('postgres_changes',{event:'*',schema:'public',table:'messages',filter:'channel_id=eq.'+c.id},p=>{
    if(p.eventType==='INSERT'){const atBottom=box.scrollHeight-box.scrollTop-box.clientHeight<70;messages.set(p.new.id,p.new);if(!atBottom&&p.new.user_id!==me.id&&!unreadNode){unreadNode=el('div',{className:'unread-line',textContent:'Novas mensagens'});box.append(unreadNode);jump.hidden=false}box.append(msgNode(p.new,ctx));while(box.querySelectorAll('.msg').length>100)box.querySelector('.msg').remove();if(atBottom){box.scrollTop=box.scrollHeight;markChannelRead(c.id)}
-   if(userSettings.notifications.desktop&&userSettings.notifications.messages&&p.new.user_id!==me.id&&document.hidden&&'Notification' in window&&Notification.permission==='granted')new Notification((names[p.new.user_id]||'?')+' em #'+c.name,{body:p.new.content})}
+   }
   if(p.eventType==='UPDATE'){messages.set(p.new.id,p.new);document.getElementById('m'+p.new.id)?.replaceWith(msgNode(p.new,ctx))}
   if(p.eventType==='DELETE'){messages.delete(p.old.id);document.getElementById('m'+p.old.id)?.remove()}}).subscribe(s=>{if(s==='CHANNEL_ERROR'||s==='TIMED_OUT')note('Reconectando o chat…')})}
 // ---------- voz, vídeo e tela (LiveKit) ----------
@@ -766,7 +768,7 @@ function openSettings(initialPage='account'){
    const infoCard=(icon,title,text,...items)=>el('section',{className:'settings-card security-card'},el('div',{className:'security-card-title'},el('span',{className:'security-icon',textContent:icon,ariaHidden:'true'}),el('h3',{textContent:title})),el('p',{textContent:text}),...(items.length?[el('ul',{className:'security-list'},...items.map(item=>el('li',{textContent:item})))]:[]));
    const report=el('button',{className:'settings-danger',textContent:'Denunciar um problema',onclick:async()=>{const values=await ask('Denunciar problema',[{label:'Descreva o problema',value:'',max:1000}],'Enviar denúncia');if(!values?.[0])return;const{error}=await sb.from('reports').insert({reporter_id:me.id,target_type:'server',target_id:srv?.id||me.id,reason:values[0]});toast(error?'Não foi possível enviar a denúncia.':'Denúncia registrada para análise.')}});
    body=el('div',{className:'security-info'},
-    el('div',{className:'settings-card app-about'},el('h3',{textContent:'Roda 1.4.5'}),el('p',{textContent:'O programa para Windows usa a mesma versão online do Roda e recebe correções automaticamente.'})),
+    el('div',{className:'settings-card app-about'},el('h3',{textContent:'Roda 1.4.6'}),el('p',{textContent:'O programa para Windows usa a mesma versão online do Roda e recebe correções automaticamente.'})),
     infoCard('🛡','Privacidade e LGPD','O Roda usa dados necessários para criar sua conta, manter conversas, servidores, amizades e chamadas funcionando. O tratamento deve seguir finalidade, necessidade, segurança e transparência.','Dados de cadastro e perfil','Mensagens, amizades e participação em servidores','Estado técnico de chamadas, dispositivos e conexão'),
     infoCard('🔐','Como os dados são protegidos','O acesso é controlado pela sua conta e pelas permissões dos servidores. Áudio e vídeo são transmitidos durante a chamada; mantenha sua senha em segredo e encerre sessões em aparelhos compartilhados.','Use uma senha exclusiva','Revise convites e permissões antes de entrar','Denuncie conteúdo ou comportamento inadequado'),
     infoCard('📄','Seus direitos','Pela LGPD, você pode solicitar confirmação do tratamento, acesso, correção e, quando aplicável, exclusão, portabilidade, informação sobre compartilhamento e revisão ou revogação de consentimento. Procure o responsável pelo Roda para exercer esses direitos.'),
@@ -836,7 +838,8 @@ let callSignalChannel=null,incomingCall=null,outgoingCall=null,ringTimer=null,ca
 let appNotifications=[],unreadNotifications=0;
 try{appNotifications=JSON.parse(localStorage.getItem('roda-notifications')||'[]').slice(0,30)}catch{}
 function systemNotificationState(){
- if(!('Notification' in window)||nativeWindows)return{text:'Os avisos internos estão ativos. Este aplicativo usa a própria tela e o próprio toque para chamadas.',action:'Testar aviso interno'};
+ if(nativeWindows)return{text:'Ativos no Windows. Mensagens e chamadas aparecem no canto quando o Roda está na bandeja.',action:'Testar notificação'};
+ if(!('Notification' in window))return{text:'Os avisos internos estão ativos. Este navegador não oferece notificações do sistema.',action:'Testar aviso interno'};
  if(Notification.permission==='granted')return{text:'Permitidos. O Roda também pode avisar quando estiver em segundo plano.',action:'Testar notificações'};
  if(Notification.permission==='denied')return{text:'Bloqueados pelo navegador. Os avisos internos e o toque continuam ativos; para avisos fora do Roda, libere a permissão nas configurações do site.',action:'Como liberar no navegador'};
  return{text:'Ainda não configurados. Os avisos internos já funcionam; você também pode permitir avisos fora do Roda.',action:'Permitir avisos do sistema'};
@@ -848,6 +851,38 @@ function pushAppNotification(title,body,kind='info'){
 }
 function notifyNativeWindows(title,body){
  if(!nativeWindows)return;try{const clean=value=>String(value||'').replace(/[\t\r\n]+/g,' ').slice(0,180);window.chrome?.webview?.postMessage('RODA_NOTIFY\t'+clean(title)+'\t'+clean(body))}catch{}
+}
+const appIsBackgrounded=()=>nativeWindows?nativeWindowHidden:document.hidden;
+function showSystemNotification(title,body,tag='roda',force=false){
+ if(!force&&!appIsBackgrounded())return;
+ if(!force&&normalizePresenceStatus(prof?.status)==='busy')return;
+ if(nativeWindows){notifyNativeWindows(title,body);return}
+ if('Notification' in window&&Notification.permission==='granted')try{const notification=new Notification(title,{body,icon:'icons/icon-192.png',tag});notification.onclick=()=>{window.focus();notification.close()}}catch{}
+}
+const notificationBody=message=>String(message?.content||'').trim()||(message?.attachment_name?'Enviou '+message.attachment_name:'Enviou uma nova mensagem');
+let messageNotificationChannel=null;
+const notifiedMessageIds=new Set();
+function stopMessageNotifications(){if(messageNotificationChannel){sb.removeChannel(messageNotificationChannel);messageNotificationChannel=null}notifiedMessageIds.clear()}
+function rememberNotifiedMessage(id){if(!id||notifiedMessageIds.has(id))return false;notifiedMessageIds.add(id);if(notifiedMessageIds.size>200)notifiedMessageIds.delete(notifiedMessageIds.values().next().value);return true}
+async function notifyChannelMessage(message){
+ if(!me||message.user_id===me.id||!rememberNotifiedMessage('channel:'+message.id)||!userSettings.notifications.desktop||!userSettings.notifications.messages)return;
+ if(!appIsBackgrounded()&&viewMode==='server'&&ch?.id===message.channel_id)return;
+ const[authorResult,channelResult]=await Promise.all([profileById(message.user_id),sb.from('channels').select('name,server_id,servers(name)').eq('id',message.channel_id).maybeSingle()]);
+ const author=authorResult?tagged(authorResult):(names[message.user_id]||'Alguém'),channel=channelResult.data,title=author+' em #'+(channel?.name||'canal'),body=notificationBody(message);
+ pushAppNotification(title,body,'message');showSystemNotification(title,body,'roda-channel-'+message.channel_id)
+}
+async function notifyDirectMessage(message){
+ if(!me||message.sender_id===me.id||!rememberNotifiedMessage('dm:'+message.id)||!userSettings.notifications.desktop||!userSettings.notifications.messages)return;
+ if(!appIsBackgrounded()&&viewMode==='dm'&&ch?.peer?.id===message.sender_id)return;
+ const sender=await profileById(message.sender_id),title='Mensagem de '+(sender?tagged(sender):'um amigo'),body=notificationBody(message);
+ pushAppNotification(title,body,'message');showSystemNotification(title,body,'roda-dm-'+message.sender_id)
+}
+function startMessageNotifications(){
+ stopMessageNotifications();if(!me)return;
+ messageNotificationChannel=sb.channel('system-messages-'+me.id)
+  .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},payload=>notifyChannelMessage(payload.new))
+  .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:'recipient_id=eq.'+me.id},payload=>notifyDirectMessage(payload.new))
+  .subscribe()
 }
 function openNotificationCenter(){
  unreadNotifications=0;updateNotificationBadge();const existing=document.querySelector('.notification-dialog');if(existing){existing.showModal();return}
@@ -934,8 +969,7 @@ async function showIncomingCall(row){
  const caller=await profileById(row.caller_id);if(!caller||incomingCall?.id!==row.id)return;
  const overlay=el('div',{id:'incoming-call',className:'incoming-call',role:'alertdialog',ariaModal:'true',ariaLabel:'Chamada privada recebida'}),accept=el('button',{className:'accept-call',textContent:'📞 Atender'}),decline=el('button',{className:'decline-call',textContent:'Recusar'});
   const finish=async status=>{accept.disabled=decline.disabled=true;const{error}=await sb.from('private_calls').update({status}).eq('id',row.id).eq('recipient_id',me.id).eq('status','ringing');if(error){toast('Não foi possível responder à chamada.');accept.disabled=decline.disabled=false;return}closeIncomingCall();if(status==='accepted'){const call=showPrivateCall(caller,row.id);await prejoin(call)}};
- accept.onclick=()=>finish('accepted');decline.onclick=()=>finish('declined');overlay.append(el('div',{className:'incoming-card'},avatarFor(caller.username,76),el('h2',{textContent:tagged(caller)}),el('p',{textContent:'está ligando para você'}),el('div',{className:'incoming-actions'},decline,accept)));document.body.append(overlay);pushAppNotification('Chamada privada',tagged(caller)+' está ligando para você.','call');notifyNativeWindows('Chamada privada no Roda',tagged(caller)+' está ligando para você');startIncomingRing();
- if(userSettings.notifications.desktop&&userSettings.notifications.calls&&'Notification' in window&&Notification.permission==='granted'){try{callNotification=new Notification('Chamada privada no Roda',{body:tagged(caller)+' está ligando para você',icon:'icons/icon-192.png',tag:'roda-private-call'});callNotification.onclick=()=>{window.focus();callNotification?.close()}}catch{}}
+  accept.onclick=()=>finish('accepted');decline.onclick=()=>finish('declined');overlay.append(el('div',{className:'incoming-card'},avatarFor(caller.username,76),el('h2',{textContent:tagged(caller)}),el('p',{textContent:'está ligando para você'}),el('div',{className:'incoming-actions'},decline,accept)));document.body.append(overlay);pushAppNotification('Chamada privada',tagged(caller)+' está ligando para você.','call');if(userSettings.notifications.desktop&&userSettings.notifications.calls)showSystemNotification('Chamada privada no Roda',tagged(caller)+' está ligando para você','roda-private-call');startIncomingRing();
 }
 function handleCallUpdate(row){
  if(incomingCall?.id===row.id&&row.status!=='ringing')closeIncomingCall();
@@ -968,7 +1002,8 @@ function showNotificationInstructions(){
 }
 async function enableCallNotifications(){
  await unlockCallAudio(true);pushAppNotification('Avisos internos ativos','Chamadas privadas vão aparecer na tela e tocar neste aparelho.','test');
- if(nativeWindows||!('Notification' in window)){toast('Avisos internos e toque ativados.');if(viewMode==='home')showHome();return}
+  if(nativeWindows){showSystemNotification('Roda','Notificações de mensagens e chamadas estão prontas.','roda-test',true);toast('Notificações do Windows e toque ativados.');if(viewMode==='home')showHome();return}
+  if(!('Notification' in window)){toast('Avisos internos e toque ativados.');if(viewMode==='home')showHome();return}
  if(Notification.permission==='denied'){showNotificationInstructions();return}
  try{const result=Notification.permission==='granted'?'granted':await Notification.requestPermission();if(result==='granted'){toast('Avisos internos e do sistema ativados.');try{new Notification('Roda',{body:'Avisos de chamadas estão prontos.',icon:'icons/icon-192.png',tag:'roda-test'})}catch{}}else showNotificationInstructions()}catch{showNotificationInstructions()}finally{if(viewMode==='home'&&!document.querySelector('#notification-help'))showHome()}
 }
@@ -1074,7 +1109,7 @@ function syncAppViewport(){
 syncAppViewport();addEventListener('resize',syncAppViewport,{passive:true});window.visualViewport?.addEventListener('resize',syncAppViewport,{passive:true});
 let installEvent=null;const installButton=$('#install-app'),installAuth=$('#install-auth'),windowsDownload=$('#windows-download');
 const androidDevice=/Android/i.test(navigator.userAgent),windowsDevice=/Windows/i.test(navigator.userAgent),installedApp=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-const downloadWindows=()=>location.assign('downloads/Roda-Setup-1.4.5.msi');
+const downloadWindows=()=>location.assign('downloads/Roda-Setup-1.4.6.msi');
 const versionAtLeast=(current,required)=>{const a=String(current).split('.').map(Number),b=String(required).split('.').map(Number);for(let i=0;i<Math.max(a.length,b.length);i++){if((a[i]||0)>(b[i]||0))return true;if((a[i]||0)<(b[i]||0))return false}return true};
 function offerNativeUpdate(){
  if(!nativeWindows||!nativeVersion||versionAtLeast(nativeVersion,'1.4.1')||document.querySelector('#native-update'))return;
