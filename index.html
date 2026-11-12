@@ -196,8 +196,13 @@ const reportsInFlight=new Set();
 async function reportTarget(targetType,targetId,label){const key=targetType+':'+targetId;if(reportsInFlight.has(key))return;const values=await ask('Denunciar '+label,[{label:'Motivo',opts:[['spam','Spam'],['harassment','Assédio'],['hate','Discurso de ódio'],['sexual','Conteúdo sexual'],['privacy','Exposição de dados'],['other','Outro']]},{label:'Detalhes opcionais',max:600}],'Enviar denúncia');if(!values)return;reportsInFlight.add(key);const reason=values[0]+(values[1]?': '+values[1]:'');const{error}=await sb.from('reports').insert({reporter_id:me.id,target_type:targetType,target_id:String(targetId),reason});reportsInFlight.delete(key);toast(error?'Não foi possível enviar a denúncia.':'Denúncia enviada para análise.')}
 function empty(){$('#view').replaceChildren(EmptyState('◉','Bem-vindo ao Roda','Crie seu primeiro servidor ou entre com um convite.',{label:'Criar servidor',run:createSrv}),el('button',{textContent:'Entrar com convite',onclick:joinSrv}))}
 const authErr=t=>authFeedback(t);
-let authMode='login',authBusy=false,resetEmail='',recovering=new URLSearchParams(location.hash.slice(1)).get('type')==='recovery';
+let authMode='login',authBusy=false,authCooldownTimer,authCooldownUntil=0,resetEmail='',recovering=new URLSearchParams(location.hash.slice(1)).get('type')==='recovery';
 function authFeedback(message,success=false){const target=$('#aerr');target.textContent=message||'';target.hidden=!message;target.className=success?'success':''}
+function startAuthCooldown(seconds=60){
+ clearInterval(authCooldownTimer);authCooldownUntil=Date.now()+seconds*1000;
+ const tick=()=>{const left=Math.ceil((authCooldownUntil-Date.now())/1000);if(left>0){$('#auth-submit').disabled=true;$('#auth-submit').textContent='Tente novamente em '+left+'s';return}clearInterval(authCooldownTimer);authCooldownTimer=null;authCooldownUntil=0;$('#auth-submit').disabled=false;$('#auth-submit').textContent=({login:'Entrar',signup:'Criar minha conta',reset:'Enviar código',otp:'Validar código',recovery:'Salvar nova senha'})[authMode]+' →'};
+ tick();authCooldownTimer=setInterval(tick,1000)
+}
 function setAuthMode(mode){
  if(authBusy)return;authMode=mode;authFeedback('');
  const signup=mode==='signup',recovery=mode==='recovery',reset=mode==='reset',otp=mode==='otp';
@@ -243,7 +248,7 @@ $('#auth-form').onsubmit=async event=>{
  if(mode==='otp'&&!/^\d{6,8}$/.test(token))return authFeedback('Digite o código numérico recebido por e-mail.');
  authBusy=true;$('#auth-form').setAttribute('aria-busy','true');$('#auth-submit').disabled=true;$('#auth-submit').textContent='Aguarde…';
  for(const button of document.querySelectorAll('#auth-tabs button,#bfg,#auth-switch button'))button.disabled=true;
- let message='',success=false,nextMode;
+ let message='',success=false,nextMode,cooldown=0;
  try{
   if(mode==='login'){const{error}=await sb.auth.signInWithPassword({email,password});if(error)throw error}
   if(mode==='signup'){
@@ -255,12 +260,12 @@ $('#auth-form').onsubmit=async event=>{
   if(mode==='reset'){const{error}=await sb.auth.resetPasswordForEmail(email);if(error)throw error;resetEmail=email;nextMode='otp';message='Confira seu e-mail e digite o código recebido.';success=true}
   if(mode==='otp'){recovering=true;const{error}=await sb.auth.verifyOtp({email,token,type:'recovery'});if(error){recovering=false;throw error}nextMode='recovery';message='Código confirmado. Agora escolha sua nova senha.';success=true}
   if(mode==='recovery'){const{error}=await sb.auth.updateUser({password});if(error)throw error;recovering=false;await sb.auth.signOut();nextMode='login';message='Senha atualizada. Entre com sua nova senha.';success=true}
- }catch(error){message=friendlyAuthError(error)}
+ }catch(error){message=friendlyAuthError(error);if(error?.code==='over_email_send_rate_limit'||error?.code==='over_request_rate_limit')cooldown=60}
  finally{
   authBusy=false;$('#auth-form').removeAttribute('aria-busy');$('#auth-submit').disabled=false;
   for(const button of document.querySelectorAll('#auth-tabs button,#bfg,#auth-switch button'))button.disabled=false;
   if(nextMode)setAuthMode(nextMode);else $('#auth-submit').textContent=({login:'Entrar',signup:'Criar minha conta',reset:'Enviar código',otp:'Validar código',recovery:'Salvar nova senha'})[authMode]+' →';
-  if(message)authFeedback(message,success);
+  if(message)authFeedback(message,success);if(cooldown)startAuthCooldown(cooldown);
  }
 };
 setAuthMode(recovering?'recovery':new URLSearchParams(location.search).get('acesso')==='criar'?'signup':'login');
