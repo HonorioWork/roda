@@ -128,6 +128,7 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
   <form id="auth-form">
    <div id="name-field" hidden><label for="un">Como podemos chamar você?</label><input id="un" name="username" placeholder="Seu nome de usuário" autocomplete="nickname" maxlength="40" disabled></div>
    <div id="email-field"><label for="em">E-mail</label><input id="em" name="email" type="email" placeholder="voce@exemplo.com" autocomplete="email" required></div>
+   <div id="invite-field" hidden><label for="invite-code">Convite para o Roda</label><input id="invite-code" name="invite" placeholder="Cole o link ou código do convite" autocomplete="off" maxlength="250" disabled><small id="invite-help">Peça a um amigo no Roda para copiar o convite do servidor.</small></div>
    <div id="code-field" hidden><label for="otp-code">Código recebido</label><input id="otp-code" name="one-time-code" type="text" placeholder="Digite o código do e-mail" inputmode="numeric" autocomplete="one-time-code" minlength="6" maxlength="8" pattern="[0-9]*" disabled><small>Confira também a caixa de spam.</small></div>
    <div id="password-field"><label for="pw" id="password-label">Senha</label><div class="password-wrap"><input id="pw" name="password" type="password" placeholder="Digite sua senha" autocomplete="current-password" required><button type="button" id="show-password" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button></div><small id="password-help" hidden>Use pelo menos 8 caracteres. Evite senhas que você já utiliza.</small></div>
    <div id="confirm-field" hidden><label for="pw-confirm">Confirme sua senha</label><input id="pw-confirm" name="password-confirmation" type="password" placeholder="Digite a senha novamente" autocomplete="new-password" disabled></div>
@@ -210,6 +211,7 @@ function setAuthMode(mode){
  $('#tab-login').setAttribute('aria-pressed',String(mode==='login'));$('#tab-signup').setAttribute('aria-pressed',String(signup));
  $('#name-field').hidden=!signup;$('#un').disabled=!signup;$('#un').required=signup;
  $('#email-field').hidden=recovery;$('#em').disabled=recovery||otp;
+ $('#invite-field').hidden=!signup;$('#invite-code').disabled=!signup;$('#invite-code').required=signup;if(signup&&!$('#invite-code').value){$('#invite-code').value=new URLSearchParams(location.search).get('convite')||''}
  $('#code-field').hidden=!otp;$('#otp-code').disabled=!otp;$('#otp-code').required=otp;if(!otp)$('#otp-code').value='';
  $('#password-field').hidden=reset||otp;$('#pw').disabled=reset||otp;$('#pw').required=!(reset||otp);
  $('#pw').minLength=signup||recovery?8:1;$('#pw').autocomplete=signup||recovery?'new-password':'current-password';
@@ -226,6 +228,12 @@ $('#tab-login').onclick=()=>setAuthMode('login');$('#tab-signup').onclick=()=>se
 $('#show-password').onclick=()=>{const show=$('#pw').type==='password';$('#pw').type=show?'text':'password';$('#pw-confirm').type=show?'text':'password';$('#show-password').textContent=show?'Ocultar':'Mostrar';$('#show-password').setAttribute('aria-label',show?'Ocultar senha':'Mostrar senha');$('#show-password').setAttribute('aria-pressed',String(show))};
 function friendlyAuthError(error){
  const text=error?.message||'',code=error?.code||'';
+ if(code==='invalid_invite')return 'Convite inválido. Cole o link completo enviado por um amigo do Roda.';
+ if(code==='invite_rate_limit')return 'Este convite atingiu o limite temporário. Peça outro convite ou aguarde uma hora.';
+ if(code==='email_exists')return 'Este e-mail já tem uma conta. Volte para entrar ou recupere sua senha.';
+ if(code==='invalid_email')return 'Digite um endereço de e-mail válido.';
+ if(code==='invalid_username')return 'O nome precisa ter entre 1 e 40 caracteres.';
+ if(code==='service_unavailable'||code==='signup_failed')return 'Não foi possível criar a conta agora. Aguarde um instante e tente novamente.';
  if(code==='over_email_send_rate_limit')return 'O limite de envio de e-mails foi atingido. Aguarde antes de tentar novamente; não repita o cadastro.';
  if(code==='over_request_rate_limit')return 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.';
  if(code==='email_address_not_authorized')return 'Este e-mail ainda não está autorizado pelo serviço de envio. Fale com o administrador do Roda.';
@@ -240,11 +248,23 @@ function friendlyAuthError(error){
  if(/password/i.test(text))return 'A senha não atende aos requisitos. Use uma senha maior, com letras, números e símbolos.';
  return 'Não foi possível concluir. Verifique sua conexão e tente novamente.';
 }
+function inviteCodeFrom(value){
+ const raw=String(value||'').trim();if(!raw)return '';
+ try{const url=new URL(raw);return (url.searchParams.get('convite')||'').trim().toLowerCase()}catch{}
+ try{return decodeURIComponent(raw.split('convite=').pop().split('&')[0]).trim().toLowerCase()}catch{return raw.toLowerCase()}
+}
+async function signupByInvite(email,password,username,inviteCode){
+ const result=await fetch(CFG.URL+'/functions/v1/invite-signup',{method:'POST',headers:{'Content-Type':'application/json','apikey':CFG.KEY,'Authorization':'Bearer '+CFG.KEY},body:JSON.stringify({email,password,username,inviteCode})});
+ const payload=await result.json().catch(()=>({}));
+ if(!result.ok){const error=new Error(payload?.code||'signup_failed');error.code=payload?.code||'signup_failed';throw error}
+ const{error}=await sb.auth.signInWithPassword({email,password});if(error)throw error
+}
 $('#auth-form').onsubmit=async event=>{
  event.preventDefault();if(authBusy)return;authFeedback('');
  const mode=authMode,email=(mode==='otp'?resetEmail:$('#em').value).trim(),password=$('#pw').value,token=$('#otp-code').value.trim();
  if((mode==='signup'||mode==='recovery')&&password!==$('#pw-confirm').value)return authFeedback('As senhas não são iguais. Digite a mesma senha nos dois campos.');
  if(mode==='signup'&&!$('#un').value.trim())return authFeedback('Digite seu nome de usuário.');
+ if(mode==='signup'&&!inviteCodeFrom($('#invite-code').value))return authFeedback('Cole o convite enviado por um amigo do Roda.');
  if(mode==='otp'&&!/^\d{6,8}$/.test(token))return authFeedback('Digite o código numérico recebido por e-mail.');
  authBusy=true;$('#auth-form').setAttribute('aria-busy','true');$('#auth-submit').disabled=true;$('#auth-submit').textContent='Aguarde…';
  for(const button of document.querySelectorAll('#auth-tabs button,#bfg,#auth-switch button'))button.disabled=true;
@@ -252,10 +272,7 @@ $('#auth-form').onsubmit=async event=>{
  try{
   if(mode==='login'){const{error}=await sb.auth.signInWithPassword({email,password});if(error)throw error}
   if(mode==='signup'){
-   const{data,error}=await sb.auth.signUp({email,password,options:{data:{username:$('#un').value.trim()},emailRedirectTo:new URL(location.pathname,location.origin).href}});
-   if(error)throw error;
-   if(data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0){message='Este e-mail já está cadastrado. Volte para entrar ou use “Esqueci minha senha”.';success=true;nextMode='login'}
-   else if(!data.session){message='Cadastro recebido. Confira seu e-mail para confirmar a conta e veja também a caixa de spam.';success=true;nextMode='login'}
+   await signupByInvite(email,password,$('#un').value.trim(),inviteCodeFrom($('#invite-code').value));
   }
   if(mode==='reset'){const{error}=await sb.auth.resetPasswordForEmail(email);if(error)throw error;resetEmail=email;nextMode='otp';message='Confira seu e-mail e digite o código recebido.';success=true}
   if(mode==='otp'){recovering=true;const{error}=await sb.auth.verifyOtp({email,token,type:'recovery'});if(error){recovering=false;throw error}nextMode='recovery';message='Código confirmado. Agora escolha sua nova senha.';success=true}
