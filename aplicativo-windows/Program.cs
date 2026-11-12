@@ -14,8 +14,8 @@ using Microsoft.Web.WebView2.WinForms;
 [assembly: System.Reflection.AssemblyTitle("Roda")]
 [assembly: System.Reflection.AssemblyProduct("Roda")]
 [assembly: System.Reflection.AssemblyCompany("HonorioWork")]
-[assembly: System.Reflection.AssemblyVersion("1.4.4.0")]
-[assembly: System.Reflection.AssemblyFileVersion("1.4.4.0")]
+[assembly: System.Reflection.AssemblyVersion("1.4.5.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.4.5.0")]
 
 namespace RodaWindows
 {
@@ -33,13 +33,15 @@ namespace RodaWindows
 
     internal sealed class RodaWindow : Form
     {
-        private const string CurrentVersion = "1.4.4";
+        private const string CurrentVersion = "1.4.5";
         private const string RodaUrl = "https://honoriowork.github.io/roda/?app=windows";
         private const string UpdateManifestUrl = "https://honoriowork.github.io/roda/updates/windows.json";
         private const string TrustedDownloadHost = "honoriowork.github.io";
         private readonly WebView2 webView;
         private readonly Label startupStatus;
         private readonly NotifyIcon trayIcon;
+        private bool allowExit;
+        private bool trayHintShown;
 
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr window, int attribute, ref int value, int size);
@@ -62,6 +64,11 @@ namespace RodaWindows
                 Visible = true
             };
             trayIcon.BalloonTipClicked += delegate { RestoreWindow(); };
+            trayIcon.DoubleClick += delegate { RestoreWindow(); };
+            ContextMenuStrip trayMenu = new ContextMenuStrip();
+            trayMenu.Items.Add("Abrir Roda", null, delegate { RestoreWindow(); });
+            trayMenu.Items.Add("Sair do Roda", null, delegate { ExitRoda(); });
+            trayIcon.ContextMenuStrip = trayMenu;
 
             webView = new WebView2
             {
@@ -191,9 +198,36 @@ namespace RodaWindows
         private void RestoreWindow()
         {
             if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal;
+            ShowInTaskbar = true;
             Show();
             Activate();
             webView.Focus();
+        }
+
+        private void ExitRoda()
+        {
+            allowExit = true;
+            Close();
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs args)
+        {
+            if (!allowExit && args.CloseReason == CloseReason.UserClosing)
+            {
+                args.Cancel = true;
+                ShowInTaskbar = false;
+                Hide();
+                if (!trayHintShown)
+                {
+                    trayHintShown = true;
+                    trayIcon.BalloonTipTitle = "Roda continua aberto";
+                    trayIcon.BalloonTipText = "Sua chamada continua em segundo plano. Clique duas vezes no ícone do Roda para voltar.";
+                    trayIcon.BalloonTipIcon = ToolTipIcon.Info;
+                    trayIcon.ShowBalloonTip(8000);
+                }
+                return;
+            }
+            base.OnFormClosing(args);
         }
 
         private async Task<bool> TryInstallUpdateAsync()
@@ -251,6 +285,7 @@ namespace RodaWindows
                     Arguments = "/i \"" + finalPath + "\" /passive /norestart",
                     UseShellExecute = true
                 });
+                allowExit = true;
                 BeginInvoke(new Action(Close));
                 return true;
             }

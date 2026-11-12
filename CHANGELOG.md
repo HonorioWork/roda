@@ -1,3 +1,6 @@
+## 2026-11-12
+- No Windows, clicar no X agora mantém o Roda e a chamada ativos na bandeja; o menu do ícone permite abrir ou sair de verdade.
+
 ## 2026-10-24
 - O painel de membros vira uma gaveta lateral até 1399 px, sem empurrar o canal de voz para uma segunda linha.
 - Uma nova entrada na chamada agora aguarda o encerramento completo da conexão anterior do LiveKit.
