@@ -220,7 +220,11 @@ function setAuthMode(mode){
 $('#tab-login').onclick=()=>setAuthMode('login');$('#tab-signup').onclick=()=>setAuthMode('signup');$('#bfg').onclick=()=>setAuthMode('reset');
 $('#show-password').onclick=()=>{const show=$('#pw').type==='password';$('#pw').type=show?'text':'password';$('#pw-confirm').type=show?'text':'password';$('#show-password').textContent=show?'Ocultar':'Mostrar';$('#show-password').setAttribute('aria-label',show?'Ocultar senha':'Mostrar senha');$('#show-password').setAttribute('aria-pressed',String(show))};
 function friendlyAuthError(error){
- const text=error?.message||'';
+ const text=error?.message||'',code=error?.code||'';
+ if(code==='over_email_send_rate_limit')return 'O limite de envio de e-mails foi atingido. Aguarde antes de tentar novamente; não repita o cadastro.';
+ if(code==='over_request_rate_limit')return 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.';
+ if(code==='email_address_not_authorized')return 'Este e-mail ainda não está autorizado pelo serviço de envio. Fale com o administrador do Roda.';
+ if(code==='user_already_exists')return 'Este e-mail já tem uma conta. Entre ou recupere sua senha.';
  if(/invalid login credentials/i.test(text))return 'E-mail ou senha incorretos. Confira os dados e tente novamente.';
  if(/already registered|already been registered/i.test(text))return 'Este e-mail já tem uma conta. Entre ou recupere sua senha.';
  if(/email not confirmed/i.test(text))return 'Confirme seu e-mail antes de entrar. Confira também a caixa de spam.';
@@ -245,7 +249,8 @@ $('#auth-form').onsubmit=async event=>{
   if(mode==='signup'){
    const{data,error}=await sb.auth.signUp({email,password,options:{data:{username:$('#un').value.trim()},emailRedirectTo:new URL(location.pathname,location.origin).href}});
    if(error)throw error;
-   if(!data.session){message='Confira seu e-mail para confirmar o cadastro. Se já tem uma conta, entre ou recupere sua senha.';success=true;nextMode='login'}
+   if(data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0){message='Este e-mail já está cadastrado. Volte para entrar ou use “Esqueci minha senha”.';success=true;nextMode='login'}
+   else if(!data.session){message='Cadastro recebido. Confira seu e-mail para confirmar a conta e veja também a caixa de spam.';success=true;nextMode='login'}
   }
   if(mode==='reset'){const{error}=await sb.auth.resetPasswordForEmail(email);if(error)throw error;resetEmail=email;nextMode='otp';message='Confira seu e-mail e digite o código recebido.';success=true}
   if(mode==='otp'){recovering=true;const{error}=await sb.auth.verifyOtp({email,token,type:'recovery'});if(error){recovering=false;throw error}nextMode='recovery';message='Código confirmado. Agora escolha sua nova senha.';success=true}
