@@ -136,6 +136,7 @@ body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-ri
 .theme-light .mic-meter{background:#d7dbe2}.theme-light .unsaved-bar{background:#fff;border-color:var(--color-border);box-shadow:var(--shadow-popover)}
 .theme-light .home-hero{background:linear-gradient(135deg,#f5b9421f,#fff 60%);border-color:var(--color-border)}
 .theme-light .incoming-call{background:#ffffffcc}.theme-light dialog::backdrop{background:#30343b80}
+.incoming-card{position:relative}.incoming-kicker{color:var(--color-accent);font-size:var(--font-xs);font-weight:800;letter-spacing:.1em;text-transform:uppercase}.incoming-card .ava{animation:incoming-ring-pulse 1.35s ease-in-out infinite}@keyframes incoming-ring-pulse{0%,100%{box-shadow:0 0 0 4px color-mix(in srgb,var(--color-success) 25%,transparent)}50%{box-shadow:0 0 0 11px color-mix(in srgb,var(--color-success) 4%,transparent)}}@media(prefers-reduced-motion:reduce){.incoming-card .ava{animation:none}}
 .security-info{display:grid;gap:var(--space-3)}.security-info .settings-card{margin:0}
 .security-card-title{display:flex;align-items:center;gap:var(--space-2)}.security-card-title h3{margin:0}
 .security-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:var(--radius-md);background:var(--color-surface-hover)}

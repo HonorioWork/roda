@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Media;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -14,8 +15,8 @@ using Microsoft.Web.WebView2.WinForms;
 [assembly: System.Reflection.AssemblyTitle("Roda")]
 [assembly: System.Reflection.AssemblyProduct("Roda")]
 [assembly: System.Reflection.AssemblyCompany("HonorioWork")]
-[assembly: System.Reflection.AssemblyVersion("1.4.8.0")]
-[assembly: System.Reflection.AssemblyFileVersion("1.4.8.0")]
+[assembly: System.Reflection.AssemblyVersion("1.4.9.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.4.9.0")]
 
 namespace RodaWindows
 {
@@ -33,13 +34,16 @@ namespace RodaWindows
 
     internal sealed class RodaWindow : Form
     {
-        private const string CurrentVersion = "1.4.8";
+        private const string CurrentVersion = "1.4.9";
         private const string RodaUrl = "https://honoriowork.github.io/roda/?app=windows";
         private const string UpdateManifestUrl = "https://honoriowork.github.io/roda/updates/windows.json";
         private const string TrustedDownloadHost = "honoriowork.github.io";
         private readonly WebView2 webView;
         private readonly Label startupStatus;
         private readonly NotifyIcon trayIcon;
+        private SoundPlayer callRingtone;
+        private MemoryStream callRingtoneStream;
+        private readonly Timer callRingtoneTimeout;
         private bool allowExit;
         private bool trayHintShown;
 
@@ -69,6 +73,8 @@ namespace RodaWindows
             trayMenu.Items.Add("Abrir Roda", null, delegate { RestoreWindow(); });
             trayMenu.Items.Add("Sair do Roda", null, delegate { ExitRoda(); });
             trayIcon.ContextMenuStrip = trayMenu;
+            callRingtoneTimeout = new Timer { Interval = 65000 };
+            callRingtoneTimeout.Tick += delegate { StopIncomingRingtone(); };
 
             webView = new WebView2
             {
@@ -173,7 +179,15 @@ namespace RodaWindows
                     {
                         string value = message.TryGetWebMessageAsString();
                         string[] parts = value.Split(new[] { '\t' }, 3);
-                        if (parts.Length == 3 && parts[0] == "RODA_NOTIFY")
+                        if (value == "RODA_CALL_STOP")
+                        {
+                            BeginInvoke(new Action(StopIncomingRingtone));
+                        }
+                        else if (parts.Length == 3 && parts[0] == "RODA_CALL_START")
+                        {
+                            BeginInvoke(new Action(StartIncomingRingtone));
+                        }
+                        else if (parts.Length == 3 && parts[0] == "RODA_NOTIFY")
                         {
                             trayIcon.BalloonTipTitle = parts[1];
                             trayIcon.BalloonTipText = parts[2];
@@ -218,8 +232,75 @@ namespace RodaWindows
             try { webView.CoreWebView2?.PostWebMessageAsString(state); } catch { }
         }
 
+        private void StartIncomingRingtone()
+        {
+            try
+            {
+                StopIncomingRingtone();
+                callRingtoneStream = CreateRingtoneWave();
+                callRingtone = new SoundPlayer(callRingtoneStream);
+                callRingtone.Load();
+                callRingtone.PlayLooping();
+                callRingtoneTimeout.Start();
+            }
+            catch { StopIncomingRingtone(); }
+        }
+
+        private void StopIncomingRingtone()
+        {
+            callRingtoneTimeout.Stop();
+            try { callRingtone?.Stop(); } catch { }
+            try { callRingtone?.Dispose(); } catch { }
+            try { callRingtoneStream?.Dispose(); } catch { }
+            callRingtone = null;
+            callRingtoneStream = null;
+        }
+
+        private static MemoryStream CreateRingtoneWave()
+        {
+            const int sampleRate = 16000;
+            const int durationMilliseconds = 2800;
+            int sampleCount = sampleRate * durationMilliseconds / 1000;
+            MemoryStream stream = new MemoryStream(44 + sampleCount * 2);
+            using (BinaryWriter writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, true))
+            {
+                writer.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));
+                writer.Write(36 + sampleCount * 2);
+                writer.Write(System.Text.Encoding.ASCII.GetBytes("WAVEfmt "));
+                writer.Write(16);
+                writer.Write((short)1);
+                writer.Write((short)1);
+                writer.Write(sampleRate);
+                writer.Write(sampleRate * 2);
+                writer.Write((short)2);
+                writer.Write((short)16);
+                writer.Write(System.Text.Encoding.ASCII.GetBytes("data"));
+                writer.Write(sampleCount * 2);
+
+                double[,] notes = { { 0, 180, 523.25 }, { 220, 180, 659.25 }, { 470, 260, 783.99 }, { 1040, 180, 523.25 }, { 1260, 180, 659.25 }, { 1510, 320, 880.00 } };
+                for (int index = 0; index < sampleCount; index++)
+                {
+                    double milliseconds = index * 1000.0 / sampleRate;
+                    double sample = 0;
+                    for (int note = 0; note < notes.GetLength(0); note++)
+                    {
+                        double start = notes[note, 0], length = notes[note, 1], frequency = notes[note, 2];
+                        if (milliseconds < start || milliseconds >= start + length) continue;
+                        double position = milliseconds - start;
+                        double envelope = Math.Min(1, position / 18.0) * Math.Min(1, (length - position) / 35.0);
+                        sample = Math.Sin(2 * Math.PI * frequency * position / 1000.0) * envelope * 0.18;
+                        break;
+                    }
+                    writer.Write((short)(sample * short.MaxValue));
+                }
+            }
+            stream.Position = 0;
+            return stream;
+        }
+
         private void ExitRoda()
         {
+            StopIncomingRingtone();
             allowExit = true;
             Close();
         }
@@ -376,6 +457,8 @@ namespace RodaWindows
         {
             if (disposing)
             {
+                StopIncomingRingtone();
+                callRingtoneTimeout.Dispose();
                 trayIcon.Visible = false;
                 trayIcon.Dispose();
                 webView.Dispose();
