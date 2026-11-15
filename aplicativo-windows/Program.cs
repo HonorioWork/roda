@@ -15,8 +15,8 @@ using Microsoft.Web.WebView2.WinForms;
 [assembly: System.Reflection.AssemblyTitle("Roda")]
 [assembly: System.Reflection.AssemblyProduct("Roda")]
 [assembly: System.Reflection.AssemblyCompany("HonorioWork")]
-[assembly: System.Reflection.AssemblyVersion("1.5.0.0")]
-[assembly: System.Reflection.AssemblyFileVersion("1.5.0.0")]
+[assembly: System.Reflection.AssemblyVersion("1.5.1.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.5.1.0")]
 
 namespace RodaWindows
 {
@@ -34,7 +34,7 @@ namespace RodaWindows
 
     internal sealed class RodaWindow : Form
     {
-        private const string CurrentVersion = "1.5.0";
+        private const string CurrentVersion = "1.5.1";
         private const string RodaUrl = "https://honoriowork.github.io/roda/?app=windows";
         private const string UpdateManifestUrl = "https://honoriowork.github.io/roda/updates/windows.json";
         private const string TrustedDownloadHost = "honoriowork.github.io";
@@ -46,6 +46,8 @@ namespace RodaWindows
         private readonly Timer callRingtoneTimeout;
         private bool allowExit;
         private bool trayHintShown;
+        private bool lowMemoryMode;
+        private bool memoryModeApplied;
 
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr window, int attribute, ref int value, int size);
@@ -95,9 +97,13 @@ namespace RodaWindows
             Controls.Add(startupStatus);
             HandleCreated += delegate { ApplyTitleBar(true); };
             Load += delegate { FitAndCenterWindow(); };
+            Activated += delegate { SetMemoryMode(false); };
+            Deactivate += delegate { SetMemoryMode(true); };
             Resize += delegate
             {
-                PostWindowState(WindowState == FormWindowState.Minimized ? "RODA_BACKGROUND" : "RODA_FOREGROUND");
+                bool background = WindowState == FormWindowState.Minimized;
+                SetMemoryMode(background);
+                PostWindowState(background ? "RODA_BACKGROUND" : "RODA_FOREGROUND");
             };
             Shown += InitializeRoda;
         }
@@ -161,7 +167,9 @@ namespace RodaWindows
                 core.Settings.UserAgent = core.Settings.UserAgent + " RodaWindows/" + CurrentVersion;
                 core.NavigationCompleted += delegate
                 {
-                    PostWindowState(Visible && WindowState != FormWindowState.Minimized ? "RODA_FOREGROUND" : "RODA_BACKGROUND");
+                    bool background = !Visible || WindowState == FormWindowState.Minimized || !ContainsFocus;
+                    SetMemoryMode(background);
+                    PostWindowState(background ? "RODA_BACKGROUND" : "RODA_FOREGROUND");
                 };
 
                 core.NewWindowRequested += delegate(object requestSender, CoreWebView2NewWindowRequestedEventArgs request)
@@ -224,7 +232,24 @@ namespace RodaWindows
             Show();
             Activate();
             webView.Focus();
+            SetMemoryMode(false);
             PostWindowState("RODA_FOREGROUND");
+        }
+
+        private void SetMemoryMode(bool low)
+        {
+            try
+            {
+                CoreWebView2 core = webView.CoreWebView2;
+                if (core == null) { lowMemoryMode = low; return; }
+                if (memoryModeApplied && lowMemoryMode == low) return;
+                core.MemoryUsageTargetLevel = low
+                    ? CoreWebView2MemoryUsageTargetLevel.Low
+                    : CoreWebView2MemoryUsageTargetLevel.Normal;
+                lowMemoryMode = low;
+                memoryModeApplied = true;
+            }
+            catch { }
         }
 
         private void PostWindowState(string state)
@@ -311,6 +336,7 @@ namespace RodaWindows
             {
                 args.Cancel = true;
                 ShowInTaskbar = false;
+                SetMemoryMode(true);
                 PostWindowState("RODA_BACKGROUND");
                 Hide();
                 if (!trayHintShown)

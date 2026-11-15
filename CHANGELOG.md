@@ -1,4 +1,5 @@
 ## 2026-11-15
+- Roda 1.5.1: reduz o uso de memória do aplicativo Windows quando está sem foco, minimizado ou na bandeja, sem interromper voz, microfone, notificações ou conexões; vídeos recebidos e imagens pesadas são liberados enquanto a janela está escondida.
 - Roda 1.5.0: chamadas móveis agora preservam a sessão ao bloquear a tela, recuperam automaticamente conexão e microfone ao voltar no Android e iOS e usam uma sessão de áudio dedicada em segundo plano.
 - O volume individual da voz de cada pessoa agora pode ser amplificado até 200%, separado do áudio da tela.
 - Aplicativo Windows 1.4.9: chamadas privadas recebidas agora exibem um cartão com Atender/Recusar e usam um toque repetido do próprio programa, inclusive quando o Roda está minimizado na bandeja.
