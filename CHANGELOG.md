@@ -1,4 +1,6 @@
 ## 2026-11-15
+- Roda 1.5.0: chamadas móveis agora preservam a sessão ao bloquear a tela, recuperam automaticamente conexão e microfone ao voltar no Android e iOS e usam uma sessão de áudio dedicada em segundo plano.
+- O volume individual da voz de cada pessoa agora pode ser amplificado até 200%, separado do áudio da tela.
 - Aplicativo Windows 1.4.9: chamadas privadas recebidas agora exibem um cartão com Atender/Recusar e usam um toque repetido do próprio programa, inclusive quando o Roda está minimizado na bandeja.
 
 ## 2026-11-14

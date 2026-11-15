@@ -114,7 +114,7 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
 .home-page{padding:0!important;display:flex;flex-direction:column;min-height:0}.home-toolbar{height:56px;display:flex;align-items:center;gap:8px;padding:0 22px;border-bottom:1px solid var(--ln);background:#1e1f22;position:sticky;top:0;z-index:2}.home-toolbar button{border:0;background:transparent;color:#b5bac1}.home-toolbar button.active,.home-toolbar button:hover{background:#3f4147;color:white}.home-toolbar .spacer{flex:1}.home-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;min-height:0;flex:1}.home-main{padding:28px 30px 60px;min-width:0}.home-aside{border-left:1px solid var(--ln);background:#1e1f22;padding:24px 16px}.home-hero{border-radius:14px;padding:25px;background:linear-gradient(135deg,#f5b94229,#232329 55%);border:1px solid #3b3d48}.home-hero h1{margin:7px 0!important}.home-section-title{display:flex;align-items:center;justify-content:space-between;margin-top:28px}.home-section-title h2{margin:0!important}.notice-status{border:1px solid #3b3d46;border-radius:12px;background:#2b2d31;padding:15px;margin-bottom:12px}.notice-status strong{display:block;margin-bottom:4px}.notice-status.ok{border-color:#24804688}.notice-status.warn{border-color:#f0b23288}.notice-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#23a559;margin-right:7px}.notice-status.warn .notice-dot{background:#f0b232}.home-aside h3{font-size:15px;margin:0 0 14px}.activity-empty{padding:18px 6px;color:var(--mut);font-size:12px;line-height:1.6}.notification-dialog{width:min(470px,calc(100vw - 28px));max-height:min(650px,85vh);padding:0;background:#2b2d31;color:var(--tx);border:1px solid #42444c;border-radius:13px}.notification-dialog::backdrop{background:#0009}.notification-head{display:flex;align-items:center;gap:12px;padding:18px;border-bottom:1px solid #3a3c43}.notification-head h2{font-size:18px;margin:0;flex:1}.notification-list{padding:10px;overflow:auto;max-height:520px}.notification-item{padding:13px;border-radius:9px;background:#232428;margin-bottom:8px}.notification-item strong{display:block}.notification-item p{color:#b5bac1;margin:4px 0;font-size:12px}.notification-item time{font-size:10px;color:#80848e}.notification-empty{text-align:center;color:var(--mut);padding:45px 20px}.settings-dialog.app-settings .settings-layout{grid-template-columns:minmax(230px,320px) minmax(0,1fr);justify-content:stretch;background:none}.settings-dialog.app-settings .settings-nav{background:#2b2d31;padding-left:max(18px,calc((100vw - 1180px)/2));padding-top:38px}.settings-dialog.app-settings .settings-main{background:#313338;padding:46px max(38px,calc((100vw - 1280px)/2)) 110px 42px}.settings-dialog.app-settings .settings-main>*{max-width:760px}.settings-nav button{padding:8px 10px}.settings-nav button.active{background:#404249}.settings-heading{align-items:flex-start}.settings-close{display:grid;justify-items:center;gap:4px}.settings-close button{width:36px;height:36px;border:2px solid #80848e;background:transparent;font-size:22px;line-height:26px;padding:0}.settings-close small{font-size:9px;color:#949ba4;font-weight:700}.settings-card{background:#2b2d31}.native-windows #app{padding-top:0}.native-windows #app:before{display:none}.voice-screen,#tiles,.tile,.tile video{min-width:0;min-height:0}.tile video{display:block;max-width:100%;max-height:100%}.tile:fullscreen,.tile.fullscreen-fallback{inset:0;width:100%;height:100%;box-sizing:border-box}.tile:fullscreen video,.tile.fullscreen-fallback video{object-fit:contain;max-width:100vw;max-height:100dvh}
 #app{height:var(--app-height,100dvh)}.tile:fullscreen video,.tile.fullscreen-fallback video{max-height:var(--app-height,100dvh)}.settings-card .settings-row>.ava{flex:0 0 64px!important;width:64px!important;height:64px!important}.settings-card .settings-row>div{flex:1;min-width:0}
 @media(max-width:1050px){.home-layout{grid-template-columns:1fr}.home-aside{border-left:0;border-top:1px solid var(--ln)}}@media(max-width:700px){.home-toolbar{padding:0 10px;overflow:auto}.home-main{padding:18px 14px 45px}.home-aside{padding:18px 14px}.settings-dialog.app-settings .settings-main{padding:24px 18px 100px}.settings-dialog.app-settings .settings-nav{padding:18px}.home-actions button{flex:1}.server-cards{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}}
-</style><link rel="stylesheet" href="assets/styles/theme-roda-yellow.css?v=49"></head><body>
+</style><link rel="stylesheet" href="assets/styles/theme-roda-yellow.css?v=50"></head><body>
 <button id="install-app" class="pri" hidden style="position:fixed;right:18px;bottom:18px;z-index:40;box-shadow:0 8px 28px #0008">⬇ Instalar Roda</button>
 <section id="auth" aria-label="Acesso ao Roda">
  <div class="auth-intro">
@@ -139,7 +139,7 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
   <p class="auth-switch" id="auth-switch">Ainda não tem uma conta? <button type="button" id="switch-mode">Crie a sua</button></p>
   <p class="auth-note" id="auth-note">Se recebeu um convite, entre ou crie sua conta para participar.</p>
   <button type="button" id="install-auth" class="auth-link" style="display:block;width:100%;text-align:center;margin-top:12px">📱 Instalar Roda neste aparelho</button>
-  <a id="windows-download" class="pri public-download" href="downloads/Roda-Setup-1.4.9.msi" download>⬇ Baixar Roda para Windows</a>
+  <a id="windows-download" class="pri public-download" href="downloads/Roda-Setup-1.5.0.msi" download>⬇ Baixar Roda para Windows</a>
   <a class="download-more" href="downloads/">Downloads e instalação sem login</a>
  </div>
 </section>
@@ -470,31 +470,65 @@ function updateVoiceDock(){let dock=document.getElementById('voice-dock');if(!do
  const signature=[joining,currentChannel.id,currentChannel.name,currentChannel.private,room?.localParticipant.isMicrophoneEnabled,participantCount].join('|');if(dock.dataset.signature===signature)return;dock.dataset.signature=signature;
  dock.replaceChildren(el('strong',{textContent:joining?'Conectando à voz…':'Voz conectada'}),el('p',{textContent:currentChannel.name+' / '+(currentServer?.name||'')}),el('small',{textContent:participantCount?participantCount+' na chamada':'Preparando chamada'}),...(ownerServerTimerEnabled()?[el('div',{className:'owner-server-timer',title:'Estimativa calculada neste aparelho. Confira o painel do LiveKit para o consumo oficial.'},el('small',{id:'owner-call-time',textContent:ownerCallStartedAt?'Sua chamada: '+formatCallTime(Date.now()-ownerCallStartedAt):'Sua chamada: preparando…'}),el('small',{id:'owner-server-usage',textContent:'Estimativa local do limite mensal de 5.000 min-part.'}))]:[]),el('small',{id:'call-ping',textContent:pingMs===null?'Ping: —':'Ping: '+pingMs+' ms',title:'Tempo de ida e volta da conexão de mídia'}),el('div',{className:'voice-dock-actions'},
 el('button',{textContent:'Voltar à call',onclick:async()=>{if(currentChannel.private){showPrivateCall(currentChannel.peer,currentChannel.callSignalId);return}if(srv?.id!==currentServer?.id)await pickSrv(currentServer);if(voiceChannel?.id===currentChannel.id)pickCh(currentChannel);shut()}}),
-el('button',{textContent:room?.localParticipant.isMicrophoneEnabled?'🎤':'🔇',title:'Alternar microfone',ariaLabel:'Alternar microfone',disabled:joining,onclick:async()=>{try{const lp=room?.localParticipant;if(lp)await lp.setMicrophoneEnabled(!lp.isMicrophoneEnabled);draw()}catch{toast('Confira a permissão do microfone.')}}}),
+el('button',{textContent:room?.localParticipant.isMicrophoneEnabled?'🎤':'🔇',title:'Alternar microfone',ariaLabel:'Alternar microfone',disabled:joining,onclick:async()=>{try{const lp=room?.localParticipant;if(lp)await setCallMicrophone(lp,!lp.isMicrophoneEnabled);draw()}catch{toast('Confira a permissão do microfone.')}}}),
 el('button',{className:'dg',textContent:'Sair',title:'Desconectar chamada',onclick:()=>{leaveVoice();if(ch?.kind==='voice')voiceView(ch);note('Você saiu da sala de voz.')}})));}
 function voiceView(c){if(voiceChannel?.id===c.id&&voiceStage){$('#view').replaceChildren(voiceStage);draw();return}const head=c.private?el('div',{className:'private-call-head'},avatarFor(c.peer?.username||'?',42),el('div',{},el('strong',{textContent:tagged(c.peer)}),el('span',{textContent:'Chamada privada'})),el('span',{className:'private-call-status',textContent:'● Conectando com segurança'})):null;$('#view').replaceChildren(el('div',{className:'voice-screen'},...(head?[head]:[]),el('div',{id:'tiles'},el('div',{className:'empty',style:'grid-column:1/-1'},el('h2',{textContent:c.private?'Call com '+tagged(c.peer):c.name}),el('p',{textContent:c.private?'Converse por voz, ligue a câmera ou compartilhe sua tela.':'Entre para conversar por voz, vídeo ou tela.',style:'color:var(--mut);margin:0'}),el('button',{className:'pri',textContent:'Preparar entrada',onclick:()=>prejoin(c)}))),el('div',{id:'ctl'})));if(room||joining){const btn=$('#view .pri');if(btn)btn.textContent='Trocar para esta sala'}}
 const mobileCallDevice=()=>!nativeWindows&&(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||matchMedia('(pointer:coarse)').matches);
-const standaloneApp=()=>matchMedia('(display-mode:standalone)').matches||navigator.standalone===true;
-let restoreCameraAfterBackground=false;
+const appleMobileDevice=()=>/iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+let restoreCameraAfterBackground=false,mobileMicWasEnabled=false,mobileCallBackgrounded=false,mobileCallNeedsReconnect=false,mobileRecoveryBusy=false,mobileKeepalive=null;
 function setMediaAction(action,handler){try{navigator.mediaSession?.setActionHandler(action,handler)}catch{}}
+async function setCallMicrophone(participant,enabled){
+ if(!participant)return;await participant.setMicrophoneEnabled(enabled,microphoneOptions());if(mobileCallDevice())mobileMicWasEnabled=!!enabled
+}
+async function startMobileCallKeepalive(){
+ if(!room||!mobileCallDevice())return;
+ try{
+  if(mobileKeepalive){await mobileKeepalive.context?.resume?.();await mobileKeepalive.audio?.play?.();return}
+  const AudioCtor=window.AudioContext||window.webkitAudioContext;if(!AudioCtor)return;
+  const context=new AudioCtor({latencyHint:'playback'}),destination=context.createMediaStreamDestination(),oscillator=context.createOscillator(),gain=context.createGain(),audio=el('audio',{autoplay:true,playsInline:true});
+  oscillator.frequency.value=20;gain.gain.value=.00001;oscillator.connect(gain).connect(destination);oscillator.start();audio.srcObject=destination.stream;audio.volume=1;audio.setAttribute('playsinline','');audio.setAttribute('aria-hidden','true');audio.style.display='none';document.body.append(audio);mobileKeepalive={audio,context,oscillator,gain,destination};await context.resume();await audio.play()
+ }catch{}
+}
+async function stopMobileCallKeepalive(){
+ const keepalive=mobileKeepalive;mobileKeepalive=null;if(!keepalive)return;try{keepalive.oscillator?.stop()}catch{}try{keepalive.audio?.pause();keepalive.audio.srcObject=null;keepalive.audio.remove()}catch{}try{await keepalive.context?.close?.()}catch{}
+}
+function microphoneTrackEnded(participant){
+ const source=window.LivekitClient?.Track?.Source?.Microphone,publication=source?participant?.getTrackPublication?.(source):null,track=publication?.track?.mediaStreamTrack||publication?.track?.mediaStream?.getAudioTracks?.()[0];return !track||track.readyState==='ended'
+}
+async function recoverMobileCallSession(){
+ const active=room,currentChannel=voiceChannel;if(!active||!currentChannel||!mobileCallDevice()||mobileRecoveryBusy)return;mobileRecoveryBusy=true;
+ try{
+  if(mobileCallNeedsReconnect||active.state===window.LivekitClient?.ConnectionState?.Disconnected){
+   note('Reconectando chamada e microfone…');const{data,error}=await sb.functions.invoke('lk-token',{body:currentChannel.private?{peer_id:currentChannel.peer.id}:{channel_id:currentChannel.id}});if(error||!data?.url||!data?.token)throw new Error('token');await active.connect(data.url,data.token);mobileCallNeedsReconnect=false
+  }
+  try{if(navigator.audioSession)navigator.audioSession.type='play-and-record'}catch{}
+  await startMobileCallKeepalive();try{await active.startAudio()}catch{}
+  if(mobileMicWasEnabled&&(!active.localParticipant.isMicrophoneEnabled||microphoneTrackEnded(active.localParticipant))){try{await active.localParticipant.setMicrophoneEnabled(false)}catch{}await setCallMicrophone(active.localParticipant,true);toast('Microfone reconectado após voltar ao Roda.')}
+  setupMobileCallSession();note('Voz conectada');scheduleDraw()
+ }catch{note('O celular suspendeu a chamada. Abra o Roda e toque no microfone para reconectar.');toast('Não foi possível restaurar o microfone automaticamente.')}
+ finally{mobileRecoveryBusy=false}
+}
 function setupMobileCallSession(){
- if(!room||!mobileCallDevice())return;document.body.classList.add('mobile-call-active');try{if(navigator.audioSession)navigator.audioSession.type='play-and-record'}catch{}
+ if(!room||!mobileCallDevice())return;document.body.classList.add('mobile-call-active');mobileMicWasEnabled=!!room.localParticipant.isMicrophoneEnabled;try{if(navigator.audioSession)navigator.audioSession.type='play-and-record'}catch{}startMobileCallKeepalive();
  if('mediaSession'in navigator){try{navigator.mediaSession.metadata=new MediaMetadata({title:voiceChannel?.name||'Chamada do Roda',artist:voiceChannel?.private?'Chamada privada':'Roda',album:'Chamada em andamento',artwork:[{src:new URL('icons/icon-192.png',location.href).href,sizes:'192x192',type:'image/png'}]});navigator.mediaSession.playbackState='playing'}catch{}
-  setMediaAction('togglemicrophone',async()=>{const p=room?.localParticipant;if(p)await p.setMicrophoneEnabled(!p.isMicrophoneEnabled,microphoneOptions())});setMediaAction('togglecamera',async()=>{const p=room?.localParticipant;if(!p)return;if(p.isCameraEnabled)await p.setCameraEnabled(false);else{await p.setCameraEnabled(true,cameraOptions());await applyCameraFilter(p)}});setMediaAction('hangup',leaveVoice)
+  setMediaAction('play',recoverMobileCallSession);setMediaAction('pause',()=>{});setMediaAction('togglemicrophone',async()=>{const p=room?.localParticipant;if(p)await setCallMicrophone(p,!p.isMicrophoneEnabled)});setMediaAction('togglecamera',async()=>{const p=room?.localParticipant;if(!p)return;if(p.isCameraEnabled)await p.setCameraEnabled(false);else{await p.setCameraEnabled(true,cameraOptions());await applyCameraFilter(p)}});setMediaAction('hangup',leaveVoice)
  }
 }
-function clearMobileCallSession(){document.body.classList.remove('mobile-call-active');restoreCameraAfterBackground=false;for(const action of ['togglemicrophone','togglecamera','hangup'])setMediaAction(action,null);try{if(navigator.mediaSession){navigator.mediaSession.playbackState='none';navigator.mediaSession.metadata=null}}catch{}try{if(navigator.audioSession)navigator.audioSession.type='auto'}catch{}}
-document.addEventListener('visibilitychange',async()=>{if(!room||!mobileCallDevice())return;const participant=room.localParticipant;if(document.hidden){restoreCameraAfterBackground=!!participant.isCameraEnabled;if(restoreCameraAfterBackground)try{await participant.setCameraEnabled(false)}catch{}}else{try{await room.startAudio()}catch{}if(restoreCameraAfterBackground){restoreCameraAfterBackground=false;try{await participant.setCameraEnabled(true,cameraOptions());await applyCameraFilter(participant)}catch{}}}});
+function clearMobileCallSession(){document.body.classList.remove('mobile-call-active');restoreCameraAfterBackground=mobileMicWasEnabled=mobileCallBackgrounded=mobileCallNeedsReconnect=mobileRecoveryBusy=false;stopMobileCallKeepalive();for(const action of ['play','pause','togglemicrophone','togglecamera','hangup'])setMediaAction(action,null);try{if(navigator.mediaSession){navigator.mediaSession.playbackState='none';navigator.mediaSession.metadata=null}}catch{}try{if(navigator.audioSession)navigator.audioSession.type='auto'}catch{}}
+document.addEventListener('visibilitychange',async()=>{if(!room||!mobileCallDevice())return;const participant=room.localParticipant;if(document.hidden){mobileCallBackgrounded=true;mobileMicWasEnabled=!!participant.isMicrophoneEnabled;restoreCameraAfterBackground=!!participant.isCameraEnabled;startMobileCallKeepalive();if(restoreCameraAfterBackground)try{await participant.setCameraEnabled(false)}catch{}}else{mobileCallBackgrounded=false;await recoverMobileCallSession();if(restoreCameraAfterBackground){restoreCameraAfterBackground=false;try{await participant.setCameraEnabled(true,cameraOptions());await applyCameraFilter(participant)}catch{}}}});
+addEventListener('pageshow',()=>{mobileCallBackgrounded=false;recoverMobileCallSession()});
+addEventListener('focus',()=>{if(!document.hidden)recoverMobileCallSession()});
+addEventListener('online',()=>recoverMobileCallSession());
 async function leaveVoice(){
  clearMobileCallSession();endCallServices();
  voiceAttempt++;joining=false;const old=room,signalId=voiceChannel?.private?voiceChannel.callSignalId:null;room=null;voiceChannel=null;voiceServer=null;if(voiceStage?.parentElement?.id==='voice-parking')voiceStage.remove();voiceStage=null;updateVoiceDock();renderCallPeople();
- if(old){try{detachMedia(old)}catch{}try{await old.disconnect?.()}catch{}}
+ if(old){try{detachMedia(old)}catch{}try{await old.disconnect?.()}catch{}}closeRemoteAudioBoost();
  if(signalId&&me)sb.from('private_calls').update({status:'ended'}).eq('id',signalId).in('status',['ringing','accepted']).then(()=>{}).catch(()=>{});
  if(outgoingCall?.id===signalId)outgoingCall=null;
  const lock=wl;wl=null;try{await lock?.release?.()}catch{}
 }
 function detachMedia(r){for(const p of [r.localParticipant,...r.remoteParticipants.values()])
- for(const publication of p.trackPublications.values())publication.track?.detach().forEach(e=>e.remove())}
+ for(const publication of p.trackPublications.values())publication.track?.detach().forEach(e=>{releaseRemoteAudioElement(e);e.remove()})}
 async function copyInvite(){
  const code=srv.invite_code;
  const value=location.protocol==='file:'?code:new URL('?convite='+encodeURIComponent(code),location.href).href;
@@ -560,26 +594,28 @@ async function join(c){
   room=current;const R=L.RoomEvent;
   [R.ParticipantConnected,R.ParticipantDisconnected,R.TrackSubscribed,R.TrackUnsubscribed,R.LocalTrackPublished,R.LocalTrackUnpublished,R.TrackMuted,R.TrackUnmuted].forEach(e=>current.on(e,()=>{if(room===current)scheduleDraw()}));
   current.on(R.ActiveSpeakersChanged,updateSpeaking).on(R.ParticipantConnected,()=>{if(room===current){callTone(true);renderCallPeople()}}).on(R.ParticipantDisconnected,()=>{if(room===current){callTone(false);renderCallPeople()}});
-  current.on(R.Reconnecting,()=>{if(room===current)note('Reconectando…')}).on(R.Reconnected,()=>{if(room===current)note('Voz conectada')}).on(R.AudioPlaybackStatusChanged,()=>{if(room===current)draw()}).on(R.Disconnected,()=>{
-   if(room!==current)return;leaveVoice();if(ch?.id===c.id){voiceView(c);note('Você saiu da sala de voz.')}
+  current.on(R.Reconnecting,()=>{if(room===current)note('Reconectando…')}).on(R.Reconnected,()=>{if(room===current){mobileCallNeedsReconnect=false;note('Voz conectada')}}).on(R.AudioPlaybackStatusChanged,()=>{if(room===current)draw()}).on(R.Disconnected,()=>{
+   if(room!==current)return;if(mobileCallDevice()&&(document.hidden||mobileCallBackgrounded||mobileRecoveryBusy)){mobileCallNeedsReconnect=true;return}leaveVoice();if(ch?.id===c.id){voiceView(c);note('Você saiu da sala de voz.')}
   });
   try{await current.connect(data.url,data.token)}catch{throw new Error('Não foi possível conectar ao LiveKit. Verifique se o servidor está ligado e se o endereço e as portas estão configurados.')}
   if(attempt!==voiceAttempt||room!==current){try{await current.disconnect?.()}catch{}return}
-  note('Voz conectada');beginCallServices();setupMobileCallSession();
+  note('Voz conectada');beginCallServices();
   try{await current.startAudio()}catch{toast('Clique em Ativar áudio para ouvir a sala.')}
-  try{await current.localParticipant.setMicrophoneEnabled(true,microphoneOptions())}catch{note('Você entrou sem microfone. Autorize o acesso no navegador e clique em Microfone.')}
+  try{await setCallMicrophone(current.localParticipant,true)}catch{note('Você entrou sem microfone. Autorize o acesso no navegador e clique em Microfone.')}
+  setupMobileCallSession();
+  if(mobileCallDevice())toast(appleMobileDevice()?'iPhone/iPad preparado. Se o iOS suspender a chamada, o microfone será recuperado ao desbloquear.':'Chamada preparada para continuar com a tela bloqueada.')
   if(c.startVideo)try{await current.localParticipant.setCameraEnabled(true,cameraOptions());await applyCameraFilter(current.localParticipant)}catch{toast('A câmera não pôde ser ligada. Confira a permissão do navegador.')}
   if(attempt!==voiceAttempt||room!==current){try{await current.disconnect?.()}catch{}return}
   try{const lock=await navigator.wakeLock?.request('screen');if(room===current)wl=lock;else await lock?.release()}catch{}
   if(attempt!==voiceAttempt||room!==current)return;
   const lp=current.localParticipant;
   const cb=(id,iconName,t,fn)=>el('button',{id,className:'cb',title:t,ariaLabel:t,onclick:async()=>{try{await fn()}catch{toast('Não foi possível ativar '+t.toLowerCase()+'. Confira as permissões do navegador.')}if(room===current)draw()}},Icon(iconName,21));
-   voiceStage.querySelector('#ctl').replaceChildren(el('select',{id:'screen-resolution',title:'Resolução da tela — escolha antes de compartilhar',ariaLabel:'Resolução do compartilhamento',onchange:e=>screenResolution=e.target.value},...['720','1080'].map(v=>el('option',{value:v,textContent:v+'p',selected:v===screenResolution}))),cb('b-mic','mic','Microfone',()=>lp.setMicrophoneEnabled(!lp.isMicrophoneEnabled,microphoneOptions())),cb('b-cam','video','Câmera',async()=>{if(lp.isCameraEnabled)return lp.setCameraEnabled(false);await lp.setCameraEnabled(true,cameraOptions());await applyCameraFilter(lp)}),cb('b-flip','rotate-camera','Virar câmera frontal ou traseira',()=>flipCamera(lp)),...(navigator.mediaDevices?.getDisplayMedia?[cb('b-scr','screen','Compartilhar tela',()=>{const key=screenResolution==='1080'?(screenFps===60?'h1080fps60':'h1080fps30'):(screenFps===60?'h720fps60':'h720fps30'),preset=L.ScreenSharePresets[key]||L.ScreenSharePresets[screenResolution==='1080'?'h1080fps30':'h720fps30'];return toggleScreenShare(lp,preset)})]:[]),cb('b-audio','volume','Ativar áudio',()=>activateCallAudio(current)),el('button',{className:'cb dg',title:'Sair da sala',ariaLabel:'Sair da sala',onclick:()=>{leaveVoice();if(ch?.id===c.id)voiceView(c);note('Você saiu da sala de voz.')}},Icon('phone-off',21)));
+   voiceStage.querySelector('#ctl').replaceChildren(el('select',{id:'screen-resolution',title:'Resolução da tela — escolha antes de compartilhar',ariaLabel:'Resolução do compartilhamento',onchange:e=>screenResolution=e.target.value},...['720','1080'].map(v=>el('option',{value:v,textContent:v+'p',selected:v===screenResolution}))),cb('b-mic','mic','Microfone',()=>setCallMicrophone(lp,!lp.isMicrophoneEnabled)),cb('b-cam','video','Câmera',async()=>{if(lp.isCameraEnabled)return lp.setCameraEnabled(false);await lp.setCameraEnabled(true,cameraOptions());await applyCameraFilter(lp)}),cb('b-flip','rotate-camera','Virar câmera frontal ou traseira',()=>flipCamera(lp)),...(navigator.mediaDevices?.getDisplayMedia?[cb('b-scr','screen','Compartilhar tela',()=>{const key=screenResolution==='1080'?(screenFps===60?'h1080fps60':'h1080fps30'):(screenFps===60?'h720fps60':'h720fps30'),preset=L.ScreenSharePresets[key]||L.ScreenSharePresets[screenResolution==='1080'?'h1080fps30':'h720fps30'];return toggleScreenShare(lp,preset)})]:[]),cb('b-audio','volume','Ativar áudio',()=>activateCallAudio(current)),el('button',{className:'cb dg',title:'Sair da sala',ariaLabel:'Sair da sala',onclick:()=>{leaveVoice();if(ch?.id===c.id)voiceView(c);note('Você saiu da sala de voz.')}},Icon('phone-off',21)));
   draw();
  }catch(e){if(attempt===voiceAttempt){const raw=e?.message||'Falha desconhecida ao conectar.';console.error('Falha ao entrar na chamada',e);try{await leaveVoice()}catch{room=null;voiceChannel=null;voiceStage=null}const message=raw.includes("reading 'close'")?'A chamada anterior ainda estava encerrando. O Roda concluiu a limpeza; tente entrar novamente.':raw;if(ch?.id===c.id){voiceView(c);const tiles=$('#tiles');tiles?.replaceChildren(ErrorState('Não foi possível entrar na chamada',message,()=>prejoin(c)));note(message)}}}
  finally{if(attempt===voiceAttempt){joining=false;updateVoiceDock();if(button?.isConnected){button.disabled=false;button.textContent='Entrar na sala de voz'}}}
 }
-addEventListener('pagehide',()=>{if(!(room&&mobileCallDevice()&&standaloneApp()))leaveVoice()});
+addEventListener('pagehide',()=>{if(room&&mobileCallDevice()){mobileCallBackgrounded=true;mobileMicWasEnabled=!!room.localParticipant.isMicrophoneEnabled;startMobileCallKeepalive();return}leaveVoice()});
 async function toggleTileFullscreen(tile){
  try{
   if(document.fullscreenElement===tile){await document.exitFullscreen();return}
@@ -600,6 +636,20 @@ function audioSourceForVideo(publication){return publication?.source===LivekitCl
 function audioSourcesForVideo(publication){return publication?.source===LivekitClient.Track.Source.ScreenShare?[LivekitClient.Track.Source.Microphone,LivekitClient.Track.Source.ScreenShareAudio]:[LivekitClient.Track.Source.Microphone]}
 function audioVolumeKey(identity,source){return identity+':'+(isScreenAudioSource(source)?'screen':'voice')}
 function audioVolumeName(source){return isScreenAudioSource(source)?'Áudio da tela':'Voz da pessoa'}
+function audioVolumeMaximum(source){return isScreenAudioSource(source)?1:2}
+let remoteAudioContext=null;
+function setRemoteAudioElementVolume(element,value){
+ const next=Math.max(0,Math.min(2,Number(value)||0));
+ if(next<=1&&!element._rodaBoost){element.volume=next;return}
+ try{
+  const AudioCtor=window.AudioContext||window.webkitAudioContext;if(!AudioCtor)throw new Error('Web Audio indisponível');
+  if(!remoteAudioContext||remoteAudioContext.state==='closed')remoteAudioContext=new AudioCtor({latencyHint:'interactive'});
+  if(!element._rodaBoost){const source=remoteAudioContext.createMediaElementSource(element),gain=remoteAudioContext.createGain();source.connect(gain).connect(remoteAudioContext.destination);element._rodaBoost={source,gain}}
+  element.volume=1;element._rodaBoost.gain.gain.value=next;remoteAudioContext.resume?.().catch(()=>{})
+ }catch{element.volume=Math.min(1,next)}
+}
+function releaseRemoteAudioElement(element){try{element?._rodaBoost?.source?.disconnect();element?._rodaBoost?.gain?.disconnect()}catch{}if(element)delete element._rodaBoost}
+function closeRemoteAudioBoost(){const context=remoteAudioContext;remoteAudioContext=null;try{context?.close?.()}catch{}}
 async function activateCallAudio(activeRoom){
  if(!activeRoom||room!==activeRoom)throw new Error('A chamada não está mais ativa.');
  await activeRoom.startAudio();
@@ -607,14 +657,15 @@ async function activateCallAudio(activeRoom){
  if(results.some(result=>result.status==='rejected'))throw new Error('O navegador ainda bloqueou parte do áudio.');
  note('Áudio da chamada ativado.');toast('Áudio ativado.');
 }
-function getAudioVolume(identity,source){const value=Number(vol[audioVolumeKey(identity,source)]??vol[identity]??1);return Number.isFinite(value)?Math.max(0,Math.min(1,value)):1}
+function getAudioVolume(identity,source){const value=Number(vol[audioVolumeKey(identity,source)]??vol[identity]??1);return Number.isFinite(value)?Math.max(0,Math.min(audioVolumeMaximum(source),value)):1}
 function setAudioVolume(participant,identity,source,value){
- const key=audioVolumeKey(identity,source),next=Math.max(0,Math.min(1,Number(value)||0));vol[key]=next;
+ const key=audioVolumeKey(identity,source),previous=getAudioVolume(identity,source),next=Math.max(0,Math.min(audioVolumeMaximum(source),Number(value)||0));vol[key]=next;
  try{localStorage.setItem('roda-participant-volumes',JSON.stringify(vol))}catch{}
  for(const pub of participant.audioTrackPublications.values())if(audioVolumeKey(identity,pub.source)===key)pub.track?.setVolume?.(Math.max(0,Math.min(1,next*outputVolume)));
- voiceStage?.querySelectorAll('.remote-audio audio').forEach(audio=>{if(audio.dataset.volumeKey===key)audio.volume=Math.min(1,next*outputVolume)});
+ voiceStage?.querySelectorAll('.remote-audio audio').forEach(audio=>{if(audio.dataset.volumeKey===key)setRemoteAudioElementVolume(audio,next*outputVolume)});
  voiceStage?.querySelectorAll('input[data-volume-key]').forEach(input=>{if(input.dataset.volumeKey===key)input.value=next});
  voiceStage?.querySelectorAll('output[data-volume-key]').forEach(output=>{if(output.dataset.volumeKey===key)output.textContent=Math.round(next*100)+'%'});
+ if(next>1&&previous<=1)toast('Volume amplificado. Acima de 100% pode haver distorção.');
  return next
 }
 function openMediaViewer(participant,publication,tile){
@@ -629,7 +680,7 @@ function openMediaViewer(participant,publication,tile){
  if(!isLocal){
   const volumeControls=el('div',{className:'media-volume-list'});
   for(const source of audioSourcesForVideo(publication)){
-   const volumeKey=audioVolumeKey(identity,source),value=getAudioVolume(identity,source),amount=el('output',{textContent:Math.round(value*100)+'%'}),slider=el('input',{type:'range',min:0,max:1,step:.05,value,title:audioVolumeName(source)+' de '+participant.name,ariaLabel:audioVolumeName(source)+' de '+participant.name+' de 0 a 100 por cento'}),mute=el('button',{className:'media-viewer-mute',ariaLabel:'Silenciar ou restaurar '+audioVolumeName(source).toLowerCase(),title:'Silenciar'},Icon('volume',18));
+   const maximum=audioVolumeMaximum(source),volumeKey=audioVolumeKey(identity,source),value=getAudioVolume(identity,source),amount=el('output',{textContent:Math.round(value*100)+'%'}),slider=el('input',{type:'range',min:0,max:maximum,step:.05,value,title:audioVolumeName(source)+' de '+participant.name+' (até '+maximum*100+'%)',ariaLabel:audioVolumeName(source)+' de '+participant.name+' de 0 a '+maximum*100+' por cento'}),mute=el('button',{className:'media-viewer-mute',ariaLabel:'Silenciar ou restaurar '+audioVolumeName(source).toLowerCase(),title:'Silenciar'},Icon('volume',18));
    slider.dataset.volumeKey=volumeKey;amount.dataset.volumeKey=volumeKey;
    slider.oninput=()=>{const next=setAudioVolume(participant,identity,source,slider.value);amount.textContent=Math.round(next*100)+'%';mute.classList.toggle('muted',next===0)};
    mute.onclick=()=>{const current=Number(slider.value),next=current===0?Number(mute.dataset.previous||1):0;if(current>0)mute.dataset.previous=String(current);slider.value=String(next);slider.oninput()};
@@ -675,7 +726,7 @@ function draw(){
     let closeTimer;const closeVolumes=()=>{clearTimeout(closeTimer);volumeStack.classList.remove('open');volumeToggle.setAttribute('aria-expanded','false');revealTileControls(t)},armClose=(delay=1800)=>{clearTimeout(closeTimer);closeTimer=setTimeout(closeVolumes,delay)};
     volumeToggle.onclick=event=>{event.stopPropagation();const open=volumeStack.classList.toggle('open');volumeToggle.setAttribute('aria-expanded',String(open));if(open){revealTileControls(t,5000);armClose(5000)}else closeVolumes()};volumePanel.onclick=event=>event.stopPropagation();volumePanel.onpointerleave=()=>armClose(900);
     for(const source of audioSourcesForVideo(v)){
-     const volumeKey=audioVolumeKey(identity,source),value=getAudioVolume(identity,source),amount=el('output',{textContent:Math.round(value*100)+'%'}),slider=el('input',{type:'range',min:0,max:1,step:.05,value,title:audioVolumeName(source)+' de '+p.name+' (0 a 100%)',ariaLabel:audioVolumeName(source)+' de '+p.name+' de 0 a 100 por cento'});
+     const maximum=audioVolumeMaximum(source),volumeKey=audioVolumeKey(identity,source),value=getAudioVolume(identity,source),amount=el('output',{textContent:Math.round(value*100)+'%'}),slider=el('input',{type:'range',min:0,max:maximum,step:.05,value,title:audioVolumeName(source)+' de '+p.name+' (0 a '+maximum*100+'%)',ariaLabel:audioVolumeName(source)+' de '+p.name+' de 0 a '+maximum*100+' por cento'});
      slider.dataset.volumeKey=volumeKey;amount.dataset.volumeKey=volumeKey;slider.oninput=()=>{setAudioVolume(p,identity,source,slider.value);armClose(1800)};
      volumePanel.append(el('label',{className:'tile-volume',title:audioVolumeName(source)+' de '+p.name},Icon('volume',15),el('span',{textContent:isScreenAudioSource(source)?'Tela':'Pessoa'}),slider,amount))
     }
@@ -686,14 +737,14 @@ function draw(){
   if(!p.isLocal)for(const pub of p.audioTrackPublications.values()){
    if(!pub.track)continue;const key=identity+':'+(pub.trackSid||pub.source);audioWanted.add(key);
    let element=[...audio.children].find(a=>a.dataset.key===key);
-   if(element&&element._track!==pub.track){element._track.detach(element);element.remove();element=null}
+   if(element&&element._track!==pub.track){element._track.detach(element);releaseRemoteAudioElement(element);element.remove();element=null}
    const volumeKey=audioVolumeKey(identity,pub.source),value=getAudioVolume(identity,pub.source);
    if(!element){element=pub.track.attach();element.autoplay=true;element.playsInline=true;element.dataset.key=key;element.dataset.identity=identity;element._track=pub.track;audio.append(element);if(devicePreferences.output&&element.setSinkId)element.setSinkId(devicePreferences.output).catch(()=>{});Promise.resolve(room?.startAudio?.()).then(()=>element.play?.()).catch(()=>note('Clique em Ativar áudio para ouvir a transmissão.'))}
-   element.dataset.volumeKey=volumeKey;pub.track.setVolume?.(Math.max(0,Math.min(1,value*outputVolume)));element.volume=Math.max(0,Math.min(1,value*outputVolume));
+   element.dataset.volumeKey=volumeKey;pub.track.setVolume?.(Math.max(0,Math.min(1,value*outputVolume)));setRemoteAudioElementVolume(element,value*outputVolume);
   }
  }
  for(const t of [...T.children])if(!wanted.has(t.dataset.key)){if(t._videoTrack)t._videoTrack.detach(t._videoElement);const viewer=document.querySelector('#media-viewer');if(viewer&&viewer.dataset.mediaKey===t.dataset.key)viewer.close();t.remove()}
- for(const a of [...audio.children])if(!audioWanted.has(a.dataset.key)){a._track.detach(a);a.remove()}
+ for(const a of [...audio.children])if(!audioWanted.has(a.dataset.key)){a._track.detach(a);releaseRemoteAudioElement(a);a.remove()}
  T.classList.toggle('has-screen-share',!!T.querySelector('.screen-share-tile'));
  syncFullscreenButtons();
 }
@@ -786,7 +837,7 @@ function openSettings(initialPage='account'){
    const infoCard=(icon,title,text,...items)=>el('section',{className:'settings-card security-card'},el('div',{className:'security-card-title'},el('span',{className:'security-icon',textContent:icon,ariaHidden:'true'}),el('h3',{textContent:title})),el('p',{textContent:text}),...(items.length?[el('ul',{className:'security-list'},...items.map(item=>el('li',{textContent:item})))]:[]));
    const report=el('button',{className:'settings-danger',textContent:'Denunciar um problema',onclick:async()=>{const values=await ask('Denunciar problema',[{label:'Descreva o problema',value:'',max:1000}],'Enviar denúncia');if(!values?.[0])return;const{error}=await sb.from('reports').insert({reporter_id:me.id,target_type:'server',target_id:srv?.id||me.id,reason:values[0]});toast(error?'Não foi possível enviar a denúncia.':'Denúncia registrada para análise.')}});
    body=el('div',{className:'security-info'},
-    el('div',{className:'settings-card app-about'},el('h3',{textContent:'Roda 1.4.9'}),el('p',{textContent:'O programa para Windows usa a mesma versão online do Roda e recebe correções automaticamente.'})),
+    el('div',{className:'settings-card app-about'},el('h3',{textContent:'Roda 1.5.0'}),el('p',{textContent:'O programa para Windows usa a mesma versão online do Roda e recebe correções automaticamente.'})),
     infoCard('🛡','Privacidade e LGPD','O Roda usa dados necessários para criar sua conta, manter conversas, servidores, amizades e chamadas funcionando. O tratamento deve seguir finalidade, necessidade, segurança e transparência.','Dados de cadastro e perfil','Mensagens, amizades e participação em servidores','Estado técnico de chamadas, dispositivos e conexão'),
     infoCard('🔐','Como os dados são protegidos','O acesso é controlado pela sua conta e pelas permissões dos servidores. Áudio e vídeo são transmitidos durante a chamada; mantenha sua senha em segredo e encerre sessões em aparelhos compartilhados.','Use uma senha exclusiva','Revise convites e permissões antes de entrar','Denuncie conteúdo ou comportamento inadequado'),
     infoCard('📄','Seus direitos','Pela LGPD, você pode solicitar confirmação do tratamento, acesso, correção e, quando aplicável, exclusão, portabilidade, informação sobre compartilhamento e revisão ou revogação de consentimento. Procure o responsável pelo Roda para exercer esses direitos.'),
@@ -1128,7 +1179,7 @@ function syncAppViewport(){
 syncAppViewport();addEventListener('resize',syncAppViewport,{passive:true});window.visualViewport?.addEventListener('resize',syncAppViewport,{passive:true});
 let installEvent=null;const installButton=$('#install-app'),installAuth=$('#install-auth'),windowsDownload=$('#windows-download');
 const androidDevice=/Android/i.test(navigator.userAgent),windowsDevice=/Windows/i.test(navigator.userAgent),installedApp=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-const downloadWindows=()=>location.assign('downloads/Roda-Setup-1.4.9.msi');
+const downloadWindows=()=>location.assign('downloads/Roda-Setup-1.5.0.msi');
 const versionAtLeast=(current,required)=>{const a=String(current).split('.').map(Number),b=String(required).split('.').map(Number);for(let i=0;i<Math.max(a.length,b.length);i++){if((a[i]||0)>(b[i]||0))return true;if((a[i]||0)<(b[i]||0))return false}return true};
 function offerNativeUpdate(){
  if(!nativeWindows||!nativeVersion||versionAtLeast(nativeVersion,'1.4.1')||document.querySelector('#native-update'))return;

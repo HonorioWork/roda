@@ -15,8 +15,8 @@ using Microsoft.Web.WebView2.WinForms;
 [assembly: System.Reflection.AssemblyTitle("Roda")]
 [assembly: System.Reflection.AssemblyProduct("Roda")]
 [assembly: System.Reflection.AssemblyCompany("HonorioWork")]
-[assembly: System.Reflection.AssemblyVersion("1.4.9.0")]
-[assembly: System.Reflection.AssemblyFileVersion("1.4.9.0")]
+[assembly: System.Reflection.AssemblyVersion("1.5.0.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.5.0.0")]
 
 namespace RodaWindows
 {
@@ -34,7 +34,7 @@ namespace RodaWindows
 
     internal sealed class RodaWindow : Form
     {
-        private const string CurrentVersion = "1.4.9";
+        private const string CurrentVersion = "1.5.0";
         private const string RodaUrl = "https://honoriowork.github.io/roda/?app=windows";
         private const string UpdateManifestUrl = "https://honoriowork.github.io/roda/updates/windows.json";
         private const string TrustedDownloadHost = "honoriowork.github.io";
