@@ -1,4 +1,5 @@
 ## 2026-11-14
+- Aplicativo Windows 1.4.8: corrige a mistura entre código novo e estilo antigo em cache; controles da tela compartilhada agora desaparecem sozinhos e o painel de volume fecha automaticamente.
 - Aplicativo Windows 1.4.7: o compartilhamento agora orienta como ativar o áudio antes de abrir o seletor, confirma se o som foi publicado e usa qualidade estéreo para mídia.
 - A tela compartilhada recebe prioridade e ocupa mais espaço; volume, visualizador e tela cheia viraram controles pequenos para não cobrir o vídeo.
 

@@ -216,6 +216,8 @@ a{color:var(--color-accent)}
 .tile-open-media{position:absolute;right:52px;top:10px;z-index:3;display:grid;place-items:center;width:36px;height:36px;min-height:36px;padding:0;background:#15151de6;color:#fff;border:1px solid #ffffff40;font-size:12px}
 .tile-open-media .ui-icon{color:var(--color-accent)}
 .tile-fullscreen{width:36px;height:36px;padding:0;font-size:18px}
+.screen-share-tile .tile-open-media,.screen-share-tile .tile-fullscreen,.screen-share-tile .tile-volume-stack,.screen-share-tile .nm{opacity:0;pointer-events:none;transform:translateY(3px);transition:opacity .18s,transform .18s}
+.screen-share-tile.controls-visible .tile-open-media,.screen-share-tile.controls-visible .tile-fullscreen,.screen-share-tile.controls-visible .tile-volume-stack,.screen-share-tile.controls-visible .nm,.screen-share-tile .tile-volume-stack.open{opacity:1;pointer-events:auto;transform:none}
 
 /* Visualizador dedicado de câmera e tela compartilhada. */
 .media-viewer-dialog{width:calc(100vw - 12px);height:calc(100dvh - 12px);max-width:none;max-height:none;padding:0;overflow:hidden;border:1px solid var(--color-border);border-radius:var(--radius-lg);background:#09090b;color:var(--color-text);box-shadow:var(--shadow-modal)}
