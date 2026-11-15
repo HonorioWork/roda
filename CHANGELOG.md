@@ -1,3 +1,7 @@
+## 2026-11-14
+- Aplicativo Windows 1.4.7: o compartilhamento agora orienta como ativar o áudio antes de abrir o seletor, confirma se o som foi publicado e usa qualidade estéreo para mídia.
+- A tela compartilhada recebe prioridade e ocupa mais espaço; volume, visualizador e tela cheia viraram controles pequenos para não cobrir o vídeo.
+
 ## 2026-11-12
 - Aplicativo Windows 1.4.6: mensagens de canais, mensagens privadas e chamadas agora aparecem no canto do Windows quando o Roda está na bandeja; clicar no aviso abre o aplicativo.
 - No Windows, clicar no X agora mantém o Roda e a chamada ativos na bandeja; o menu do ícone permite abrir ou sair de verdade.

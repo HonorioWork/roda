@@ -139,7 +139,7 @@ main{background:#1a1a1e;min-height:0}header{min-height:55px;padding:10px 20px;bo
   <p class="auth-switch" id="auth-switch">Ainda não tem uma conta? <button type="button" id="switch-mode">Crie a sua</button></p>
   <p class="auth-note" id="auth-note">Se recebeu um convite, entre ou crie sua conta para participar.</p>
   <button type="button" id="install-auth" class="auth-link" style="display:block;width:100%;text-align:center;margin-top:12px">📱 Instalar Roda neste aparelho</button>
-  <a id="windows-download" class="pri public-download" href="downloads/Roda-Setup-1.4.6.msi" download>⬇ Baixar Roda para Windows</a>
+  <a id="windows-download" class="pri public-download" href="downloads/Roda-Setup-1.4.7.msi" download>⬇ Baixar Roda para Windows</a>
   <a class="download-more" href="downloads/">Downloads e instalação sem login</a>
  </div>
 </section>
@@ -509,26 +509,38 @@ async function prejoin(c){if(document.querySelector('#prejoin'))return;const dia
 function screenAudioPublication(participant){return [...participant.audioTrackPublications.values()].find(pub=>isScreenAudioSource(pub.source)&&!pub.isMuted)}
 function screenShareCaptureOptions(preset){
  const withAudio=userSettings.voice.shareAudio!==false;
- return {audio:withAudio?{autoGainControl:false,echoCancellation:false,noiseSuppression:false,restrictOwnAudio:false}:false,systemAudio:withAudio?'include':'exclude',suppressLocalAudioPlayback:false,surfaceSwitching:'include',selfBrowserSurface:'exclude',video:{displaySurface:'monitor'},resolution:preset.resolution}
+ return {audio:withAudio?{autoGainControl:false,echoCancellation:false,noiseSuppression:false,channelCount:{ideal:2},restrictOwnAudio:true}:false,systemAudio:withAudio?'include':'exclude',suppressLocalAudioPlayback:false,surfaceSwitching:'include',selfBrowserSurface:'exclude',preferCurrentTab:false,video:{displaySurface:'monitor'},resolution:preset.resolution}
 }
 function closeScreenAudioHelp(){document.querySelector('#screen-audio-help')?.remove()}
+function screenAudioSteps(){return [
+ 'Para vídeo, jogo ou programa: escolha Tela inteira e ative Compartilhar áudio do sistema.',
+ 'Para vídeo em site: escolha a aba do navegador e ative Compartilhar áudio da guia.',
+ 'Evite escolher somente uma janela: o Windows normalmente não oferece o som nessa opção.'
+]}
+function confirmScreenShareWithAudio(participant,preset){
+ return new Promise(resolve=>{closeScreenAudioHelp();const backdrop=el('div',{id:'screen-audio-help',className:'screen-audio-help'}),card=el('div',{className:'card screen-audio-card'}),cancel=()=>{backdrop.remove();resolve(false)},start=el('button',{className:'pri',textContent:'Escolher tela com som'});
+  start.onclick=async()=>{start.disabled=true;backdrop.remove();try{await enableScreenShareWithAudio(participant,preset);resolve(true)}catch(error){if(error?.name!=='NotAllowedError')toast('Não foi possível compartilhar: '+(error?.message||'erro desconhecido'));resolve(false)}};
+  card.append(el('h2',{textContent:'Compartilhar tela com som'}),el('p',{textContent:'Na próxima janela, escolha o que será transmitido e ligue a opção de áudio antes de confirmar.'}),el('ol',{},...screenAudioSteps().map(text=>el('li',{textContent:text}))),el('div',{className:'screen-audio-example'},el('span',{textContent:'✓'}),el('div',{},el('strong',{textContent:'Compartilhar áudio'}),el('small',{textContent:'Esta opção precisa ficar marcada na janela do Windows ou navegador.'}))),el('div',{className:'home-actions'},el('button',{textContent:'Cancelar',onclick:cancel}),start));backdrop.onclick=event=>{if(event.target===backdrop)cancel()};backdrop.append(card);document.body.append(backdrop)
+ })
+}
 function showScreenAudioHelp(participant,preset){
  closeScreenAudioHelp();const backdrop=el('div',{id:'screen-audio-help',className:'screen-audio-help'}),card=el('div',{className:'card screen-audio-card'}),close=()=>backdrop.remove(),retry=el('button',{className:'pri',textContent:'Compartilhar novamente com som'});
  retry.onclick=async()=>{retry.disabled=true;close();try{await participant.setScreenShareEnabled(false);await enableScreenShareWithAudio(participant,preset)}catch(error){toast('Não foi possível refazer o compartilhamento: '+(error?.message||'erro desconhecido'))}};
- card.append(el('h2',{textContent:'A tela foi compartilhada sem áudio'}),el('p',{textContent:'Escolha Tela inteira e ative “Compartilhar áudio do sistema” na janela de seleção. No aplicativo do Windows, compartilhar somente uma janela pode não enviar o som.'}),el('ol',{},el('li',{textContent:'Clique em Compartilhar novamente com som.'}),el('li',{textContent:'Escolha Tela inteira.'}),el('li',{textContent:'Marque Compartilhar áudio do sistema antes de confirmar.'})),el('div',{className:'home-actions'},el('button',{textContent:'Continuar sem som',onclick:close}),retry));backdrop.append(card);document.body.append(backdrop)
+ card.append(el('h2',{textContent:'A tela foi compartilhada sem áudio'}),el('p',{textContent:'O vídeo entrou, mas o Windows ou navegador não entregou uma faixa de som ao Roda.'}),el('ol',{},...screenAudioSteps().map(text=>el('li',{textContent:text}))),el('div',{className:'home-actions'},el('button',{textContent:'Continuar sem som',onclick:close}),retry));backdrop.append(card);document.body.append(backdrop)
 }
+async function waitForScreenAudio(participant,timeout=3500){const started=Date.now();do{const publication=screenAudioPublication(participant);if(publication?.track)return publication;await new Promise(resolve=>setTimeout(resolve,200))}while(Date.now()-started<timeout);return null}
 async function enableScreenShareWithAudio(participant,preset){
- toast('Escolha Tela inteira e marque Compartilhar áudio do sistema.');
- await participant.setScreenShareEnabled(true,screenShareCaptureOptions(preset),{screenShareEncoding:preset.encoding});
- await new Promise(resolve=>setTimeout(resolve,700));
- const audioPublication=screenAudioPublication(participant);
+ toast('Ative Compartilhar áudio antes de confirmar.');
+ const audioPreset=LivekitClient.AudioPresets?.musicHighQualityStereo||LivekitClient.AudioPresets?.musicStereo||LivekitClient.AudioPresets?.music;
+ await participant.setScreenShareEnabled(true,screenShareCaptureOptions(preset),{screenShareEncoding:preset.encoding,audioPreset,forceStereo:true,dtx:false});
+ const audioPublication=await waitForScreenAudio(participant);
  if(audioPublication?.track){note('Tela compartilhada com áudio.');toast('Tela e áudio compartilhados.');return true}
  note('Tela compartilhada sem áudio. Compartilhe novamente e marque o áudio do sistema.');showScreenAudioHelp(participant,preset);return false
 }
 async function toggleScreenShare(participant,preset){
  if(participant.isScreenShareEnabled){closeScreenAudioHelp();await participant.setScreenShareEnabled(false);note('Compartilhamento encerrado.');return}
  if(userSettings.voice.shareAudio===false){await participant.setScreenShareEnabled(true,screenShareCaptureOptions(preset),{screenShareEncoding:preset.encoding});return}
- await enableScreenShareWithAudio(participant,preset)
+ await confirmScreenShareWithAudio(participant,preset)
 }
 async function join(c){
  if(!c.private&&ch?.id!==c.id)return;if(voiceChannel?.id===c.id&&(joining||room))return;if(room||joining)await leaveVoice();
@@ -578,7 +590,7 @@ async function toggleTileFullscreen(tile){
  }catch{toast('Não foi possível abrir tela cheia neste navegador.');}
 }
 function syncFullscreenButtons(){
- document.querySelectorAll('.tile-fullscreen').forEach(b=>{const t=b.parentElement;const on=document.fullscreenElement===t||t.classList.contains('fullscreen-fallback');b.textContent=on?'⤢ Sair da tela cheia':'⛶ Tela cheia';b.setAttribute('aria-label',b.textContent+' — '+(t.dataset.label||'vídeo'))});
+ document.querySelectorAll('.tile-fullscreen').forEach(b=>{const t=b.parentElement;const on=document.fullscreenElement===t||t.classList.contains('fullscreen-fallback'),label=on?'Sair da tela cheia':'Abrir em tela cheia';b.textContent=on?'⤢':'⛶';b.title=label;b.setAttribute('aria-label',label+' — '+(t.dataset.label||'vídeo'))});
 }
 document.addEventListener('fullscreenchange',syncFullscreenButtons);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.fullscreen-fallback').forEach(t=>t.classList.remove('fullscreen-fallback'));syncFullscreenButtons()}});
@@ -645,7 +657,7 @@ function draw(){
     t.dataset.key=key;T.append(t);
    }
    const label=(p.name||'?')+(p.isLocal?' (você)':'')+(v?(v.source===L.Track.Source.ScreenShare?' · Tela':' · Câmera'):'');
-   t.dataset.label=label;t.classList.toggle('sp',!!p.isSpeaking);
+   t.dataset.label=label;t.classList.toggle('sp',!!p.isSpeaking);t.classList.toggle('screen-share-tile',v?.source===L.Track.Source.ScreenShare);
    if(t._videoTrack!==v?.track){
     if(t._videoTrack&&t._videoElement)t._videoTrack.detach(t._videoElement);
     t.querySelectorAll('video,.av').forEach(e=>e.remove());
@@ -654,15 +666,16 @@ function draw(){
    }
    if(!v&&!t.querySelector('.av')){const callProfile=identity===me?.id?prof:profileCache.get(identity)||mem.find(m=>m.user_id===identity)?.profiles,photo=avatarFor(callProfile?.username||p.name||'?',84);photo.classList.add('av');t.prepend(photo)}
    let nm=t.querySelector('.nm');if(!nm){nm=el('span',{className:'nm'});t.append(nm)}nm.textContent=label+(p.isMicrophoneEnabled?'':' 🔇');
-   if(v&&!t.querySelector('.tile-open-media'))t.append(el('button',{className:'tile-open-media',title:'Abrir mídia em uma tela separada',ariaLabel:'Abrir '+label+' em uma tela separada',onclick:e=>{e.stopPropagation();openMediaViewer(p,v,t)}},Icon(v.source===L.Track.Source.ScreenShare?'screen':'video',17),document.createTextNode('Abrir mídia')));
+   if(v&&!t.querySelector('.tile-open-media'))t.append(el('button',{className:'tile-open-media',title:'Abrir mídia em uma tela separada',ariaLabel:'Abrir '+label+' em uma tela separada',onclick:e=>{e.stopPropagation();openMediaViewer(p,v,t)}},Icon(v.source===L.Track.Source.ScreenShare?'screen':'video',17)));
    if(v&&!t.querySelector('.tile-fullscreen'))t.append(el('button',{className:'tile-fullscreen',onclick:e=>{e.stopPropagation();toggleTileFullscreen(t)}}));
    if(!p.isLocal&&!t.querySelector('.tile-volume-stack')){
-    const volumeStack=el('div',{className:'tile-volume-stack'});
+    const volumeStack=el('div',{className:'tile-volume-stack'}),volumePanel=el('div',{className:'tile-volume-panel'}),volumeToggle=el('button',{className:'tile-volume-toggle',title:'Ajustar volumes',ariaLabel:'Ajustar volumes de '+p.name,ariaExpanded:'false',onclick:event=>{event.stopPropagation();const open=volumeStack.classList.toggle('open');volumeToggle.setAttribute('aria-expanded',String(open))}},Icon('volume',17));
     for(const source of audioSourcesForVideo(v)){
      const volumeKey=audioVolumeKey(identity,source),value=getAudioVolume(identity,source),amount=el('output',{textContent:Math.round(value*100)+'%'}),slider=el('input',{type:'range',min:0,max:1,step:.05,value,title:audioVolumeName(source)+' de '+p.name+' (0 a 100%)',ariaLabel:audioVolumeName(source)+' de '+p.name+' de 0 a 100 por cento'});
      slider.dataset.volumeKey=volumeKey;amount.dataset.volumeKey=volumeKey;slider.oninput=()=>setAudioVolume(p,identity,source,slider.value);
-     volumeStack.append(el('label',{className:'tile-volume',title:audioVolumeName(source)+' de '+p.name},Icon('volume',15),el('span',{textContent:isScreenAudioSource(source)?'Tela':'Pessoa'}),slider,amount))
+     volumePanel.append(el('label',{className:'tile-volume',title:audioVolumeName(source)+' de '+p.name},Icon('volume',15),el('span',{textContent:isScreenAudioSource(source)?'Tela':'Pessoa'}),slider,amount))
     }
+    volumeStack.append(volumeToggle,volumePanel);
     t.append(volumeStack)
    }
   }
@@ -677,6 +690,7 @@ function draw(){
  }
  for(const t of [...T.children])if(!wanted.has(t.dataset.key)){if(t._videoTrack)t._videoTrack.detach(t._videoElement);const viewer=document.querySelector('#media-viewer');if(viewer&&viewer.dataset.mediaKey===t.dataset.key)viewer.close();t.remove()}
  for(const a of [...audio.children])if(!audioWanted.has(a.dataset.key)){a._track.detach(a);a.remove()}
+ T.classList.toggle('has-screen-share',!!T.querySelector('.screen-share-tile'));
  syncFullscreenButtons();
 }
 // Preferências sincronizadas da conta e preferências locais de dispositivos.
@@ -768,7 +782,7 @@ function openSettings(initialPage='account'){
    const infoCard=(icon,title,text,...items)=>el('section',{className:'settings-card security-card'},el('div',{className:'security-card-title'},el('span',{className:'security-icon',textContent:icon,ariaHidden:'true'}),el('h3',{textContent:title})),el('p',{textContent:text}),...(items.length?[el('ul',{className:'security-list'},...items.map(item=>el('li',{textContent:item})))]:[]));
    const report=el('button',{className:'settings-danger',textContent:'Denunciar um problema',onclick:async()=>{const values=await ask('Denunciar problema',[{label:'Descreva o problema',value:'',max:1000}],'Enviar denúncia');if(!values?.[0])return;const{error}=await sb.from('reports').insert({reporter_id:me.id,target_type:'server',target_id:srv?.id||me.id,reason:values[0]});toast(error?'Não foi possível enviar a denúncia.':'Denúncia registrada para análise.')}});
    body=el('div',{className:'security-info'},
-    el('div',{className:'settings-card app-about'},el('h3',{textContent:'Roda 1.4.6'}),el('p',{textContent:'O programa para Windows usa a mesma versão online do Roda e recebe correções automaticamente.'})),
+    el('div',{className:'settings-card app-about'},el('h3',{textContent:'Roda 1.4.7'}),el('p',{textContent:'O programa para Windows usa a mesma versão online do Roda e recebe correções automaticamente.'})),
     infoCard('🛡','Privacidade e LGPD','O Roda usa dados necessários para criar sua conta, manter conversas, servidores, amizades e chamadas funcionando. O tratamento deve seguir finalidade, necessidade, segurança e transparência.','Dados de cadastro e perfil','Mensagens, amizades e participação em servidores','Estado técnico de chamadas, dispositivos e conexão'),
     infoCard('🔐','Como os dados são protegidos','O acesso é controlado pela sua conta e pelas permissões dos servidores. Áudio e vídeo são transmitidos durante a chamada; mantenha sua senha em segredo e encerre sessões em aparelhos compartilhados.','Use uma senha exclusiva','Revise convites e permissões antes de entrar','Denuncie conteúdo ou comportamento inadequado'),
     infoCard('📄','Seus direitos','Pela LGPD, você pode solicitar confirmação do tratamento, acesso, correção e, quando aplicável, exclusão, portabilidade, informação sobre compartilhamento e revisão ou revogação de consentimento. Procure o responsável pelo Roda para exercer esses direitos.'),
@@ -1109,7 +1123,7 @@ function syncAppViewport(){
 syncAppViewport();addEventListener('resize',syncAppViewport,{passive:true});window.visualViewport?.addEventListener('resize',syncAppViewport,{passive:true});
 let installEvent=null;const installButton=$('#install-app'),installAuth=$('#install-auth'),windowsDownload=$('#windows-download');
 const androidDevice=/Android/i.test(navigator.userAgent),windowsDevice=/Windows/i.test(navigator.userAgent),installedApp=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-const downloadWindows=()=>location.assign('downloads/Roda-Setup-1.4.6.msi');
+const downloadWindows=()=>location.assign('downloads/Roda-Setup-1.4.7.msi');
 const versionAtLeast=(current,required)=>{const a=String(current).split('.').map(Number),b=String(required).split('.').map(Number);for(let i=0;i<Math.max(a.length,b.length);i++){if((a[i]||0)>(b[i]||0))return true;if((a[i]||0)<(b[i]||0))return false}return true};
 function offerNativeUpdate(){
  if(!nativeWindows||!nativeVersion||versionAtLeast(nativeVersion,'1.4.1')||document.querySelector('#native-update'))return;
